@@ -12,7 +12,8 @@ import {
   eggSVG,
   foodSVG,
   leafSVG,
-  sprite,
+  snailSVG,
+  starSVG,
   stickerSVG,
 } from './art';
 import { TWINKLE, sound } from './audio';
@@ -244,7 +245,7 @@ async function eatScene(host: JourneyHost): Promise<{ foods: FoodId[]; golden: b
 async function snailVisit(sc: Scene) {
   try {
     await sc.wait(rand(2500, 6000));
-    const snail = el('button', 'snail', sc.root, sprite('snail'));
+    const snail = el('button', 'snail', sc.root, snailSVG());
     snail.setAttribute('aria-label', 'snail');
     sc.on(snail, 'pointerdown', (e) => {
       e.preventDefault();
@@ -324,7 +325,7 @@ async function cocoonScene(host: JourneyHost, shape: Shape, foods: FoodId[], gol
   const spots = starSpots(TWINKLE.length);
   const shootAfter = Math.random() < 0.55 ? 3 : -1;
   for (let i = 0; i < TWINKLE.length; i++) {
-    const s = el('button', 'tap-star', sky, sprite('glowing-star'));
+    const s = el('button', 'tap-star', sky, starSVG());
     s.setAttribute('aria-label', 'star');
     s.style.left = `${spots[i].x}%`;
     s.style.top = `${spots[i].y}%`;

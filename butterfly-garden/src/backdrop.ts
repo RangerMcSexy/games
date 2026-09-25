@@ -1,5 +1,4 @@
 // The living sky behind every screen: day, night and dawn, with drifting clouds.
-import { sprite } from './art';
 import { sound } from './audio';
 import { el, rand } from './ui';
 
@@ -22,8 +21,8 @@ export function initBackdrop(parent: HTMLElement) {
     s.style.width = s.style.height = `${size}px`;
   }
 
-  el('div', 'sun', root, sprite('sun-with-face'));
-  el('div', 'moon', root, sprite('crescent-moon'));
+  el('div', 'sun', root, '<div class="sun-face"><i></i><i></i><b></b></div>');
+  el('div', 'moon', root);
   for (let i = 0; i < 4; i++) {
     const c = el('div', `cloud c${i}`, root);
     c.style.top = `${[8, 20, 13, 30][i]}%`;

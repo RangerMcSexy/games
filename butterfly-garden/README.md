@@ -81,14 +81,12 @@ full-screen like an app.
 ## Tech notes
 
 - Vite + TypeScript, no framework, no runtime dependencies.
-- Food, flowers, garden creatures, stars, sun and moon are
+- The scenes, characters and butterflies are SVG drawn in code (`src/art.ts`),
+  all in one hand-drawn style.
+- The food icons in the round buttons are
   [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (MIT
-  licence). `npm run sprites` extracts only the ones used into `src/sprites.ts`,
-  so the build stays a single offline file. To add a sprite, put its name in
-  `scripts/sprites.mjs`.
-- The butterflies, caterpillar, eggs, chrysalis and Dot are drawn in code
-  (`src/art.ts`) in a matching glossy style, because Mia's choices change how
-  they look.
+  licence). `npm run sprites` copies just those into `src/sprites.ts`, so the
+  build is still a single offline file.
 - All sound is generated with the Web Audio API (`src/audio.ts`), including
   the music-box lullaby.
 - Voice lines live in `src/voice.ts`. Recordings are kept in IndexedDB.

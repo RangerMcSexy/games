@@ -2,15 +2,24 @@
 import {
   ICONS,
   ICONS_EXTRA,
+  appleSVG,
+  beeSVG,
   balloonSVG,
+  birdSVG,
+  birdbathSVG,
+  bunnySVG,
   bushSVG,
   butterflySVG,
   caterpillarSVG,
   eggSVG,
+  fairyhouseSVG,
+  flowerSVG,
+  frogSVG,
+  mushroomSVG,
   pondSVG,
   rainbowSVG,
-  sprite,
   stickerSVG,
+  treeSVG,
 } from './art';
 import { sound } from './audio';
 import { setTime } from './backdrop';
@@ -37,7 +46,6 @@ import {
 } from './data';
 import { Flock } from './flock';
 import { guide } from './guide';
-import type { SpriteName } from './sprites';
 import { Scene, burst, burstAt, center, el, rand, replay } from './ui';
 import { say, sayText } from './voice';
 
@@ -124,14 +132,7 @@ export async function titleScreen(host: Host): Promise<'play' | 'garden'> {
 
 let gardenNight = false;
 
-const FLOWERS: { name: SpriteName; color: string }[] = [
-  { name: 'tulip', color: '#ff7fb8' },
-  { name: 'blossom', color: '#ffffff' },
-  { name: 'sunflower', color: '#ffd23f' },
-  { name: 'hibiscus', color: '#ff6fb0' },
-  { name: 'rose', color: '#ff5d73' },
-  { name: 'cherry-blossom', color: '#ffa3c2' },
-];
+const FLOWER_COLORS = ['#ffa3d2', '#ff8595', '#ffffff', '#bb97f2', '#ffae5c', '#7cb9f7', '#ffdb6e'];
 
 export async function gardenScreen(host: Host): Promise<'play' | 'home'> {
   setTime(gardenNight ? 'night' : 'day');
@@ -199,13 +200,13 @@ export async function gardenScreen(host: Host): Promise<'play' | 'home'> {
 
   const flowers: HTMLElement[] = [];
   for (let i = 0; i < nFlowers; i++) {
-    const { name, color } = FLOWERS[i % FLOWERS.length];
-    const f = el('button', 'garden-flower', bed, sprite(name));
+    const color = FLOWER_COLORS[i % FLOWER_COLORS.length];
+    const f = el('button', 'garden-flower', bed, flowerSVG(color, i % 2 ? '#ffdb6e' : '#ffae5c'));
     f.setAttribute('aria-label', 'flower');
     f.style.setProperty('--h', `${rand(0.85, 1.15)}`);
     f.style.animationDelay = `${rand(-3, 0)}s`;
     flowers.push(f);
-    sc.on(f, 'pointerdown', (e) => startFlowerDrag(sc, e as PointerEvent, f, name, color, i, flock));
+    sc.on(f, 'pointerdown', (e) => startFlowerDrag(sc, e as PointerEvent, f, color, i, flock));
   }
 
   // Controls along the top.
@@ -281,7 +282,7 @@ async function introGarden(sc: Scene, fresh: Set<UnlockId>, itemEls: Map<UnlockI
 
 let fedEver = false;
 
-function startFlowerDrag(sc: Scene, e: PointerEvent, f: HTMLElement, name: SpriteName, color: string, i: number, flock: Flock) {
+function startFlowerDrag(sc: Scene, e: PointerEvent, f: HTMLElement, color: string, i: number, flock: Flock) {
   e.preventDefault();
   const sx = e.clientX;
   const sy = e.clientY;
@@ -291,7 +292,7 @@ function startFlowerDrag(sc: Scene, e: PointerEvent, f: HTMLElement, name: Sprit
   const move = (ev: PointerEvent) => {
     if (ev.pointerId !== pid) return;
     if (!drag && Math.hypot(ev.clientX - sx, ev.clientY - sy) > 14) {
-      drag = el('div', 'drag-bloom', sc.root, sprite(name));
+      drag = el('div', 'drag-bloom', sc.root, flowerSVG(color));
       f.classList.add('picked');
       sound.pop(0.8);
       fedEver = true;
@@ -317,7 +318,7 @@ function startFlowerDrag(sc: Scene, e: PointerEvent, f: HTMLElement, name: Sprit
       // A plain tap: the flowers are a little xylophone.
       sound.bloop(i);
       replay(f, 'boing');
-      burstAt(f, { kind: 'sparkle', count: 5, spread: 0.5, colors: [color, '#fff6a8'] });
+      burstAt(f.querySelector('.bloom') ?? f, { kind: 'sparkle', count: 5, spread: 0.5, colors: [color, '#fff6a8'] });
     }
   };
   addEventListener('pointermove', move);
@@ -339,7 +340,7 @@ function buildItem(sc: Scene, id: UnlockId, parent: HTMLElement): HTMLElement {
     });
   switch (id) {
     case 'mushroom': {
-      const m = el('button', 'gi-art', wrap, sprite('mushroom'));
+      const m = el('button', 'gi-art', wrap, mushroomSVG());
       tap(m, () => {
         sound.boing();
         replay(m, 'squish');
@@ -349,7 +350,7 @@ function buildItem(sc: Scene, id: UnlockId, parent: HTMLElement): HTMLElement {
     }
     case 'pond': {
       const p = el('button', 'gi-art', wrap, pondSVG());
-      const frog = el('button', 'frog', wrap, sprite('frog'));
+      const frog = el('button', 'frog', wrap, frogSVG());
       const hop = () => {
         sound.ribbit();
         replay(frog, 'frog-hop');
@@ -369,7 +370,7 @@ function buildItem(sc: Scene, id: UnlockId, parent: HTMLElement): HTMLElement {
       break;
     }
     case 'bunny': {
-      const bunny = el('button', 'bunny', wrap, sprite('rabbit'));
+      const bunny = el('button', 'bunny', wrap, bunnySVG());
       const bush = el('button', 'gi-art bush', wrap, bushSVG());
       const pop = () => {
         sound.hop();
@@ -380,24 +381,25 @@ function buildItem(sc: Scene, id: UnlockId, parent: HTMLElement): HTMLElement {
       break;
     }
     case 'tree': {
-      const t = el('button', 'gi-art', wrap, sprite('deciduous-tree'));
+      const t = el('button', 'gi-art', wrap, treeSVG());
       tap(t, () => {
         sound.swoosh();
-        replay(t, 'shake-tree');
-        // A couple of apples tumble down.
+        sound.giggle();
+        replay(t, 'swinging');
+        // A couple of apples tumble out of the tree.
         for (let k = 0; k < 2; k++) {
-          const a = el('div', 'apple', wrap, sprite('red-apple'));
-          a.style.left = `${rand(20, 60)}%`;
+          const a = el('div', 'apple', wrap, appleSVG());
+          a.style.left = `${rand(10, 45)}%`;
           a.style.animationDelay = `${k * 0.15}s`;
-          setTimeout(() => a.remove(), 2200);
+          setTimeout(() => a.remove(), 2400);
         }
-        setTimeout(() => sound.boing(), 600);
+        setTimeout(() => sound.boing(), 700);
       });
       break;
     }
     case 'birdbath': {
-      const b = el('button', 'gi-art', wrap, sprite('fountain'));
-      const bird = el('button', 'bird', wrap, sprite('bird'));
+      const b = el('button', 'gi-art', wrap, birdbathSVG());
+      const bird = el('button', 'bird', wrap, birdSVG());
       const tweet = () => {
         sound.tweet();
         replay(bird, 'bird-hop');
@@ -417,8 +419,7 @@ function buildItem(sc: Scene, id: UnlockId, parent: HTMLElement): HTMLElement {
       break;
     }
     case 'fairyhouse': {
-      const h = el('button', 'gi-art', wrap, sprite('house-with-garden'));
-      el('div', 'house-glow', wrap);
+      const h = el('button', 'gi-art', wrap, fairyhouseSVG());
       tap(h, () => {
         sound.chime();
         replay(h, 'twinkle');
@@ -432,7 +433,7 @@ function buildItem(sc: Scene, id: UnlockId, parent: HTMLElement): HTMLElement {
 
 /** A bumblebee that buzzes around the garden on sunny days. */
 function addBee(sc: Scene) {
-  const bee = el('button', 'bee', sc.root, sprite('honeybee'));
+  const bee = el('button', 'bee', sc.root, `<div class="bee-body">${beeSVG()}</div>`);
   bee.setAttribute('aria-label', 'bee');
   sc.on(bee, 'pointerdown', (e) => {
     e.preventDefault();
