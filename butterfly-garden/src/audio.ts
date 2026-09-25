@@ -271,6 +271,28 @@ class Sound {
   swoosh() {
     this.noise(0.8, { freq: 1800, q: 0.8, vol: 0.18, sweep: -1400, attack: 0.2 });
   }
+  buzz() {
+    const ctx = this.context;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const lfo = ctx.createOscillator();
+    const lg = ctx.createGain();
+    const g = ctx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.value = 180;
+    lfo.frequency.value = 26;
+    lg.gain.value = 30;
+    lfo.connect(lg).connect(o.frequency);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.06, t + 0.08);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+    o.connect(g).connect(this.sfx);
+    o.start(t);
+    lfo.start(t);
+    o.stop(t + 1);
+    lfo.stop(t + 1);
+  }
   hop() {
     this.tone(300, 0.15, { vol: 0.25, slide: 400 });
   }

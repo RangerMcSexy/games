@@ -2690,3 +2690,268 @@ svg.butterfly.flapping .flap-r {
     height: 44vh;
   }
 }
+
+/* ======================================================================== */
+/* Sprites (Microsoft Fluent Emoji) and the glossy restyle                   */
+
+.sprite {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+.food {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.food-btn .food {
+  width: 74%;
+  height: 74%;
+  filter: drop-shadow(0 0.6vmin 0.5vmin rgba(90, 66, 114, 0.22));
+}
+.golden-leaf .sprite {
+  filter: sepia(1) saturate(4.5) hue-rotate(-8deg) brightness(1.18) drop-shadow(0 0 1.2vmin rgba(255, 210, 60, 0.9));
+}
+.food-glints {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Sky sprites */
+.sun {
+  background: none;
+  box-shadow: none;
+  width: 19vmin;
+  height: 19vmin;
+  filter: drop-shadow(0 0 3vmin rgba(255, 214, 90, 0.75));
+}
+.moon {
+  box-shadow: none;
+  width: 15vmin;
+  height: 15vmin;
+  filter: drop-shadow(0 0 3vmin rgba(255, 238, 170, 0.7));
+}
+
+.tap-star .sprite {
+  filter: drop-shadow(0 0.4vmin 0.3vmin rgba(40, 20, 60, 0.3));
+}
+
+.snail .sprite {
+  width: 100%;
+  height: auto;
+  transform: scaleX(-1);
+}
+
+/* Garden with sprites */
+.garden-flower {
+  width: calc(var(--h, 1) * clamp(58px, 11.5vmin, 116px));
+}
+.garden-flower .sprite {
+  height: auto;
+  filter: drop-shadow(0 0.5vmin 0.4vmin rgba(90, 66, 114, 0.2));
+}
+.flower-bed {
+  bottom: calc(var(--safe-bottom) - 1.5vmin);
+}
+.drag-bloom .sprite {
+  height: auto;
+  animation: sway 1.2s ease-in-out infinite;
+  transform-origin: 50% 80%;
+}
+.gi .sprite {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0.6vmin 0.5vmin rgba(90, 66, 114, 0.22));
+}
+.gi-mushroom {
+  width: 14vmin;
+}
+.gi-birdbath {
+  width: 14vmin;
+}
+.gi-birdbath .bird {
+  left: 26%;
+  top: -52%;
+  width: 52%;
+}
+.gi-fairyhouse {
+  width: 18vmin;
+}
+.gi-pond .frog {
+  left: 56%;
+  top: -52%;
+  width: 36%;
+}
+.gi-bunny .bunny {
+  left: 26%;
+  top: -48%;
+  width: 46%;
+}
+.gi-tree {
+  width: 32vmin;
+}
+.gi-tree .gi-art.shake-tree {
+  animation: shakeTree 0.7s ease-in-out;
+  transform-origin: 50% 100%;
+}
+.apple {
+  position: absolute;
+  top: 30%;
+  width: 22%;
+  animation: appleDrop 2.2s cubic-bezier(0.5, 0, 0.7, 0.4) both;
+  pointer-events: none;
+}
+.house-glow {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 26%;
+  height: 22%;
+  border-radius: 40%;
+  background: radial-gradient(circle, rgba(255, 236, 140, 0.95), rgba(255, 220, 110, 0) 70%);
+  opacity: 0;
+  transition: opacity 1.5s;
+  pointer-events: none;
+}
+.garden-scene.night .house-glow {
+  opacity: 1;
+}
+@media (orientation: portrait) {
+  .gi-fairyhouse {
+    width: 24vmin;
+  }
+  .gi-birdbath {
+    width: 19vmin;
+  }
+  .gi-mushroom {
+    width: 19vmin;
+  }
+}
+
+.bee {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: clamp(44px, 8vmin, 80px);
+  z-index: 4;
+  animation: beeFly 22s ease-in-out infinite;
+  transition: opacity 1s;
+}
+.bee .sprite {
+  height: auto;
+  animation: beeBob 0.35s ease-in-out infinite alternate;
+}
+.bee.bee-loop .sprite {
+  animation: spin 0.8s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.garden-scene.night .bee {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes shakeTree {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-4deg);
+  }
+  40% {
+    transform: rotate(4deg);
+  }
+  60% {
+    transform: rotate(-3deg);
+  }
+  80% {
+    transform: rotate(2deg);
+  }
+}
+@keyframes appleDrop {
+  0% {
+    transform: translateY(0) scale(0.2);
+    opacity: 0;
+  }
+  15% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  55% {
+    transform: translateY(18vmin) rotate(40deg);
+  }
+  68% {
+    transform: translateY(14vmin) rotate(60deg);
+  }
+  80% {
+    transform: translateY(18vmin) rotate(80deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(18vmin) rotate(80deg);
+    opacity: 0;
+  }
+}
+@keyframes beeFly {
+  0% {
+    transform: translate(10vw, 30vh) scaleX(-1);
+  }
+  24% {
+    transform: translate(45vw, 18vh) scaleX(-1);
+  }
+  25% {
+    transform: translate(45vw, 18vh) scaleX(1);
+  }
+  49% {
+    transform: translate(80vw, 40vh) scaleX(1);
+  }
+  50% {
+    transform: translate(80vw, 40vh) scaleX(1);
+  }
+  74% {
+    transform: translate(40vw, 52vh) scaleX(1);
+  }
+  75% {
+    transform: translate(40vw, 52vh) scaleX(-1);
+  }
+  100% {
+    transform: translate(10vw, 30vh) scaleX(-1);
+  }
+}
+@keyframes beeBob {
+  from {
+    transform: translateY(-4px) rotate(-4deg);
+  }
+  to {
+    transform: translateY(4px) rotate(4deg);
+  }
+}
+
+/* Sprite proportions */
+.gi-pond .frog {
+  left: 58%;
+  top: -18%;
+  width: 22%;
+}
+.gi-birdbath .bird {
+  left: 30%;
+  top: -34%;
+  width: 42%;
+}
+.sun {
+  width: 16vmin;
+  height: 16vmin;
+}
+@media (max-width: 600px) {
+  .meal-meter {
+    top: calc(var(--safe-top) + clamp(48px, 9vmin, 70px) + 10px);
+  }
+}
