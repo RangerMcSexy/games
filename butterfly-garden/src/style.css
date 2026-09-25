@@ -1,0 +1,1722 @@
+/* Butterfly Garden: soft, chunky, toddler-friendly styling. */
+
+:root {
+  --ink: #4a2d5c;
+  --cream: #fffaf0;
+  --safe-top: max(12px, env(safe-area-inset-top));
+  --safe-bottom: max(10px, env(safe-area-inset-bottom));
+  font-family: 'Baloo 2', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  background: #8fd3ff;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+button {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+  outline: 4px solid #fff;
+  outline-offset: 4px;
+}
+
+svg {
+  display: block;
+  overflow: visible;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.scene.in {
+  opacity: 1;
+}
+.scene.out {
+  opacity: 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Backdrop */
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.sky {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1.8s ease;
+}
+.sky-day {
+  background: linear-gradient(#72c2ff, #b4e2ff 55%, #e6f7ff);
+}
+.sky-dawn {
+  background: linear-gradient(#ff9fbd, #ffc9a3 50%, #fff0c4);
+  opacity: 0;
+}
+.sky-night {
+  background: linear-gradient(#141a45, #2f2865 55%, #4d3f84);
+  opacity: 0;
+}
+.backdrop[data-time='dawn'] .sky-dawn,
+.backdrop[data-time='night'] .sky-night {
+  opacity: 1;
+}
+
+.twinkles {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 2s;
+}
+.backdrop[data-time='night'] .twinkles {
+  opacity: 1;
+}
+.twinkle {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  animation: twinkle 2.6s ease-in-out infinite;
+}
+
+.sun {
+  position: absolute;
+  right: 16%;
+  top: 11%;
+  width: 17vmin;
+  height: 17vmin;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 38%, #fff7c0, #ffd84a 55%, #ffb400);
+  box-shadow:
+    0 0 0 2.2vmin rgba(255, 226, 110, 0.35),
+    0 0 0 4.6vmin rgba(255, 226, 110, 0.16);
+  transition:
+    transform 1.8s cubic-bezier(0.5, 0, 0.3, 1),
+    opacity 1.8s;
+}
+.sun-face i {
+  position: absolute;
+  top: 40%;
+  width: 9%;
+  height: 12%;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.sun-face i:first-child {
+  left: 32%;
+}
+.sun-face i:nth-child(2) {
+  right: 32%;
+}
+.sun-face b {
+  position: absolute;
+  left: 36%;
+  width: 28%;
+  top: 56%;
+  height: 14%;
+  border: 0.8vmin solid var(--ink);
+  border-top: 0;
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+}
+.backdrop[data-time='night'] .sun {
+  transform: translateY(90vh);
+  opacity: 0;
+}
+.backdrop[data-time='dawn'] .sun {
+  transform: translateY(28vh);
+}
+
+.moon {
+  position: absolute;
+  left: 12%;
+  top: 12%;
+  width: 14vmin;
+  height: 14vmin;
+  border-radius: 50%;
+  box-shadow: inset -3.6vmin 1.4vmin 0 0 #fff2b0;
+  filter: drop-shadow(0 0 3vmin rgba(255, 242, 176, 0.6));
+  opacity: 0;
+  transform: translateY(-40vh);
+  transition:
+    transform 1.8s cubic-bezier(0.5, 0, 0.3, 1),
+    opacity 1.8s;
+}
+.backdrop[data-time='night'] .moon {
+  opacity: 1;
+  transform: none;
+}
+
+.cloud {
+  position: absolute;
+  left: -40vmin;
+  width: 26vmin;
+  height: 8vmin;
+  border-radius: 8vmin;
+  background: #fff;
+  opacity: 0.92;
+  animation: drift linear infinite;
+  transition: opacity 1.8s;
+}
+.cloud::before,
+.cloud::after {
+  content: '';
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+}
+.cloud::before {
+  width: 11vmin;
+  height: 11vmin;
+  left: 4vmin;
+  top: -5vmin;
+}
+.cloud::after {
+  width: 8vmin;
+  height: 8vmin;
+  left: 13vmin;
+  top: -3.5vmin;
+}
+.backdrop[data-time='night'] .cloud {
+  opacity: 0.12;
+}
+
+.hills {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34vh;
+  transition: filter 1.8s;
+}
+.hills svg {
+  width: 100%;
+  height: 100%;
+}
+.hill-back {
+  fill: #a7e57f;
+}
+.hill-front {
+  fill: #72cf6a;
+}
+.backdrop[data-time='night'] .hills {
+  filter: brightness(0.42) saturate(0.7) hue-rotate(20deg);
+}
+.backdrop[data-time='dawn'] .hills {
+  filter: brightness(0.9) saturate(1.1) sepia(0.15);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Top bar & buttons */
+
+.top-bar {
+  position: absolute;
+  top: var(--safe-top);
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  display: flex;
+  gap: 10px;
+  z-index: 50;
+  pointer-events: none;
+}
+.top-bar .spacer {
+  flex: 1;
+}
+.top-bar button {
+  pointer-events: auto;
+}
+
+.round-btn {
+  display: grid;
+  place-items: center;
+  width: clamp(48px, 9vmin, 70px);
+  height: clamp(48px, 9vmin, 70px);
+  border-radius: 50%;
+  background: #b18be0;
+  color: #b18be0;
+  box-shadow:
+    0 5px 0 rgba(74, 45, 92, 0.25),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.12s,
+    opacity 0.3s,
+    visibility 0.3s;
+}
+.round-btn svg {
+  width: 58%;
+  height: 58%;
+}
+.round-btn:active {
+  transform: translateY(3px) scale(0.95);
+}
+.round-btn.off {
+  background: #a99bb8;
+}
+.home-btn {
+  background: #ff9f1c;
+  color: #ff9f1c;
+}
+.round-btn.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.big-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(84px, 18vmin, 150px);
+  height: clamp(84px, 18vmin, 150px);
+  border-radius: 50%;
+  --c: #5ccf5c;
+  --d: #37a13d;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.45), transparent 45%), var(--c);
+  color: var(--c);
+  border: 5px solid #fff;
+  box-shadow:
+    0 1vmin 0 var(--d),
+    0 1.6vmin 2.4vmin rgba(74, 45, 92, 0.25);
+  transition: transform 0.12s;
+}
+.big-btn svg {
+  width: 56%;
+  height: 56%;
+}
+.big-btn:active {
+  transform: translateY(0.8vmin) scale(0.96);
+}
+.big-btn.green {
+  --c: #5ccf5c;
+  --d: #37a13d;
+}
+.big-btn.orange {
+  --c: #ffa53a;
+  --d: #d97c00;
+}
+.big-btn.purple {
+  --c: #b07cf2;
+  --d: #7f4cc4;
+}
+.big-btn.blue {
+  --c: #4ea8ff;
+  --d: #2a78cf;
+}
+.big-btn.nudge {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.count-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 2em;
+  height: 2em;
+  padding: 0 0.4em;
+  display: grid;
+  place-items: center;
+  border-radius: 1em;
+  background: #ff5d73;
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(16px, 2.8vmin, 24px);
+  line-height: 1;
+  border: 3px solid #fff;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Title */
+
+.logo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--safe-top) + 8vmin);
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.35em;
+  font-size: clamp(44px, 12vmin, 128px);
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 2;
+}
+.logo-word {
+  white-space: nowrap;
+}
+.logo-letter {
+  display: inline-block;
+  -webkit-text-stroke: 0.14em #fff;
+  paint-order: stroke fill;
+  text-shadow: 0 0.09em 0 rgba(74, 45, 92, 0.22);
+  animation: letterBounce 2.4s ease-in-out infinite;
+}
+
+.title-buttons {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--safe-bottom) + 15vh);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6vmin;
+  z-index: 3;
+}
+.play-btn {
+  width: clamp(110px, 25vmin, 200px);
+  height: clamp(110px, 25vmin, 200px);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.play-btn svg {
+  margin-left: 8%;
+}
+
+.title-cat {
+  position: absolute;
+  left: 4%;
+  bottom: calc(var(--safe-bottom) + 2vh);
+  z-index: 2;
+  animation: crawl 9s ease-in-out infinite;
+}
+.title-cat .caterpillar {
+  --cu: 0.2vmin;
+}
+.title-cat.hop .caterpillar {
+  animation: hop 0.6s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.fly-zone {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.flyer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: auto;
+  will-change: transform;
+  cursor: pointer;
+}
+.flyer-inner,
+.flyer-inner svg {
+  width: 100%;
+  height: 100%;
+}
+.flyer-inner.spin,
+.bg-cell.spin svg,
+.reveal-fly.spin svg {
+  animation: spin 0.8s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Butterfly & caterpillar art */
+
+svg.butterfly {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0.8vmin 0.8vmin rgba(74, 45, 92, 0.18));
+}
+svg.butterfly .flap-l,
+svg.butterfly .flap-r {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+svg.butterfly.flapping .flap-l,
+svg.butterfly.flapping .flap-r {
+  animation: flap var(--flap, 0.34s) ease-in-out infinite alternate;
+}
+.glint {
+  animation: glint 1.6s ease-in-out infinite;
+}
+
+.caterpillar {
+  width: calc(var(--units) * var(--cu, 0.3vmin));
+  height: auto;
+  filter: drop-shadow(0 0.6vmin 0.4vmin rgba(74, 45, 92, 0.2));
+}
+.caterpillar .seg {
+  animation: bob 1s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.13s);
+}
+.caterpillar .seg.pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: segPop 0.55s cubic-bezier(0.3, 1.8, 0.5, 1) both;
+}
+.caterpillar.grow .cat-head {
+  animation: headSlide 0.45s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.caterpillar .cat-head {
+  animation: headBob 2s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Egg scene */
+
+.big-leaf {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  bottom: 7vh;
+  width: min(96vw, 150vmin);
+  height: min(34vh, 40vmin);
+}
+.big-leaf svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1vmin 0 rgba(74, 45, 92, 0.15));
+}
+.egg-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(7vh + min(34vh, 40vmin) * 0.42);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 3vmin;
+}
+.egg-btn {
+  width: clamp(76px, 22vmin, 210px);
+  animation: eggIdle 2.6s ease-in-out infinite;
+  animation-delay: var(--d);
+  transform-origin: 50% 90%;
+  transition:
+    transform 0.35s,
+    opacity 0.35s;
+}
+.egg-btn svg {
+  width: 100%;
+  height: auto;
+}
+.egg-btn.gone {
+  opacity: 0;
+  transform: scale(0.2);
+  pointer-events: none;
+}
+.egg-row.solo {
+  bottom: calc(7vh + min(34vh, 40vmin) * 0.36);
+}
+.egg-btn.chosen {
+  width: clamp(130px, 36vmin, 340px);
+  animation-duration: 3.4s;
+}
+.egg-btn.wobble {
+  animation: wobble 0.45s ease-in-out;
+}
+.egg-btn.hatched {
+  animation: hatch 0.5s ease-in forwards;
+  pointer-events: none;
+}
+.baby-cat {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(7vh + min(34vh, 40vmin) * 0.4);
+  display: flex;
+  justify-content: center;
+  animation: popIn 0.7s cubic-bezier(0.3, 1.7, 0.5, 1) both;
+}
+.baby-cat .caterpillar {
+  --cu: 0.5vmin;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Eat scene */
+
+.meal-meter {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--safe-top) + 1vmin);
+  display: flex;
+  justify-content: center;
+  gap: 1.6vmin;
+  pointer-events: none;
+}
+.pip {
+  width: clamp(26px, 6vmin, 48px);
+  height: clamp(26px, 6vmin, 48px);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  border: 4px solid #fff;
+  box-shadow: inset 0 3px 0 rgba(74, 45, 92, 0.12);
+}
+.pip.fill {
+  animation: pipFill 0.5s cubic-bezier(0.3, 1.8, 0.5, 1);
+  box-shadow: 0 3px 0 rgba(74, 45, 92, 0.2);
+}
+
+.cat-branch {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  top: 40%;
+  width: min(96vw, 110vmin);
+  height: 16vmin;
+}
+.cat-branch svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1vmin 0 rgba(74, 45, 92, 0.15));
+}
+.cat-box {
+  position: absolute;
+  left: calc(50% - 34vmin);
+  bottom: calc(60% - 8.5vmin);
+  transform-origin: 30% 100%;
+}
+.cat-box.munch {
+  animation: munch 0.4s ease-in-out;
+}
+.cat-box.full {
+  animation: hop 0.7s cubic-bezier(0.3, 1.6, 0.5, 1) 2;
+}
+
+.food-tray {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--safe-bottom) + 5vh);
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 3vmin;
+  padding: 0 3vmin;
+  transition:
+    transform 0.5s,
+    opacity 0.5s;
+}
+.food-tray.busy {
+  pointer-events: none;
+}
+.food-tray.leaving {
+  transform: translateY(40vh);
+  opacity: 0;
+}
+.food-btn {
+  width: clamp(78px, 18vmin, 170px);
+  height: clamp(78px, 18vmin, 170px);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #fff4fb 70%, #ffe6f3);
+  border: 4px solid #fff;
+  box-shadow:
+    0 0.9vmin 0 rgba(74, 45, 92, 0.18),
+    0 1.6vmin 2.6vmin rgba(74, 45, 92, 0.15);
+  animation: floaty 3s ease-in-out infinite;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+.food-btn:nth-child(2) {
+  animation-delay: -0.8s;
+}
+.food-btn:nth-child(3) {
+  animation-delay: -1.6s;
+}
+.food-btn:nth-child(4) {
+  animation-delay: -2.2s;
+}
+.food-btn svg {
+  width: 76%;
+  height: 76%;
+}
+.food-btn.pop-in {
+  animation:
+    popIn 0.5s cubic-bezier(0.3, 1.7, 0.5, 1) both,
+    floaty 3s ease-in-out 0.5s infinite;
+}
+.food-btn.empty {
+  opacity: 0;
+  transform: scale(0.5);
+}
+.food-btn.is-golden {
+  background: radial-gradient(circle at 35% 30%, #fffbe0, #ffe98a 60%, #ffd23f);
+  box-shadow:
+    0 0 0 1vmin rgba(255, 215, 64, 0.35),
+    0 0 4vmin rgba(255, 215, 64, 0.9),
+    0 0.9vmin 0 rgba(170, 120, 0, 0.3);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Cocoon scene */
+
+.branch {
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  top: calc(var(--safe-top) + 11vmin);
+  height: 6vmin;
+  z-index: 2;
+}
+.branch svg {
+  width: 100%;
+  height: 100%;
+}
+.hang {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  top: calc(var(--safe-top) + 13vmin);
+  width: 30vmin;
+  height: 48vmin;
+  transform-origin: 50% 0;
+  cursor: pointer;
+  transition:
+    opacity 0.4s,
+    transform 0.4s;
+}
+.hang.wiggle,
+.chrys.wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+.hang.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+.hang-cat {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform-origin: 0 0;
+  transform: rotate(90deg) translateY(-71%);
+  transition:
+    opacity 0.5s,
+    scale 0.5s;
+}
+.hang-cat .caterpillar {
+  --cu: 0.2vmin;
+}
+.hang-cat.gone {
+  opacity: 0;
+  scale: 0.6;
+}
+.silk {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  top: 1vmin;
+  width: 15vmin;
+  height: 44vmin;
+  border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+  background: repeating-linear-gradient(-30deg, rgba(255, 255, 255, 0.95) 0 1.1vmin, rgba(255, 255, 255, 0.35) 1.1vmin 2.6vmin);
+  opacity: 0;
+  transform: scaleY(0.2);
+  transform-origin: 50% 0;
+  transition:
+    opacity 0.4s,
+    transform 0.5s cubic-bezier(0.3, 1.4, 0.5, 1);
+  pointer-events: none;
+}
+.silk[data-level='1'] {
+  opacity: 0.45;
+  transform: scaleY(0.45);
+}
+.silk[data-level='2'] {
+  opacity: 0.7;
+  transform: scaleY(0.75);
+}
+.silk[data-level='3'] {
+  opacity: 0.95;
+  transform: scaleY(1);
+}
+.silk.gone {
+  opacity: 0;
+}
+.chrys {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  top: -2vmin;
+  width: 26vmin;
+  transform-origin: 50% 0;
+  cursor: pointer;
+}
+.chrys svg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 1vmin 1vmin rgba(74, 45, 92, 0.2));
+}
+.chrys.pop-in {
+  animation: popIn 0.7s cubic-bezier(0.3, 1.7, 0.5, 1) both;
+}
+.chrys.sway {
+  animation: sway 3.2s ease-in-out infinite;
+}
+.chrys.jiggle {
+  animation: jiggle 1.6s ease-in-out infinite;
+}
+.chrys.jiggle.wiggle {
+  animation: wiggle 0.4s ease-in-out;
+}
+.chrys.burst {
+  animation: burstOut 0.45s ease-in forwards;
+  pointer-events: none;
+}
+.chrys-pattern {
+  animation: fadeIn 0.6s ease both;
+}
+
+.zzz {
+  position: absolute;
+  left: 70%;
+  top: 20%;
+  font-size: 7vmin;
+  font-weight: 800;
+  color: #fff;
+  pointer-events: none;
+}
+.zzz span {
+  position: absolute;
+  animation: zzz 2.4s ease-out infinite;
+  opacity: 0;
+}
+.zzz span:nth-child(2) {
+  animation-delay: 0.7s;
+}
+.zzz span:nth-child(3) {
+  animation-delay: 1.4s;
+}
+
+.sticker-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--safe-bottom) + 6vh);
+  display: flex;
+  justify-content: center;
+  gap: 3.5vmin;
+  z-index: 3;
+}
+.sticker-btn {
+  width: clamp(80px, 17vmin, 160px);
+  height: clamp(80px, 17vmin, 160px);
+  animation:
+    popIn 0.5s cubic-bezier(0.3, 1.7, 0.5, 1) var(--d) both,
+    floaty 3s ease-in-out calc(var(--d) + 0.5s) infinite;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
+}
+.sticker-btn svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0.9vmin 0 rgba(74, 45, 92, 0.2));
+}
+.sticker-btn.gone {
+  opacity: 0;
+  transform: scale(0.3);
+  pointer-events: none;
+}
+
+.star-field {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  transition: opacity 1.2s;
+}
+.star-field.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+.tap-star {
+  --sz: clamp(74px, 14vmin, 130px);
+  position: absolute;
+  width: var(--sz);
+  height: var(--sz);
+  margin: calc(var(--sz) / -2) 0 0 calc(var(--sz) / -2);
+  animation:
+    starIn 0.6s cubic-bezier(0.3, 1.7, 0.5, 1) both,
+    pulse 1.3s ease-in-out 0.6s infinite;
+  filter: drop-shadow(0 0 2vmin rgba(255, 230, 109, 0.8));
+}
+.tap-star svg {
+  width: 100%;
+  height: 100%;
+}
+.tap-star.lit {
+  animation: starLit 0.8s cubic-bezier(0.3, 1.6, 0.5, 1) forwards;
+  pointer-events: none;
+}
+
+/* Reveal */
+
+.reveal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vmin;
+  padding-top: calc(var(--safe-top) + 4vmin);
+  z-index: 5;
+}
+.reveal-fly {
+  position: relative;
+  width: min(44vmin, 80vw);
+  height: min(44vmin, 80vw);
+  transform: scale(0.15) translateY(-40%);
+  opacity: 0;
+  transition:
+    transform 1s cubic-bezier(0.3, 1.5, 0.5, 1),
+    opacity 0.3s;
+  cursor: pointer;
+}
+.reveal.open .reveal-fly {
+  transform: none;
+  opacity: 1;
+}
+.reveal-fly svg {
+  animation: floaty 3s ease-in-out infinite;
+}
+.reveal-fly.fly-away {
+  transition: transform 0.8s cubic-bezier(0.6, 0, 0.8, 0.4);
+  transform: translate(30vw, -80vh) scale(0.3) rotate(20deg) !important;
+}
+.new-badge {
+  position: absolute;
+  top: calc(var(--safe-top) + 10vmin);
+  left: calc(50% + 14vmin);
+  padding: 0.4vmin 2.6vmin;
+  border-radius: 3vmin;
+  background: #ff5d73;
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(22px, 5vmin, 44px);
+  border: 4px solid #fff;
+  box-shadow: 0 0.8vmin 0 rgba(74, 45, 92, 0.25);
+  transform: rotate(12deg);
+  animation: badgeIn 0.7s cubic-bezier(0.3, 1.8, 0.5, 1) 0.8s both;
+}
+.recipe {
+  display: flex;
+  align-items: center;
+  gap: 1.4vmin;
+  padding: 1.2vmin 2.6vmin;
+  border-radius: 6vmin;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0.8vmin 0 rgba(74, 45, 92, 0.12);
+  animation: popIn 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) 1.2s both;
+  max-width: 96vw;
+}
+.recipe-item {
+  width: clamp(36px, 8vmin, 70px);
+  height: clamp(36px, 8vmin, 70px);
+  display: grid;
+  place-items: center;
+}
+.recipe-item svg {
+  width: 100%;
+  height: 100%;
+}
+.recipe-item.small {
+  width: clamp(26px, 6vmin, 52px);
+  height: clamp(26px, 6vmin, 52px);
+}
+.recipe-foods {
+  display: flex;
+  gap: 0.4vmin;
+}
+.recipe-plus {
+  font-weight: 800;
+  font-size: clamp(20px, 5vmin, 40px);
+  color: #b18be0;
+}
+.reveal-actions {
+  display: flex;
+  gap: 6vmin;
+  margin-top: 1vmin;
+  animation: popIn 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) 2s both;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Garden */
+
+.flower-bed {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--safe-bottom) - 2vmin);
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  padding: 0 2vw;
+  pointer-events: none;
+}
+.garden-flower {
+  width: calc(var(--h, 1) * clamp(64px, 13vmin, 130px));
+  transform-origin: 50% 100%;
+  animation: flowerSway 4s ease-in-out infinite;
+  pointer-events: auto;
+}
+.garden-flower svg {
+  width: 100%;
+  height: auto;
+}
+.garden-flower.boing {
+  animation: boing 0.6s cubic-bezier(0.3, 1.8, 0.5, 1);
+}
+.corner-actions {
+  position: absolute;
+  right: max(4vmin, env(safe-area-inset-right));
+  bottom: calc(var(--safe-bottom) + 4vmin);
+  display: flex;
+  gap: 3vmin;
+  z-index: 3;
+}
+.garden-empty {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 38%;
+  display: flex;
+  justify-content: center;
+}
+.garden-empty .caterpillar {
+  --cu: 0.45vmin;
+}
+.garden-empty.hop .caterpillar {
+  animation: hop 0.6s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+/* Book */
+
+.book-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  background: rgba(40, 20, 60, 0.45);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.book-overlay.open {
+  opacity: 1;
+}
+.book {
+  --cell: min(16vw, 14vh, 130px);
+  position: relative;
+  padding: 2.4vmin 3vmin 3vmin;
+  border-radius: 4vmin;
+  background: var(--cream);
+  border: 1.2vmin solid #ffd9a8;
+  box-shadow: 0 2vmin 5vmin rgba(40, 20, 60, 0.35);
+  transform: scale(0.85) translateY(4vh);
+  transition: transform 0.4s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.book-overlay.open .book {
+  transform: none;
+}
+.book-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2vmin;
+  margin-bottom: 1.6vmin;
+}
+.book-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6vmin;
+  max-width: 60vmin;
+}
+.bp-dot {
+  width: clamp(10px, 2.2vmin, 18px);
+  height: clamp(10px, 2.2vmin, 18px);
+  border-radius: 50%;
+  background: #eadff5;
+}
+.bp-dot.on {
+  background: #ffc93c;
+  box-shadow: 0 0 0 2px #ff9f1c inset;
+}
+.book-count {
+  font-weight: 800;
+  font-size: clamp(18px, 4vmin, 34px);
+}
+.book-grid {
+  display: grid;
+  grid-template-columns: calc(var(--cell) * 0.7) repeat(4, var(--cell));
+  grid-auto-rows: var(--cell);
+  gap: 1.2vmin;
+}
+.book-grid {
+  grid-template-rows: calc(var(--cell) * 0.7);
+}
+.bg-col-head,
+.bg-row-head {
+  display: grid;
+  place-items: center;
+}
+.bg-col-head svg {
+  width: calc(var(--cell) * 0.6);
+  height: calc(var(--cell) * 0.6);
+}
+.bg-row-head svg {
+  width: calc(var(--cell) * 0.6);
+  height: calc(var(--cell) * 0.75);
+}
+.bg-cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 2.2vmin;
+  background: #fff;
+  border: 3px dashed #e3d6f0;
+}
+.bg-cell svg {
+  width: 92%;
+  height: 92%;
+}
+.bg-cell.have {
+  border: 3px solid #ffd23f;
+  background: radial-gradient(circle, #fff, #fff6d6);
+}
+.bg-cell.shake {
+  animation: shake 0.4s;
+}
+.q-mark {
+  position: absolute;
+  font-size: calc(var(--cell) * 0.34);
+  font-weight: 800;
+  color: #c9b6e0;
+  pointer-events: none;
+}
+.gold-star {
+  position: absolute;
+  top: -0.35em;
+  right: -0.2em;
+  font-size: calc(var(--cell) * 0.28);
+  color: #ffc93c;
+  -webkit-text-stroke: 2px #d99a00;
+  pointer-events: none;
+}
+.book-crown {
+  position: absolute;
+  top: -8vmin;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 11vmin;
+  animation: floaty 2s ease-in-out infinite;
+  pointer-events: none;
+}
+.close-btn {
+  position: absolute;
+  top: -3vmin;
+  right: -3vmin;
+  background: #ff5d73;
+}
+.reset-btn {
+  position: absolute;
+  left: 1vmin;
+  bottom: 1vmin;
+  width: 34px;
+  height: 34px;
+  color: #d6cae4;
+  display: grid;
+  place-items: center;
+}
+.reset-btn svg {
+  width: 70%;
+  height: 70%;
+}
+.reset-btn .ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  --p: 0%;
+  background: conic-gradient(#ff5d73 var(--p), transparent 0);
+  -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%);
+  mask: radial-gradient(circle, transparent 58%, #000 60%);
+}
+.reset-btn.holding .ring {
+  animation: ring 3s linear forwards;
+}
+
+@property --p {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Hint & effects */
+
+.hint-hand {
+  position: fixed;
+  z-index: 70;
+  pointer-events: none;
+  font-size: clamp(56px, 12vmin, 110px);
+  line-height: 1;
+  opacity: 0;
+  transform: translate(-30%, 0);
+  filter: drop-shadow(0 4px 4px rgba(74, 45, 92, 0.3));
+}
+.hint-hand.show {
+  animation: handTap 2.4s ease-in-out forwards;
+}
+
+.fx-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 80;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  line-height: 1;
+}
+.p-confetti {
+  border-radius: 3px;
+}
+.p-bits {
+  border-radius: 40% 60% 30% 70%;
+  border: 2px solid var(--ink);
+}
+.p-sparkle svg {
+  width: 100%;
+  height: 100%;
+}
+.fly-clone {
+  position: absolute;
+  z-index: 81;
+}
+.fly-clone svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Portrait tweaks */
+
+@media (orientation: portrait) {
+  .cat-branch {
+    top: 38%;
+  }
+  .cat-box {
+    left: calc(50% - 36vmin);
+    bottom: 62%;
+  }
+  .food-tray {
+    bottom: calc(var(--safe-bottom) + 10vh);
+    gap: 5vmin;
+  }
+  .food-btn {
+    width: clamp(90px, 38vw, 190px);
+    height: clamp(90px, 38vw, 190px);
+  }
+  .sticker-row {
+    flex-wrap: wrap;
+    padding: 0 8vw;
+    gap: 5vmin;
+    bottom: calc(var(--safe-bottom) + 8vh);
+  }
+  .sticker-btn {
+    width: clamp(90px, 34vw, 170px);
+    height: clamp(90px, 34vw, 170px);
+  }
+  .hang {
+    top: calc(var(--safe-top) + 22vmin);
+  }
+  .branch {
+    top: calc(var(--safe-top) + 20vmin);
+  }
+  .chrys {
+    width: 34vmin;
+  }
+  .hang-cat .caterpillar {
+    --cu: 0.3vmin;
+  }
+  .silk {
+    width: 20vmin;
+    height: 64vmin;
+  }
+  .reveal-fly {
+    width: 76vw;
+    height: 76vw;
+  }
+  .new-badge {
+    top: 14vh;
+    left: auto;
+    right: 6vw;
+  }
+  .egg-row {
+    flex-wrap: wrap;
+    padding: 0 6vw;
+    row-gap: 4vmin;
+    bottom: 26vh;
+  }
+  .egg-btn {
+    width: clamp(90px, 30vw, 190px);
+  }
+  .egg-btn.chosen {
+    width: 52vw;
+  }
+  .egg-row.solo {
+    bottom: 24vh;
+  }
+  .big-leaf {
+    height: 28vh;
+  }
+  .baby-cat {
+    bottom: 26vh;
+  }
+  .title-buttons {
+    bottom: calc(var(--safe-bottom) + 22vh);
+  }
+  .title-cat .caterpillar {
+    --cu: 0.3vmin;
+  }
+  .book {
+    --cell: min(15vw, 12vh, 130px);
+  }
+}
+
+/* Short landscape screens (phones on their side). */
+@media (orientation: landscape) and (max-height: 500px) {
+  .logo {
+    top: calc(var(--safe-top) + 2vmin);
+  }
+  .title-buttons {
+    bottom: calc(var(--safe-bottom) + 8vh);
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Keyframes */
+
+@keyframes flap {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0.28);
+  }
+}
+@keyframes glint {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes drift {
+  from {
+    transform: translateX(0) scale(var(--s, 1));
+  }
+  to {
+    transform: translateX(calc(100vw + 70vmin)) scale(var(--s, 1));
+  }
+}
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@keyframes headBob {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@keyframes headSlide {
+  from {
+    transform: translateX(-24px);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes segPop {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes eggIdle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-4deg);
+  }
+  40% {
+    transform: rotate(4deg);
+  }
+  55% {
+    transform: rotate(0deg);
+  }
+}
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  20% {
+    transform: rotate(-12deg) scale(1.05, 0.95);
+  }
+  45% {
+    transform: rotate(10deg) scale(0.96, 1.05);
+  }
+  70% {
+    transform: rotate(-5deg);
+  }
+}
+@keyframes hatch {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.2, 0.85);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+@keyframes popIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.4vmin);
+  }
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+@keyframes munch {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.06, 0.92);
+  }
+  60% {
+    transform: scale(0.97, 1.05);
+  }
+}
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-5vmin) scale(1.03, 0.97);
+  }
+}
+@keyframes crawl {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(6vw);
+  }
+}
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+@keyframes jiggle {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0);
+  }
+  66% {
+    transform: rotate(-6deg);
+  }
+  74% {
+    transform: rotate(6deg);
+  }
+  82% {
+    transform: rotate(-4deg);
+  }
+  90% {
+    transform: rotate(3deg);
+  }
+}
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  25% {
+    transform: rotate(-8deg) scale(1.04);
+  }
+  60% {
+    transform: rotate(7deg) scale(0.97);
+  }
+}
+@keyframes burstOut {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.25, 0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0) scale(1);
+  }
+  50% {
+    transform: rotate(200deg) scale(1.25);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  50% {
+    transform: translateX(6px);
+  }
+  75% {
+    transform: translateX(-3px);
+  }
+}
+@keyframes boing {
+  0% {
+    transform: scale(1, 1);
+  }
+  30% {
+    transform: scale(1.1, 0.8);
+  }
+  60% {
+    transform: scale(0.92, 1.18);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
+@keyframes flowerSway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+@keyframes handTap {
+  0% {
+    opacity: 0;
+    transform: translate(-30%, 30%);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-30%, 0);
+  }
+  30% {
+    transform: translate(-30%, -18%) scale(0.92);
+  }
+  45% {
+    transform: translate(-30%, 0);
+  }
+  60% {
+    transform: translate(-30%, -18%) scale(0.92);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-30%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-30%, 0);
+  }
+}
+@keyframes zzz {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(6vmin, -14vmin) scale(1.3);
+  }
+}
+@keyframes starIn {
+  from {
+    transform: scale(0) rotate(-120deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+@keyframes starLit {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.5) rotate(20deg);
+  }
+  100% {
+    transform: scale(0.55) rotate(0);
+  }
+}
+@keyframes pipFill {
+  0% {
+    transform: scale(0.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes letterBounce {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0);
+  }
+  80% {
+    transform: translateY(-0.12em) rotate(-4deg);
+  }
+  90% {
+    transform: translateY(0) rotate(2deg);
+  }
+}
+@keyframes badgeIn {
+  from {
+    transform: rotate(40deg) scale(0);
+  }
+  to {
+    transform: rotate(12deg) scale(1);
+  }
+}
+@keyframes ring {
+  to {
+    --p: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud,
+  .logo-letter,
+  .title-cat {
+    animation: none;
+  }
+}
