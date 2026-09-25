@@ -5,13 +5,14 @@ Little browser games for Mia.
 | Game | Description |
 | ---- | ----------- |
 | [🦋 Butterfly Garden](butterfly-garden/) | Grow a caterpillar into a butterfly, collect all 25 in the book, and play in a garden that grows. |
+| [🧁 Little Bakery](bakery/) | Bake cakes, cupcakes and cookies for silly animal customers, and fill a shop window that grows. Made extra simple for ages 2 to 3. |
 
 ## How to run a game
 
 You need [Node.js](https://nodejs.org) 18 or newer.
 
 ```bash
-cd butterfly-garden      # or whichever game folder
+cd bakery                # or whichever game folder
 npm install              # first time only
 npm run dev              # starts the game
 ```
