@@ -1,5 +1,5 @@
-// Synthesized sound effects, gentle background music and spoken prompts.
-// Everything is generated with Web Audio / Speech Synthesis: no audio files.
+// Synthesized sound effects and a music-box lullaby. Everything is generated
+// with Web Audio: there are no audio files.
 import { persist, save } from './data';
 
 const NOTE = (n: number) => 440 * Math.pow(2, (n - 69) / 12);
@@ -7,40 +7,74 @@ const NOTE = (n: number) => 440 * Math.pow(2, (n - 69) / 12);
 // Twinkle Twinkle Little Star (first line), played one note per star tap.
 export const TWINKLE = [60, 60, 67, 67, 69, 69, 67].map(NOTE);
 
+// An original lullaby in 3/4: [midi note, beats] per bar, with a bass note per bar.
+const R = 0;
+const MELODY: [number, number][][] = [
+  [[67, 1], [76, 1], [74, 1]],
+  [[72, 2], [67, 1]],
+  [[69, 1], [72, 1], [76, 1]],
+  [[74, 3]],
+  [[67, 1], [76, 1], [74, 1]],
+  [[72, 2], [76, 1]],
+  [[74, 1], [72, 1], [71, 1]],
+  [[72, 3]],
+  [[76, 1], [79, 1], [77, 1]],
+  [[76, 2], [72, 1]],
+  [[74, 1], [76, 1], [77, 1]],
+  [[76, 1], [74, 2]],
+  [[72, 1], [76, 1], [74, 1]],
+  [[72, 1], [69, 2]],
+  [[71, 1], [72, 1], [74, 1]],
+  [[72, 2], [R, 1]],
+];
+const BASS = [48, 52, 53, 55, 48, 45, 55, 48, 48, 45, 50, 55, 53, 53, 55, 48];
+// Chord tones (relative to bass) for the soft broken-chord accompaniment.
+const THIRD = [4, 3, 4, 4, 4, 3, 4, 4, 4, 3, 3, 4, 4, 4, 4, 4];
+
 class Sound {
-  private ctx?: AudioContext;
+  context?: AudioContext;
+  /** Recorded voice clips play through here (ducks the music). */
+  voiceOut?: GainNode;
   private master!: GainNode;
   private sfx!: GainNode;
   private music!: GainNode;
   private noiseBuf?: AudioBuffer;
-  private musicTimer?: number;
   private nextBeat = 0;
-  private step = 0;
-  private voice?: SpeechSynthesisVoice;
+  private bar = 0;
+  private beatInBar = 0;
+  private ducked = false;
+  private night = false;
+  private paused = false;
 
   /** Must be called from a user gesture (iOS/Safari requirement). */
   unlock() {
-    if (!this.ctx) {
+    if (!this.context) {
       const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (!Ctx) return;
-      this.ctx = new Ctx();
-      this.master = this.ctx.createGain();
+      const ctx = (this.context = new Ctx());
+      this.master = ctx.createGain();
       this.master.gain.value = save.sound ? 1 : 0;
-      this.master.connect(this.ctx.destination);
-      this.sfx = this.ctx.createGain();
-      this.sfx.gain.value = 0.55;
+      // A gentle compressor keeps sudden sounds from being harsh on little ears.
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -14;
+      comp.ratio.value = 4;
+      this.master.connect(comp).connect(ctx.destination);
+      this.sfx = ctx.createGain();
+      this.sfx.gain.value = 0.5;
       this.sfx.connect(this.master);
-      this.music = this.ctx.createGain();
+      this.music = ctx.createGain();
       this.music.gain.value = 0;
       this.music.connect(this.master);
-      const len = this.ctx.sampleRate;
-      this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+      this.voiceOut = ctx.createGain();
+      this.voiceOut.gain.value = 1.4;
+      this.voiceOut.connect(this.master);
+      const len = ctx.sampleRate;
+      this.noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
       const d = this.noiseBuf.getChannelData(0);
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
       this.startMusic();
     }
-    if (this.ctx.state === 'suspended') void this.ctx.resume();
-    this.loadVoice();
+    if (this.context.state === 'suspended') void this.context.resume();
   }
 
   get soundOn() {
@@ -53,8 +87,7 @@ class Sound {
   toggleSound() {
     save.sound = !save.sound;
     persist();
-    if (this.ctx) this.master.gain.setTargetAtTime(save.sound ? 1 : 0, this.ctx.currentTime, 0.05);
-    if (!save.sound && 'speechSynthesis' in window) speechSynthesis.cancel();
+    if (this.context) this.master.gain.setTargetAtTime(save.sound ? 1 : 0, this.context.currentTime, 0.05);
     return save.sound;
   }
 
@@ -65,10 +98,29 @@ class Sound {
     return save.music;
   }
 
-  private applyMusicLevel(duck = false) {
-    if (!this.ctx) return;
-    const level = save.music ? (duck ? 0.07 : 0.16) : 0;
-    this.music.gain.setTargetAtTime(level, this.ctx.currentTime, 0.4);
+  /** Lower the music while someone is talking. */
+  duck(on: boolean) {
+    this.ducked = on;
+    this.applyMusicLevel();
+  }
+
+  /** Silence the music (e.g. while a grown-up records their voice). */
+  pauseMusic(on: boolean) {
+    this.paused = on;
+    this.applyMusicLevel();
+  }
+
+  /** Night time plays the lullaby slower and softer. */
+  setNight(on: boolean) {
+    this.night = on;
+    this.applyMusicLevel();
+  }
+
+  private applyMusicLevel() {
+    if (!this.context) return;
+    const base = this.night ? 0.2 : 0.26;
+    const level = save.music && !this.paused ? (this.ducked ? base * 0.35 : base) : 0;
+    this.music.gain.setTargetAtTime(level, this.context.currentTime, 0.3);
   }
 
   // -------------------------------------------------------------------------
@@ -77,12 +129,13 @@ class Sound {
   private tone(
     freq: number,
     dur: number,
-    { type = 'sine' as OscillatorType, vol = 0.5, slide = 0, delay = 0, attack = 0.005, out = this.sfx } = {},
+    { type = 'sine' as OscillatorType, vol = 0.5, slide = 0, delay = 0, attack = 0.005, out = this.sfx as AudioNode } = {},
   ) {
-    if (!this.ctx) return;
-    const t = this.ctx.currentTime + delay;
-    const o = this.ctx.createOscillator();
-    const g = this.ctx.createGain();
+    const ctx = this.context;
+    if (!ctx) return;
+    const t = ctx.currentTime + delay;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
     o.type = type;
     o.frequency.setValueAtTime(freq, t);
     if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(40, freq + slide), t + dur);
@@ -94,158 +147,166 @@ class Sound {
     o.stop(t + dur + 0.05);
   }
 
-  private noise(dur: number, { freq = 1200, q = 1, vol = 0.4, delay = 0, type = 'bandpass' as BiquadFilterType, sweep = 0 } = {}) {
-    if (!this.ctx || !this.noiseBuf) return;
-    const t = this.ctx.currentTime + delay;
-    const src = this.ctx.createBufferSource();
+  private noise(dur: number, { freq = 1200, q = 1, vol = 0.4, delay = 0, type = 'bandpass' as BiquadFilterType, sweep = 0, attack = 0 } = {}) {
+    const ctx = this.context;
+    if (!ctx || !this.noiseBuf) return;
+    const t = ctx.currentTime + delay;
+    const src = ctx.createBufferSource();
     src.buffer = this.noiseBuf;
-    const f = this.ctx.createBiquadFilter();
+    const f = ctx.createBiquadFilter();
     f.type = type;
     f.frequency.setValueAtTime(freq, t);
-    if (sweep) f.frequency.exponentialRampToValueAtTime(freq + sweep, t + dur);
+    if (sweep) f.frequency.exponentialRampToValueAtTime(Math.max(60, freq + sweep), t + dur);
     f.Q.value = q;
-    const g = this.ctx.createGain();
-    g.gain.setValueAtTime(vol, t);
+    const g = ctx.createGain();
+    if (attack) {
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + attack);
+    } else g.gain.setValueAtTime(vol, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     src.connect(f).connect(g).connect(this.sfx);
     src.start(t, Math.random() * 0.5);
     src.stop(t + dur + 0.05);
   }
 
+  /** A music-box tine: bright attack, soft ring. */
+  private tine(freq: number, delay: number, vol: number, out: AudioNode) {
+    this.tone(freq, 1.6, { type: 'sine', vol, delay, out });
+    this.tone(freq * 2, 0.7, { type: 'sine', vol: vol * 0.25, delay, out });
+    this.tone(freq * 4.02, 0.18, { type: 'sine', vol: vol * 0.12, delay, out });
+  }
+
   // -------------------------------------------------------------------------
   // Sound effects
 
   pop(pitch = 1) {
-    this.tone(520 * pitch, 0.14, { type: 'sine', vol: 0.5, slide: 500 * pitch });
+    this.tone(520 * pitch, 0.14, { vol: 0.45, slide: 500 * pitch });
   }
   tapSoft() {
-    this.tone(880, 0.08, { type: 'triangle', vol: 0.25, slide: 200 });
+    this.tone(880, 0.08, { type: 'triangle', vol: 0.22, slide: 200 });
   }
   chomp() {
-    this.noise(0.09, { freq: 900, q: 0.8, vol: 0.7 });
-    this.tone(180, 0.08, { type: 'square', vol: 0.12, slide: -80 });
-    this.noise(0.09, { freq: 700, q: 0.8, vol: 0.6, delay: 0.16 });
-    this.tone(160, 0.08, { type: 'square', vol: 0.1, slide: -70, delay: 0.16 });
+    this.noise(0.09, { freq: 900, q: 0.8, vol: 0.6 });
+    this.tone(180, 0.08, { type: 'square', vol: 0.08, slide: -80 });
+    this.noise(0.09, { freq: 700, q: 0.8, vol: 0.5, delay: 0.16 });
+    this.tone(160, 0.08, { type: 'square', vol: 0.07, slide: -70, delay: 0.16 });
   }
   gulp() {
-    this.tone(300, 0.22, { type: 'sine', vol: 0.45, slide: -180 });
+    this.tone(300, 0.22, { vol: 0.4, slide: -180 });
   }
   crack(level = 0) {
-    this.noise(0.07, { freq: 2600 - level * 300, q: 3, vol: 0.8 });
-    this.tone(1300 - level * 120, 0.05, { type: 'square', vol: 0.06 });
-  }
-  wobble() {
-    this.tone(330, 0.25, { type: 'sine', vol: 0.3, slide: 60 });
+    this.noise(0.07, { freq: 2600 - level * 300, q: 3, vol: 0.7 });
+    this.tone(1300 - level * 120, 0.05, { type: 'square', vol: 0.04 });
   }
   squeak() {
-    this.tone(900, 0.12, { type: 'sine', vol: 0.35, slide: 700 });
-    this.tone(1300, 0.14, { type: 'sine', vol: 0.3, slide: 500, delay: 0.12 });
+    this.tone(900, 0.12, { vol: 0.3, slide: 700 });
+    this.tone(1300, 0.14, { vol: 0.26, slide: 500, delay: 0.12 });
+  }
+  giggle() {
+    const base = 700 + Math.random() * 200;
+    for (let i = 0; i < 5; i++) this.tone(base + (i % 2) * 180 - i * 30, 0.09, { type: 'triangle', vol: 0.22, slide: 120, delay: i * 0.09 });
   }
   whoosh() {
-    this.noise(0.5, { freq: 400, q: 0.7, vol: 0.35, sweep: 2600 });
+    this.noise(0.5, { freq: 400, q: 0.7, vol: 0.3, sweep: 2600 });
   }
   sparkle() {
-    [0, 4, 7, 12, 16].forEach((n, i) =>
-      this.tone(NOTE(84 + n), 0.3, { type: 'triangle', vol: 0.18, delay: i * 0.05 }),
-    );
+    [0, 4, 7, 12, 16].forEach((n, i) => this.tone(NOTE(84 + n), 0.3, { type: 'triangle', vol: 0.15, delay: i * 0.05 }));
   }
   bloop(i = 0) {
-    this.tone(NOTE(72 + [0, 2, 4, 7, 9, 12, 14][i % 7]), 0.25, { type: 'sine', vol: 0.35, slide: 40 });
+    const n = NOTE(72 + [0, 2, 4, 7, 9, 12, 14, 16, 19][i % 9]);
+    this.tine(n, 0, 0.35, this.sfx);
   }
   wrap() {
-    this.noise(0.35, { freq: 3000, q: 0.5, vol: 0.25, type: 'highpass' });
-    this.tone(600, 0.3, { type: 'sine', vol: 0.15, slide: 400 });
+    this.noise(0.35, { freq: 3000, q: 0.5, vol: 0.2, type: 'highpass' });
+    this.tone(600, 0.3, { vol: 0.12, slide: 400 });
   }
   bell(freq: number) {
-    this.tone(freq, 1.4, { type: 'sine', vol: 0.45 });
-    this.tone(freq * 2, 0.8, { type: 'sine', vol: 0.12 });
-    this.tone(freq * 3.01, 0.5, { type: 'sine', vol: 0.05 });
+    this.tone(freq, 1.4, { vol: 0.4 });
+    this.tone(freq * 2, 0.8, { vol: 0.1 });
+    this.tone(freq * 3.01, 0.5, { vol: 0.04 });
   }
   fanfare() {
     const seq = [60, 64, 67, 72, 67, 72, 76];
     const times = [0, 0.12, 0.24, 0.36, 0.56, 0.68, 0.8];
     seq.forEach((n, i) => {
-      this.tone(NOTE(n), 0.4, { type: 'triangle', vol: 0.3, delay: times[i] });
-      this.tone(NOTE(n + 12), 0.3, { type: 'sine', vol: 0.08, delay: times[i] });
+      this.tone(NOTE(n), 0.4, { type: 'triangle', vol: 0.26, delay: times[i] });
+      this.tone(NOTE(n + 12), 0.3, { vol: 0.07, delay: times[i] });
     });
-    [60, 64, 67, 72].forEach((n) => this.tone(NOTE(n), 1.4, { type: 'sine', vol: 0.12, delay: 0.8, attack: 0.05 }));
+    [60, 64, 67, 72].forEach((n) => this.tone(NOTE(n), 1.4, { vol: 0.1, delay: 0.8, attack: 0.05 }));
   }
   tada() {
-    [72, 76, 79, 84].forEach((n, i) => this.tone(NOTE(n), 0.5, { type: 'triangle', vol: 0.25, delay: i * 0.07 }));
+    [72, 76, 79, 84].forEach((n, i) => this.tone(NOTE(n), 0.5, { type: 'triangle', vol: 0.22, delay: i * 0.07 }));
   }
   yawn() {
-    this.tone(500, 0.7, { type: 'sine', vol: 0.2, slide: -260, attack: 0.1 });
+    this.tone(500, 0.7, { vol: 0.18, slide: -260, attack: 0.1 });
+  }
+  sneeze() {
+    this.tone(500, 0.35, { vol: 0.2, slide: 300, attack: 0.25 });
+    this.noise(0.25, { freq: 2400, q: 0.6, vol: 0.7, delay: 0.38 });
+  }
+  burp() {
+    this.tone(110, 0.35, { type: 'sawtooth', vol: 0.12, slide: -30, attack: 0.02 });
+    this.noise(0.3, { freq: 300, q: 2, vol: 0.3 });
+  }
+  snore() {
+    this.noise(0.9, { freq: 250, q: 3, vol: 0.25, attack: 0.5 });
+    this.tone(1200, 0.25, { vol: 0.08, slide: 800, delay: 1.0 });
+  }
+  slurp() {
+    this.noise(0.35, { freq: 600, q: 4, vol: 0.3, sweep: 1400 });
+    this.tone(400, 0.3, { vol: 0.12, slide: 500, delay: 0.05 });
+  }
+  boing() {
+    this.tone(220, 0.4, { type: 'triangle', vol: 0.3, slide: 500 });
+  }
+  ribbit() {
+    for (let i = 0; i < 2; i++) this.tone(170, 0.12, { type: 'square', vol: 0.08, slide: 60, delay: i * 0.16 });
+  }
+  tweet() {
+    for (let i = 0; i < 3; i++) this.tone(2200 + i * 150, 0.1, { vol: 0.15, slide: 900, delay: i * 0.12 });
+  }
+  chime() {
+    [79, 83, 86, 91].forEach((n, i) => this.tine(NOTE(n), i * 0.09, 0.2, this.sfx));
+  }
+  swoosh() {
+    this.noise(0.8, { freq: 1800, q: 0.8, vol: 0.18, sweep: -1400, attack: 0.2 });
+  }
+  hop() {
+    this.tone(300, 0.15, { vol: 0.25, slide: 400 });
   }
 
   // -------------------------------------------------------------------------
-  // Music: a soft lullaby arpeggio over C - Am - F - G.
+  // Music: a gentle music-box lullaby.
 
   private startMusic() {
-    if (!this.ctx) return;
-    this.nextBeat = this.ctx.currentTime + 0.3;
+    const ctx = this.context!;
+    this.nextBeat = ctx.currentTime + 0.4;
     this.applyMusicLevel();
-    const chords = [
-      [48, 55, 60, 64, 67],
-      [45, 52, 57, 60, 64],
-      [41, 48, 53, 57, 60],
-      [43, 50, 55, 59, 62],
-    ];
-    const melodyPool = [72, 74, 76, 79, 81];
-    const beat = 0.34;
-    this.musicTimer = window.setInterval(() => {
-      const ctx = this.ctx!;
+    window.setInterval(() => {
       if (ctx.state !== 'running') return;
-      while (this.nextBeat < ctx.currentTime + 0.25) {
-        const chord = chords[Math.floor(this.step / 8) % chords.length];
-        const pos = this.step % 8;
+      const beat = this.night ? 0.72 : 0.56;
+      while (this.nextBeat < ctx.currentTime + 0.3) {
+        const bars = MELODY[this.bar];
         const t = this.nextBeat - ctx.currentTime;
-        if (pos === 0) this.tone(NOTE(chord[0]), 2.4, { type: 'sine', vol: 0.35, delay: t, attack: 0.05, out: this.music });
-        const arp = [1, 2, 3, 4, 3, 2, 3, 4][pos];
-        this.tone(NOTE(chord[arp]), 0.7, { type: 'triangle', vol: 0.2, delay: t, out: this.music });
-        if ((pos === 0 || pos === 3 || pos === 6) && Math.random() < 0.55) {
-          const m = melodyPool[Math.floor(Math.random() * melodyPool.length)];
-          this.tone(NOTE(m), 0.9, { type: 'sine', vol: 0.16, delay: t, attack: 0.02, out: this.music });
+        // Melody notes that start on this beat.
+        let pos = 0;
+        for (const [n, len] of bars) {
+          if (pos === this.beatInBar && n !== R) this.tine(NOTE(n), t, 0.3, this.music);
+          pos += len;
         }
+        // Accompaniment: bass on 1, chord tones on 2 and 3.
+        const b = BASS[this.bar];
+        if (this.beatInBar === 0) this.tone(NOTE(b), beat * 3, { vol: 0.2, delay: t, attack: 0.03, out: this.music });
+        else this.tine(NOTE(b + 12 + (this.beatInBar === 1 ? THIRD[this.bar] : 7)), t, 0.09, this.music);
+
         this.nextBeat += beat;
-        this.step++;
+        if (++this.beatInBar === 3) {
+          this.beatInBar = 0;
+          this.bar = (this.bar + 1) % MELODY.length;
+          if (this.bar === 0) this.nextBeat += beat * 3; // breathe between loops
+        }
       }
     }, 60);
-  }
-
-  // -------------------------------------------------------------------------
-  // Speech
-
-  private loadVoice() {
-    if (!('speechSynthesis' in window) || this.voice) return;
-    const pick = () => {
-      const voices = speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith('en'));
-      const liked = ['Samantha', 'Google US English', 'Karen', 'Moira', 'Tessa', 'Aria', 'Jenny', 'Zira', 'Female'];
-      for (const name of liked) {
-        const v = voices.find((x) => x.name.includes(name));
-        if (v) return (this.voice = v);
-      }
-      this.voice = voices.find((v) => v.lang === 'en-US') ?? voices[0];
-    };
-    pick();
-    if (!this.voice) speechSynthesis.addEventListener('voiceschanged', pick, { once: true });
-  }
-
-  speak(text: string) {
-    if (!save.sound || !('speechSynthesis' in window)) return;
-    try {
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      if (this.voice) u.voice = this.voice;
-      u.lang = this.voice?.lang ?? 'en-US';
-      u.rate = 0.92;
-      u.pitch = 1.25;
-      u.volume = 1;
-      u.onstart = () => this.applyMusicLevel(true);
-      u.onend = () => this.applyMusicLevel(false);
-      speechSynthesis.speak(u);
-    } catch {
-      // Speech is a nice-to-have; ignore failures.
-    }
   }
 }
 

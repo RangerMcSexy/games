@@ -1,15 +1,22 @@
 import './style.css';
-import { ICONS } from './art';
+import { ICONS, butterflySVG } from './art';
 import { sound } from './audio';
 import { initBackdrop } from './backdrop';
+import { guide } from './guide';
 import { journey } from './journey';
 import { gardenScreen, titleScreen } from './screens';
-import { Aborted, Scene, el, initFx } from './ui';
+import { initSettings } from './settings';
+import { Aborted, Scene, el, hint, initFx } from './ui';
+import { loadRecordings, say, stopSpeaking } from './voice';
 
 const app = document.getElementById('app')!;
 initBackdrop(app);
 const stage = el('div', 'stage', app);
 initFx();
+guide.init(app);
+hint.onShow = (t) => guide.pointAt(t);
+hint.onHide = () => guide.goHome();
+void loadRecordings();
 
 // ---------------------------------------------------------------------------
 // Toddler-proofing: no zooming, scrolling, selecting or long-press menus.
@@ -17,9 +24,31 @@ initFx();
 document.addEventListener('contextmenu', (e) => e.preventDefault());
 document.addEventListener('gesturestart', (e) => e.preventDefault());
 document.addEventListener('dblclick', (e) => e.preventDefault());
-document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+document.addEventListener(
+  'touchmove',
+  (e) => {
+    // The grown-up settings list is the only thing allowed to scroll.
+    if (!(e.target as Element).closest?.('.settings-scroll')) e.preventDefault();
+  },
+  { passive: false },
+);
 // Audio can only start after a user gesture.
 document.addEventListener('pointerdown', () => sound.unlock(), { capture: true });
+
+// Keep the screen awake while playing.
+let wakeLock: { release(): Promise<void> } | null = null;
+async function keepAwake() {
+  try {
+    const nav = navigator as Navigator & { wakeLock?: { request(t: 'screen'): Promise<{ release(): Promise<void> }> } };
+    if (!wakeLock && nav.wakeLock) wakeLock = await nav.wakeLock.request('screen');
+  } catch {
+    /* not supported or not allowed */
+  }
+}
+document.addEventListener('pointerdown', () => void keepAwake(), { capture: true });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') wakeLock = null;
+});
 
 // ---------------------------------------------------------------------------
 // Top bar
@@ -46,7 +75,7 @@ musicBtn.addEventListener('pointerdown', (e) => {
 });
 soundBtn.addEventListener('pointerdown', (e) => {
   e.preventDefault();
-  sound.toggleSound();
+  if (!sound.toggleSound()) stopSpeaking();
   paintToggles();
   sound.pop();
 });
@@ -55,7 +84,6 @@ soundBtn.addEventListener('pointerdown', (e) => {
 // Flow
 
 let current: Scene | null = null;
-let goHome = false;
 const host = {
   stage,
   setScene(s: Scene) {
@@ -64,35 +92,74 @@ const host = {
   },
 };
 
+const goHome = () => {
+  stopSpeaking();
+  current?.destroy();
+};
+
 homeBtn.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   sound.tapSoft();
-  goHome = true;
-  current?.destroy();
+  goHome();
 });
 
-function tryFullscreen(e?: PointerEvent) {
+// Settings changed (name, reset): restart from the title so everything updates.
+// The gear sits just left of the music toggle, away from the home button.
+initSettings(bar, musicBtn, goHome);
+
+function tryFullscreen(e: PointerEvent) {
   // On touch devices go fullscreen so little fingers can't reach browser UI.
-  if (e && e.pointerType !== 'touch') return;
+  if (e.pointerType !== 'touch') return;
   const d = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
   try {
-    if (!document.fullscreenElement) (d.requestFullscreen?.() ?? d.webkitRequestFullscreen?.())?.catch?.(() => {});
+    if (document.fullscreenElement) return;
+    if (d.requestFullscreen) void d.requestFullscreen().catch(() => {});
+    else d.webkitRequestFullscreen?.();
   } catch {
     /* not supported */
   }
 }
 document.addEventListener('pointerdown', tryFullscreen, { once: true, capture: true });
 
+// A home-screen icon (iOS reads apple-touch-icon when "Add to Home Screen" is used).
+function makeAppIcon() {
+  try {
+    const svg = butterflySVG(
+      { shape: 'round', pattern: 'hearts', foods: ['melon', 'strawberry', 'blueberry', 'grape', 'banana'], golden: false },
+      {},
+    ).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" ');
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = c.height = 180;
+      const g = c.getContext('2d')!;
+      const grad = g.createLinearGradient(0, 0, 0, 180);
+      grad.addColorStop(0, '#a9dcf7');
+      grad.addColorStop(1, '#fdf1e7');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, 180, 180);
+      g.drawImage(img, 15, 18, 150, 150);
+      const link = document.createElement('link');
+      link.rel = 'apple-touch-icon';
+      link.href = c.toDataURL('image/png');
+      document.head.append(link);
+    };
+    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  } catch {
+    /* cosmetic only */
+  }
+}
+makeAppIcon();
+
 type Route = 'title' | 'play' | 'garden';
 
 async function run() {
   let route: Route = 'title';
   for (;;) {
-    goHome = false;
     try {
       if (route === 'title') {
         route = await titleScreen(host);
-        if (route === 'play') sound.speak("Let's grow a butterfly!");
+        if (route === 'play') void say('letsGo');
       } else if (route === 'play') {
         const end = await journey(host);
         route = end === 'garden' ? 'garden' : 'play';
@@ -103,7 +170,6 @@ async function run() {
       if (!(err instanceof Aborted)) console.error(err);
       current?.destroy();
       route = 'title';
-      if (goHome && 'speechSynthesis' in window) speechSynthesis.cancel();
     }
   }
 }

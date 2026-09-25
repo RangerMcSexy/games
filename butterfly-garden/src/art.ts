@@ -1,7 +1,7 @@
 // All artwork is hand-built SVG so the game ships with zero image files.
 import { FOODS, colorsOf, type Butterfly, type FoodId, type Pattern, type Shape } from './data';
 
-export const INK = '#4a2d5c';
+export const INK = '#5a4272';
 let idCounter = 0;
 const nid = (p: string) => `${p}${++idCounter}`;
 
@@ -25,7 +25,36 @@ const WINGS: Record<Shape, { fore: string; hind: string }> = {
     fore: 'M3,-2 C0,-40 20,-82 54,-82 C86,-82 98,-50 86,-30 C74,-12 40,-2 3,4 Z',
     hind: 'M3,4 C40,0 86,10 82,38 C78,62 40,72 12,88 C8,60 4,30 3,16 Z',
   },
+  frilly: {
+    fore: scallop([[3, -4], [12, -46], [40, -78], [74, -84], [98, -60], [92, -26], [60, -6], [3, 4]], [2, 3, 4, 5]),
+    hind: scallop([[3, 4], [44, 4], [78, 22], [82, 52], [60, 80], [30, 76], [8, 40], [3, 16]], [1, 2, 3, 4, 5]),
+  },
 };
+
+/** A path through `pts` whose chosen segments bulge outward into frilly scallops. */
+function scallop(pts: number[][], frilly: number[]): string {
+  const cx = pts.reduce((a, p) => a + p[0], 0) / pts.length;
+  const cy = pts.reduce((a, p) => a + p[1], 0) / pts.length;
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i++) {
+    const [ax, ay] = pts[i - 1];
+    const [bx, by] = pts[i];
+    if (!frilly.includes(i)) {
+      d += ` L${bx},${by}`;
+      continue;
+    }
+    // Two bumps per segment.
+    for (let k = 0; k < 2; k++) {
+      const x0 = ax + ((bx - ax) * k) / 2, y0 = ay + ((by - ay) * k) / 2;
+      const x1 = ax + ((bx - ax) * (k + 1)) / 2, y1 = ay + ((by - ay) * (k + 1)) / 2;
+      const mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+      const len = Math.hypot(mx - cx, my - cy) || 1;
+      const bulge = Math.hypot(x1 - x0, y1 - y0) * 0.45;
+      d += ` Q${(mx + ((mx - cx) / len) * bulge).toFixed(1)},${(my + ((my - cy) / len) * bulge).toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)}`;
+    }
+  }
+  return d + ' Z';
+}
 
 export const HEART_PATH = 'M0,6 C-4,2 -8,-1 -8,-4 C-8,-7 -5,-8 -3,-8 C-1.5,-8 -0.5,-7 0,-6 C0.5,-7 1.5,-8 3,-8 C5,-8 8,-7 8,-4 C8,-1 4,2 0,6 Z';
 
@@ -40,7 +69,7 @@ export function starPath(r: number, inner = 0.45, points = 5): string {
 }
 
 /** A tiling <pattern> of little shapes used on wings and chrysalises. */
-function patternDef(id: string, pattern: Pattern, color: string, scale = 1): string {
+function patternDef(id: string, pattern: Pattern, color: string, scale = 1, mono = false): string {
   const s = 40 * scale;
   const outline = `stroke="#fff" stroke-width="${2 * scale}"`;
   let inner = '';
@@ -61,6 +90,9 @@ function patternDef(id: string, pattern: Pattern, color: string, scale = 1): str
     case 'stars':
       inner = at(10, 11, `<path d="${starPath(9)}" fill="${color}" ${outline}/>`) +
         at(30, 31, `<path d="${starPath(6)}" fill="${color}" ${outline}/>`);
+      break;
+    case 'rainbow':
+      inner = at(20, 26, rainbowArcs(13, 3, mono ? color : undefined));
       break;
   }
   const rot = pattern === 'stripes' ? ` patternTransform="rotate(35)"` : '';
@@ -92,7 +124,7 @@ export function butterflySVG(
   const patColor = c4 === c0 || c4 === c1 ? '#ffffff' : c4;
 
   const defs = sil
-    ? `<defs>${patternDef(pt, b.pattern, '#e6def0', 1)}</defs>`
+    ? `<defs>${patternDef(pt, b.pattern, '#e6def0', 1, true)}</defs>`
     : `<defs>
         <linearGradient id="${fg}" x1="0" y1="1" x2="1" y2="0">
           <stop offset="0" stop-color="${c0}"/><stop offset="1" stop-color="${c1}"/>
@@ -161,7 +193,7 @@ export function butterflySVG(
 // ---------------------------------------------------------------------------
 // Caterpillar
 
-const CAT_BASE = '#9be27a';
+const CAT_BASE = '#aee59a';
 
 export interface CaterpillarOpts {
   mouthOpen?: boolean;
@@ -221,18 +253,50 @@ export function caterpillarSVG(foods: FoodId[], opts: CaterpillarOpts = {}): str
 // ---------------------------------------------------------------------------
 // Eggs
 
+export const RAINBOW = ['#ff8a9a', '#ffb870', '#ffe07a', '#a6e08a', '#8cc4f7', '#c2a3f2'];
+
+function rainbowArcs(r: number, w: number, mono?: string): string {
+  return RAINBOW.map((c0, i) => {
+    const c = mono ?? c0;
+    const rr = r - i * w;
+    return `<path d="M${-rr},0 A${rr},${rr} 0 0 1 ${rr},0" stroke="${c}" stroke-width="${w + 0.4}" fill="none"/>`;
+  }).join('') + `<path d="M${-r - w / 2},0 A${r + w / 2},${r + w / 2} 0 0 1 ${r + w / 2},0" stroke="#fff" stroke-width="1.6" fill="none"/>`;
+}
+
 const EGG_PATHS: Record<Shape, string> = {
   round: 'M0,-52 C30,-52 46,-24 46,6 C46,36 26,54 0,54 C-26,54 -46,36 -46,6 C-46,-24 -30,-52 0,-52 Z',
   pointy: 'M0,-66 C26,-42 46,-4 44,22 C42,50 22,62 0,62 C-22,62 -42,50 -44,22 C-46,-4 -26,-42 0,-66 Z',
   swallow: 'M0,-64 C22,-64 34,-30 34,4 C34,40 22,62 0,62 C-22,62 -34,40 -34,4 C-34,-30 -22,-64 0,-64 Z',
   heart: 'M0,58 C-30,40 -54,14 -52,-14 C-50,-42 -20,-52 0,-28 C20,-52 50,-42 52,-14 C54,14 30,40 0,58 Z',
+  frilly: roundedStar(58, 0.68, 5, 6),
 };
+
+/** A soft, puffy star: points joined by rounded curves. */
+function roundedStar(r: number, inner: number, points: number, dy: number): string {
+  const n = points * 2;
+  const pt = (i: number) => {
+    const rad = i % 2 === 0 ? r : r * inner;
+    const a = (Math.PI / points) * i - Math.PI / 2;
+    return [Math.cos(a) * rad, Math.sin(a) * rad + dy];
+  };
+  const mid = (i: number) => {
+    const [x, y] = pt(i), [x2, y2] = pt(i + 1);
+    return `${((x + x2) / 2).toFixed(1)},${((y + y2) / 2).toFixed(1)}`;
+  };
+  let d = `M${mid(0)}`;
+  for (let i = 1; i <= n; i++) {
+    const [x, y] = pt(i);
+    d += ` Q${x.toFixed(1)},${y.toFixed(1)} ${mid(i)}`;
+  }
+  return d + ' Z';
+}
 
 const EGG_TINT: Record<Shape, [string, string]> = {
   round: ['#fffaf0', '#ffe3a6'],
   pointy: ['#f4fbff', '#b9e3ff'],
   swallow: ['#f7fff0', '#c6efa6'],
   heart: ['#fff5fa', '#ffc2dc'],
+  frilly: ['#fbf6ff', '#dcc8fa'],
 };
 
 const CRACKS = [
@@ -252,6 +316,8 @@ export function eggSVG(shape: Shape, cracks = 0): string {
         ? `<circle cx="-18" cy="30" r="5" fill="${b}"/><circle cx="16" cy="12" r="6" fill="${b}"/><circle cx="4" cy="42" r="4" fill="${b}"/><circle cx="-8" cy="-10" r="4" fill="${b}"/>`
         : shape === 'round'
           ? `<path d="M-40,18 Q-20,8 0,18 T40,18" stroke="${b}" stroke-width="5" fill="none"/>`
+          : shape === 'frilly'
+          ? `<path d="${starPath(9)}" fill="${b}" transform="translate(-16,18)"/><path d="${starPath(7)}" fill="${b}" transform="translate(16,0)"/><path d="${starPath(5)}" fill="${b}" transform="translate(8,32)"/>`
           : `<path d="${HEART_PATH}" fill="${b}" transform="translate(-20,6) scale(1.3)"/><path d="${HEART_PATH}" fill="${b}" transform="translate(22,-4) scale(1)"/>`;
   const crackPaths = CRACKS.slice(0, cracks)
     .map((d) => `<path d="${d}" stroke="${INK}" stroke-width="3.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`)
@@ -326,48 +392,48 @@ export function foodSVG(id: FoodId): string {
   let body = '';
   switch (id) {
     case 'strawberry':
-      body = `<path d="M0,44 C-30,30 -40,-2 -34,-18 C-28,-32 -12,-30 0,-26 C12,-30 28,-32 34,-18 C40,-2 30,30 0,44 Z" fill="#ff4d6d" ${s}/>
+      body = `<path d="M0,44 C-30,30 -40,-2 -34,-18 C-28,-32 -12,-30 0,-26 C12,-30 28,-32 34,-18 C40,-2 30,30 0,44 Z" fill="#ff7b8e" ${s}/>
         ${[[-16, -8], [0, -12], [16, -8], [-20, 10], [-4, 6], [12, 8], [-8, 24], [8, 24]]
           .map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="2.2" ry="3.2" fill="#ffe08a"/>`).join('')}
-        <path d="M-24,-28 L-8,-24 L0,-40 L8,-24 L24,-28 L12,-16 L0,-20 L-12,-16 Z" fill="#5cc95c" ${s}/>
+        <path d="M-24,-28 L-8,-24 L0,-40 L8,-24 L24,-28 L12,-16 L0,-20 L-12,-16 Z" fill="#86d68a" ${s}/>
         <ellipse cx="-18" cy="-14" rx="5" ry="3" fill="#fff" opacity=".5"/>`;
       break;
     case 'orange':
-      body = `<circle cx="0" cy="6" r="36" fill="#ff9f1c" ${s}/>
-        ${[[-14, 0], [10, -6], [14, 18], [-8, 22], [0, 8]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="#e07b00"/>`).join('')}
+      body = `<circle cx="0" cy="6" r="36" fill="#ffae5c" ${s}/>
+        ${[[-14, 0], [10, -6], [14, 18], [-8, 22], [0, 8]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="#e8914a"/>`).join('')}
         <path d="M0,-30 L2,-38" stroke="#7a4a1a" stroke-width="4" stroke-linecap="round"/>
-        <path d="M2,-34 C12,-46 26,-42 28,-34 C18,-28 8,-30 2,-34 Z" fill="#5cc95c" ${s}/>
+        <path d="M2,-34 C12,-46 26,-42 28,-34 C18,-28 8,-30 2,-34 Z" fill="#86d68a" ${s}/>
         <ellipse cx="-16" cy="-10" rx="8" ry="5" fill="#fff" opacity=".5" transform="rotate(-30 -16 -10)"/>`;
       break;
     case 'banana':
-      body = `<path d="M-36,-30 C-34,10 -4,38 36,24 C40,22 40,16 36,14 C8,20 -18,0 -24,-30 Z" fill="#ffd93d" ${s}/>
+      body = `<path d="M-36,-30 C-34,10 -4,38 36,24 C40,22 40,16 36,14 C8,20 -18,0 -24,-30 Z" fill="#ffdb6e" ${s}/>
         <path d="M-30,-18 C-26,6 -4,24 26,20" stroke="#e6b800" stroke-width="3" fill="none"/>
         <path d="M-36,-30 L-38,-38 L-26,-38 L-24,-30" fill="#7a5a2a" ${s}/>`;
       break;
     case 'pear':
-      body = `<path d="M0,-30 C10,-30 12,-16 16,-6 C30,8 38,20 34,32 C28,46 -28,46 -34,32 C-38,20 -30,8 -16,-6 C-12,-16 -10,-30 0,-30 Z" fill="#9be15d" ${s}/>
+      body = `<path d="M0,-30 C10,-30 12,-16 16,-6 C30,8 38,20 34,32 C28,46 -28,46 -34,32 C-38,20 -30,8 -16,-6 C-12,-16 -10,-30 0,-30 Z" fill="#a8e08a" ${s}/>
         <path d="M0,-30 L-2,-42" stroke="#7a4a1a" stroke-width="4" stroke-linecap="round"/>
-        <path d="M0,-38 C8,-50 22,-48 24,-40 C14,-34 6,-34 0,-38 Z" fill="#5cc95c" ${s}/>
+        <path d="M0,-38 C8,-50 22,-48 24,-40 C14,-34 6,-34 0,-38 Z" fill="#86d68a" ${s}/>
         <ellipse cx="-16" cy="14" rx="6" ry="10" fill="#fff" opacity=".45" transform="rotate(20 -16 14)"/>`;
       break;
     case 'blueberry':
       body = [[-17, 12], [17, 12], [0, -14]]
-        .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="19" fill="#4e8cff" ${s}/>
-          <path d="${starPath(6, 0.45, 5)}" fill="#2a4a9a" transform="translate(${x},${y - 8})"/>
+        .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="19" fill="#7cb3f5" ${s}/>
+          <path d="${starPath(6, 0.45, 5)}" fill="#4a6aaa" transform="translate(${x},${y - 8})"/>
           <circle cx="${x - 7}" cy="${y + 3}" r="3.5" fill="#fff" opacity=".6"/>`)
         .join('');
       break;
     case 'grape':
       body = `<path d="M0,-34 L4,-44" stroke="#7a4a1a" stroke-width="4" stroke-linecap="round"/>
-        <path d="M2,-40 C12,-52 26,-48 28,-40 C18,-34 8,-36 2,-40 Z" fill="#5cc95c" ${s}/>` +
+        <path d="M2,-40 C12,-52 26,-48 28,-40 C18,-34 8,-36 2,-40 Z" fill="#86d68a" ${s}/>` +
         [[-22, -20], [0, -22], [22, -20], [-12, 0], [12, 0], [-22, 18], [0, 20], [22, 18], [-10, 36], [10, 36]]
           .filter((_, i) => i !== 5 && i !== 7)
-          .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="12" fill="#9d5cf0" ${s}/><circle cx="${x - 4}" cy="${y - 4}" r="3" fill="#fff" opacity=".55"/>`)
+          .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="12" fill="#b38ff0" ${s}/><circle cx="${x - 4}" cy="${y - 4}" r="3" fill="#fff" opacity=".55"/>`)
           .join('');
       break;
     case 'melon':
-      body = `<path d="M0,40 L-40,-24 Q0,-46 40,-24 Z" fill="#ff6f91" ${s}/>
-        <path d="M-40,-24 Q0,-46 40,-24" stroke="#4caf50" stroke-width="10" fill="none" stroke-linecap="round"/>
+      body = `<path d="M0,40 L-40,-24 Q0,-46 40,-24 Z" fill="#ff93ad" ${s}/>
+        <path d="M-40,-24 Q0,-46 40,-24" stroke="#6cc070" stroke-width="10" fill="none" stroke-linecap="round"/>
         ${[[-14, -14], [8, -18], [-2, 2], [14, -2], [-6, 20]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="2.5" ry="4" fill="#2a1836"/>`).join('')}`;
       break;
     case 'golden':
@@ -384,10 +450,11 @@ export function foodSVG(id: FoodId): string {
 // Pattern stickers
 
 const STICKER_BG: Record<Pattern, string> = {
-  dots: '#ff8fcf',
-  stripes: '#4ea8ff',
-  hearts: '#ff5d73',
-  stars: '#a86cf0',
+  dots: '#ffa3d2',
+  stripes: '#7cb9f7',
+  hearts: '#ff8595',
+  stars: '#bb97f2',
+  rainbow: '#a8dcf7',
 };
 
 export function stickerSVG(p: Pattern): string {
@@ -407,6 +474,10 @@ export function stickerSVG(p: Pattern): string {
     case 'stars':
       fg = `<path d="${starPath(28)}" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>`;
       break;
+    case 'rainbow':
+      fg = `<g transform="translate(0,12) scale(2.2)">${rainbowArcs(14, 3)}</g>
+        <ellipse cx="-22" cy="16" rx="12" ry="7" fill="#fff"/><ellipse cx="22" cy="16" rx="12" ry="7" fill="#fff"/>`;
+      break;
   }
   return `<svg class="sticker" viewBox="-50 -50 100 100" aria-hidden="true">
     <circle r="44" fill="${bg}" stroke="#fff" stroke-width="6"/>
@@ -425,9 +496,9 @@ export function flowerSVG(color: string, center = '#ffd23f'): string {
     .map((a) => `<ellipse cx="0" cy="-17" rx="11" ry="16" fill="${color}" stroke="${INK}" stroke-width="2.5" transform="rotate(${a})"/>`)
     .join('');
   return `<svg class="flower" viewBox="-40 -44 80 144" aria-hidden="true">
-    <path d="M0,10 C4,40 -4,70 0,100" stroke="#4caf50" stroke-width="6" fill="none" stroke-linecap="round"/>
-    <path d="M1,64 C8,44 30,40 38,46 C30,64 12,70 1,64 Z" fill="#6bd06b" stroke="${INK}" stroke-width="2.5"/>
-    <path d="M-1,80 C-8,62 -28,58 -36,64 C-28,80 -12,86 -1,80 Z" fill="#6bd06b" stroke="${INK}" stroke-width="2.5"/>
+    <path d="M0,10 C4,40 -4,70 0,100" stroke="#6cc070" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M1,64 C8,44 30,40 38,46 C30,64 12,70 1,64 Z" fill="#8fdb8a" stroke="${INK}" stroke-width="2.5"/>
+    <path d="M-1,80 C-8,62 -28,58 -36,64 C-28,80 -12,86 -1,80 Z" fill="#8fdb8a" stroke="${INK}" stroke-width="2.5"/>
     <g class="bloom">${petals}<circle r="10" fill="${center}" stroke="${INK}" stroke-width="2.5"/>
     <circle cx="-3" cy="-3" r="3" fill="#fff" opacity=".6"/></g>
   </svg>`;
@@ -435,8 +506,8 @@ export function flowerSVG(color: string, center = '#ffd23f'): string {
 
 export function leafSVG(): string {
   return `<svg class="leaf" viewBox="-110 -60 220 120" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M-104,4 C-60,-60 60,-66 104,0 C60,58 -60,56 -104,4 Z" fill="#6bd06b" stroke="${INK}" stroke-width="4"/>
-    <path d="M-100,4 C-40,0 40,0 100,0 M-40,2 L-20,-24 M-40,2 L-20,26 M10,1 L30,-26 M10,1 L30,26" stroke="#3f9f47" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M-104,4 C-60,-60 60,-66 104,0 C60,58 -60,56 -104,4 Z" fill="#8fdb8a" stroke="${INK}" stroke-width="4"/>
+    <path d="M-100,4 C-40,0 40,0 100,0 M-40,2 L-20,-24 M-40,2 L-20,26 M10,1 L30,-26 M10,1 L30,26" stroke="#5fb866" stroke-width="3.5" fill="none" stroke-linecap="round"/>
   </svg>`;
 }
 
@@ -463,3 +534,185 @@ export function starSVG(): string {
     <circle cx="-10" cy="4" r="4" fill="${INK}"/><circle cx="10" cy="4" r="4" fill="${INK}"/>
     <path d="M-7,14 Q0,20 7,14" stroke="${INK}" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`;
 }
+
+// ---------------------------------------------------------------------------
+// Dot the ladybug (the guide)
+
+export function ladybugSVG(): string {
+  const spot = '#4b3a5e';
+  return `<svg class="ladybug" viewBox="-60 -64 120 120" aria-hidden="true">
+    <g class="lb-wings">
+      <ellipse class="lb-wing-l" cx="-26" cy="-2" rx="26" ry="14" fill="#e8f4ff" opacity=".85" stroke="#bcd6ee" stroke-width="2"/>
+      <ellipse class="lb-wing-r" cx="26" cy="-2" rx="26" ry="14" fill="#e8f4ff" opacity=".85" stroke="#bcd6ee" stroke-width="2"/>
+    </g>
+    <path d="M-24,30 l-10,10 M24,30 l10,10 M-30,14 l-12,4 M30,14 l12,4" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="0" cy="10" r="32" fill="#ff7b8e" stroke="${INK}" stroke-width="4"/>
+    <path d="M0,-18 L0,42" stroke="${INK}" stroke-width="3.5"/>
+    <circle cx="-15" cy="0" r="6" fill="${spot}"/><circle cx="15" cy="0" r="6" fill="${spot}"/>
+    <circle cx="-18" cy="22" r="5" fill="${spot}"/><circle cx="18" cy="22" r="5" fill="${spot}"/>
+    <circle cx="-6" cy="34" r="3.5" fill="${spot}"/><circle cx="6" cy="34" r="3.5" fill="${spot}"/>
+    <ellipse cx="-14" cy="-10" rx="9" ry="5" fill="#fff" opacity=".45" transform="rotate(-25 -14 -10)"/>
+    <path d="M-7,-36 C-12,-48 -18,-52 -24,-54 M7,-36 C12,-48 18,-52 24,-54" stroke="${INK}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="-24" cy="-54" r="4.5" fill="#ffdb6e" stroke="${INK}" stroke-width="2.5"/>
+    <circle cx="24" cy="-54" r="4.5" fill="#ffdb6e" stroke="${INK}" stroke-width="2.5"/>
+    <circle cx="0" cy="-24" r="18" fill="#5a4272" stroke="${INK}" stroke-width="3"/>
+    <g class="lb-eyes">
+      <ellipse cx="-7" cy="-27" rx="5.5" ry="6.5" fill="#fff"/><ellipse cx="7" cy="-27" rx="5.5" ry="6.5" fill="#fff"/>
+      <circle cx="-6" cy="-26" r="3" fill="#2a1836"/><circle cx="8" cy="-26" r="3" fill="#2a1836"/>
+      <circle cx="-5" cy="-27.5" r="1.1" fill="#fff"/><circle cx="9" cy="-27.5" r="1.1" fill="#fff"/>
+    </g>
+    <circle cx="-11" cy="-18" r="3" fill="#ff9fbd" opacity=".85"/><circle cx="11" cy="-18" r="3" fill="#ff9fbd" opacity=".85"/>
+    <path class="lb-mouth" d="M-5,-17 Q0,-12 5,-17" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+// ---------------------------------------------------------------------------
+// Garden unlocks
+
+const G = `stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"`;
+
+export function mushroomSVG(): string {
+  return `<svg viewBox="-60 -70 120 120" aria-hidden="true">
+    <ellipse cx="0" cy="46" rx="40" ry="6" fill="#000" opacity=".1"/>
+    <path d="M-24,4 C-26,24 -24,40 -20,46 L20,46 C24,40 26,24 24,4 Z" fill="#fff4e0" ${G}/>
+    <path d="M-7,46 L-7,28 A7,7 0 0 1 7,28 L7,46 Z" fill="#c98f6a" ${G}/>
+    <circle cx="12" cy="18" r="5" fill="#ffe89a" ${G}/>
+    <path d="M-54,6 C-54,-40 -24,-62 0,-62 C24,-62 54,-40 54,6 C30,12 -30,12 -54,6 Z" fill="#ff8595" ${G}/>
+    <circle cx="-26" cy="-24" r="8" fill="#fff"/><circle cx="4" cy="-44" r="7" fill="#fff"/>
+    <circle cx="28" cy="-18" r="9" fill="#fff"/><circle cx="-4" cy="-10" r="5" fill="#fff"/>
+    <path d="M-40,-24 C-34,-40 -20,-50 -8,-54" stroke="#fff" stroke-width="5" opacity=".5" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+export function pondSVG(): string {
+  return `<svg viewBox="-100 -40 200 80" aria-hidden="true">
+    <ellipse cx="0" cy="4" rx="96" ry="30" fill="#9fd4f5" ${G}/>
+    <ellipse cx="-4" cy="6" rx="78" ry="20" fill="#b9e2fa"/>
+    <path class="ripple" d="M-50,4 q10,-5 20,0 M20,14 q10,-5 20,0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M40,-2 A18,9 0 1 0 58,6 L44,4 Z" fill="#8fdb8a" ${G}/>
+    <path d="M-66,12 A14,7 0 1 1 -46,16 L-58,12 Z" fill="#8fdb8a" ${G}/>
+    <circle cx="-50" cy="8" r="5" fill="#ffc2dc" ${G}/>
+  </svg>`;
+}
+
+export function frogSVG(): string {
+  return `<svg viewBox="-40 -40 80 70" aria-hidden="true">
+    <ellipse cx="0" cy="12" rx="26" ry="18" fill="#9fdc7c" ${G}/>
+    <ellipse cx="0" cy="18" rx="15" ry="9" fill="#e4f7c8"/>
+    <circle cx="-13" cy="-8" r="10" fill="#9fdc7c" ${G}/><circle cx="13" cy="-8" r="10" fill="#9fdc7c" ${G}/>
+    <circle cx="-13" cy="-9" r="5" fill="#fff"/><circle cx="13" cy="-9" r="5" fill="#fff"/>
+    <circle cx="-12" cy="-8" r="2.8" fill="#2a1836"/><circle cx="14" cy="-8" r="2.8" fill="#2a1836"/>
+    <path d="M-10,6 Q0,14 10,6" stroke="${INK}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="-18" cy="6" r="3" fill="#ff9fbd" opacity=".8"/><circle cx="18" cy="6" r="3" fill="#ff9fbd" opacity=".8"/>
+    <path d="M-24,26 l-8,4 M24,26 l8,4" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+  </svg>`;
+}
+
+export function rainbowSVG(): string {
+  const arcs = RAINBOW.map((c, i) => {
+    const r = 100 - i * 11;
+    return `<path d="M${-r},0 A${r},${r} 0 0 1 ${r},0" stroke="${c}" stroke-width="12" fill="none"/>`;
+  }).join('');
+  const cloud = (x: number) =>
+    `<g transform="translate(${x},0)"><circle cx="-14" cy="0" r="16" fill="#fff"/><circle cx="8" cy="-8" r="20" fill="#fff"/><circle cx="26" cy="4" r="13" fill="#fff"/><rect x="-28" y="0" width="64" height="16" rx="8" fill="#fff"/></g>`;
+  return `<svg viewBox="-130 -110 260 130" aria-hidden="true">${arcs}${cloud(-92)}${cloud(84)}</svg>`;
+}
+
+export function bushSVG(): string {
+  return `<svg viewBox="-70 -50 140 80" aria-hidden="true">
+    <path d="M-62,24 C-72,4 -56,-16 -38,-12 C-36,-36 -6,-44 8,-28 C20,-46 52,-38 50,-12 C70,-12 74,14 62,24 Z" fill="#8fdb8a" ${G}/>
+    <circle cx="-30" cy="4" r="5" fill="#ffa3d2"/><circle cx="20" cy="-10" r="5" fill="#ffdb6e"/><circle cx="42" cy="10" r="5" fill="#ffa3d2"/>
+  </svg>`;
+}
+
+export function bunnySVG(): string {
+  return `<svg viewBox="-40 -80 80 110" aria-hidden="true">
+    <ellipse cx="-11" cy="-46" rx="8" ry="26" fill="#fff" ${G}/><ellipse cx="11" cy="-46" rx="8" ry="26" fill="#fff" ${G}/>
+    <ellipse cx="-11" cy="-44" rx="3.5" ry="17" fill="#ffc2dc"/><ellipse cx="11" cy="-44" rx="3.5" ry="17" fill="#ffc2dc"/>
+    <ellipse cx="0" cy="-6" rx="26" ry="22" fill="#fff" ${G}/>
+    <circle cx="-9" cy="-10" r="3.5" fill="#2a1836"/><circle cx="9" cy="-10" r="3.5" fill="#2a1836"/>
+    <path d="M-3,-3 L3,-3 L0,1 Z" fill="#ff9fbd"/>
+    <path d="M0,1 Q-5,6 -8,3 M0,1 Q5,6 8,3" stroke="${INK}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-15" cy="-1" r="3.5" fill="#ffc2dc"/><circle cx="15" cy="-1" r="3.5" fill="#ffc2dc"/>
+  </svg>`;
+}
+
+export function treeSVG(): string {
+  return `<svg viewBox="-110 -170 220 250" aria-hidden="true">
+    <path d="M-16,76 C-12,30 -14,-10 -22,-40 L22,-40 C14,-10 12,30 16,76 Z" fill="#c9966c" ${G}/>
+    <path d="M-2,-20 C30,-30 56,-40 76,-44" stroke="#c9966c" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <g fill="#9fdc7c" ${G}>
+      <circle cx="-50" cy="-80" r="44"/><circle cx="40" cy="-90" r="48"/><circle cx="-6" cy="-128" r="42"/><circle cx="70" cy="-50" r="26"/>
+    </g>
+    <g fill="#b6e79c"><circle cx="-50" cy="-80" r="40"/><circle cx="40" cy="-90" r="44"/><circle cx="-6" cy="-128" r="38"/><circle cx="70" cy="-50" r="22"/></g>
+    <circle cx="-30" cy="-100" r="6" fill="#ff8595"/><circle cx="30" cy="-120" r="6" fill="#ff8595"/><circle cx="60" cy="-76" r="6" fill="#ff8595"/><circle cx="-64" cy="-60" r="6" fill="#ff8595"/>
+    <g class="swing">
+      <path d="M40,-34 L40,40 M70,-40 L70,40" stroke="#a88062" stroke-width="3"/>
+      <rect x="30" y="38" width="50" height="10" rx="4" fill="#ffae5c" ${G}/>
+    </g>
+  </svg>`;
+}
+
+export function birdbathSVG(): string {
+  return `<svg viewBox="-60 -40 120 110" aria-hidden="true">
+    <path d="M-14,66 L-8,10 L8,10 L14,66 Z" fill="#e6e0f0" ${G}/>
+    <rect x="-26" y="60" width="52" height="10" rx="5" fill="#e6e0f0" ${G}/>
+    <path d="M-50,-4 C-46,16 46,16 50,-4 Z" fill="#e6e0f0" ${G}/>
+    <ellipse cx="0" cy="-4" rx="50" ry="8" fill="#b9e2fa" ${G}/>
+  </svg>`;
+}
+
+export function birdSVG(): string {
+  return `<svg viewBox="-34 -34 68 60" aria-hidden="true">
+    <path d="M-24,4 C-24,-20 18,-24 22,-2 C26,14 -20,20 -24,4 Z" fill="#8cc4f7" ${G}/>
+    <path d="M-4,-2 C4,-14 16,-10 14,2 C8,6 -2,6 -4,-2 Z" fill="#b9dcfb" ${G}/>
+    <path d="M-24,0 L-34,-6 L-30,6 Z" fill="#8cc4f7" ${G}/>
+    <circle cx="-12" cy="-8" r="3" fill="#2a1836"/>
+    <path d="M-25,-9 L-35,-5 L-25,-2 Z" fill="#ffb870" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M-4,18 L-4,24 M4,18 L4,24" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
+  </svg>`;
+}
+
+export function balloonSVG(): string {
+  const stripes = ['#ff8595', '#ffdb6e', '#8cc4f7', '#ffdb6e', '#ff8595'];
+  const env = 'M0,-80 C44,-80 62,-46 58,-16 C54,14 22,34 12,48 L-12,48 C-22,34 -54,14 -58,-16 C-62,-46 -44,-80 0,-80 Z';
+  return `<svg viewBox="-70 -90 140 180" aria-hidden="true">
+    <defs><clipPath id="bal-clip"><path d="${env}"/></clipPath></defs>
+    <g clip-path="url(#bal-clip)">${stripes.map((c, i) => `<rect x="${-60 + i * 24}" y="-90" width="24" height="150" fill="${c}"/>`).join('')}</g>
+    <path d="${env}" fill="none" ${G}/>
+    <path d="M-12,48 L-14,68 M12,48 L14,68" stroke="${INK}" stroke-width="2.5"/>
+    <rect x="-18" y="66" width="36" height="20" rx="4" fill="#c9966c" ${G}/>
+    <ellipse cx="-24" cy="-50" rx="8" ry="16" fill="#fff" opacity=".4" transform="rotate(20 -24 -50)"/>
+  </svg>`;
+}
+
+export function fairyhouseSVG(): string {
+  return `<svg viewBox="-70 -130 140 200" aria-hidden="true">
+    <path d="M-40,64 C-44,20 -40,-30 -34,-50 L34,-50 C40,-30 44,20 40,64 Z" fill="#e8c9a8" ${G}/>
+    <path d="M-16,64 L-16,30 A16,16 0 0 1 16,30 L16,64 Z" fill="#b98a66" ${G}/>
+    <circle cx="10" cy="46" r="2.5" fill="#ffdb6e"/>
+    <circle class="fh-light" cx="-18" cy="-12" r="11" fill="#fff4c2" ${G}/>
+    <circle class="fh-light" cx="20" cy="4" r="9" fill="#fff4c2" ${G}/>
+    <path d="M-58,-44 C-50,-100 -14,-124 0,-124 C14,-124 50,-100 58,-44 C30,-36 -30,-36 -58,-44 Z" fill="#c2a3f2" ${G}/>
+    <circle cx="-24" cy="-74" r="7" fill="#fff"/><circle cx="16" cy="-96" r="6" fill="#fff"/><circle cx="30" cy="-62" r="8" fill="#fff"/>
+    <path d="M0,-124 L0,-136" stroke="${INK}" stroke-width="3"/>
+    <path d="${starPath(9)}" fill="#ffdb6e" stroke="${INK}" stroke-width="2.5" transform="translate(0,-140)"/>
+  </svg>`;
+}
+
+export function snailSVG(): string {
+  return `<svg viewBox="-60 -50 120 80" aria-hidden="true">
+    <path d="M-50,22 C-50,8 -30,6 -20,10 L40,10 C54,10 56,22 50,24 Z" fill="#ffe0b8" ${G}/>
+    <path d="M40,12 C42,0 44,-10 46,-16 M48,12 C52,2 56,-8 60,-12" stroke="${INK}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="46" cy="-16" r="3.5" fill="${INK}"/><circle cx="60" cy="-12" r="3.5" fill="${INK}"/>
+    <circle cx="4" cy="-8" r="26" fill="#ffb3cf" ${G}/>
+    <path d="M4,-8 m-4,0 a4,4 0 1 1 8,0 a8,8 0 1 1 -16,0 a12,12 0 1 1 24,0 a16,16 0 1 1 -32,0" stroke="${INK}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M38,18 Q44,22 50,18" stroke="${INK}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+
+export const ICONS_EXTRA = {
+  gear: `<svg viewBox="-50 -50 100 100"><g fill="currentColor">${[0, 45, 90, 135, 180, 225, 270, 315].map((a) => `<rect x="-7" y="-40" width="14" height="18" rx="4" transform="rotate(${a})"/>`).join('')}<circle r="27"/></g><circle r="10" fill="#fff"/></svg>`,
+  sun: `<svg viewBox="-50 -50 100 100"><circle r="18" fill="#fff"/>${[0, 45, 90, 135, 180, 225, 270, 315].map((a) => `<rect x="-4" y="-38" width="8" height="12" rx="4" fill="#fff" transform="rotate(${a})"/>`).join('')}</svg>`,
+  moon: `<svg viewBox="-50 -50 100 100"><path d="M10,-32 A32,32 0 1 0 30,14 A26,26 0 1 1 10,-32 Z" fill="#fff"/></svg>`,
+};

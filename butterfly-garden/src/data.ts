@@ -1,7 +1,7 @@
 // Game data: foods, wing shapes, patterns, and the saved butterfly collection.
 
-export type Shape = 'round' | 'pointy' | 'swallow' | 'heart';
-export type Pattern = 'dots' | 'stripes' | 'hearts' | 'stars';
+export type Shape = 'round' | 'pointy' | 'swallow' | 'heart' | 'frilly';
+export type Pattern = 'dots' | 'stripes' | 'hearts' | 'stars' | 'rainbow';
 export type FoodId =
   | 'strawberry'
   | 'orange'
@@ -19,14 +19,14 @@ export interface Food {
 }
 
 export const FOODS: Record<FoodId, Food> = {
-  strawberry: { id: 'strawberry', name: 'Strawberry', color: '#ff5d73' },
-  orange: { id: 'orange', name: 'Orange', color: '#ff9f1c' },
-  banana: { id: 'banana', name: 'Banana', color: '#ffd23f' },
-  pear: { id: 'pear', name: 'Pear', color: '#7fd35b' },
-  blueberry: { id: 'blueberry', name: 'Blueberry', color: '#4ea8ff' },
-  grape: { id: 'grape', name: 'Grape', color: '#a86cf0' },
-  melon: { id: 'melon', name: 'Watermelon', color: '#ff8fcf' },
-  golden: { id: 'golden', name: 'Golden', color: '#f7c948' },
+  strawberry: { id: 'strawberry', name: 'Strawberry', color: '#ff7b8e' },
+  orange: { id: 'orange', name: 'Orange', color: '#ffae5c' },
+  banana: { id: 'banana', name: 'Banana', color: '#ffdb6e' },
+  pear: { id: 'pear', name: 'Pear', color: '#9fdc7c' },
+  blueberry: { id: 'blueberry', name: 'Blueberry', color: '#7cb9f7' },
+  grape: { id: 'grape', name: 'Grape', color: '#bb97f2' },
+  melon: { id: 'melon', name: 'Watermelon', color: '#ffa3d2' },
+  golden: { id: 'golden', name: 'Golden', color: '#f7cf55' },
 };
 
 export const EVERYDAY_FOODS: FoodId[] = [
@@ -39,14 +39,15 @@ export const EVERYDAY_FOODS: FoodId[] = [
   'melon',
 ];
 
-export const SHAPES: Shape[] = ['round', 'pointy', 'swallow', 'heart'];
-export const PATTERNS: Pattern[] = ['dots', 'stripes', 'hearts', 'stars'];
+export const SHAPES: Shape[] = ['round', 'pointy', 'swallow', 'heart', 'frilly'];
+export const PATTERNS: Pattern[] = ['dots', 'stripes', 'hearts', 'stars', 'rainbow'];
 
 export const SHAPE_NAMES: Record<Shape, string> = {
   round: 'Puffwing',
   pointy: 'Zipwing',
   swallow: 'Swallowtail',
   heart: 'Sweetheart',
+  frilly: 'Frillywing',
 };
 
 export const PATTERN_NAMES: Record<Pattern, string> = {
@@ -54,6 +55,7 @@ export const PATTERN_NAMES: Record<Pattern, string> = {
   stripes: 'Stripy',
   hearts: 'Lovey',
   stars: 'Starry',
+  rainbow: 'Rainbow',
 };
 
 /** How many foods the caterpillar eats before it is full. */
@@ -101,10 +103,14 @@ interface SaveData {
   butterflies: Butterfly[];
   music: boolean;
   sound: boolean;
+  /** The player's name, used in cheers and on the title. */
+  name: string;
+  /** Garden unlocks the player has already seen (so new ones can sparkle). */
+  seenUnlocks: string[];
 }
 
 function load(): SaveData {
-  const fresh: SaveData = { butterflies: [], music: true, sound: true };
+  const fresh: SaveData = { butterflies: [], music: true, sound: true, name: 'Mia', seenUnlocks: [] };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return fresh;
@@ -113,6 +119,8 @@ function load(): SaveData {
       butterflies: Array.isArray(parsed.butterflies) ? parsed.butterflies : [],
       music: parsed.music ?? true,
       sound: parsed.sound ?? true,
+      name: typeof parsed.name === 'string' ? parsed.name : 'Mia',
+      seenUnlocks: Array.isArray(parsed.seenUnlocks) ? parsed.seenUnlocks : [],
     };
   } catch {
     return fresh;
@@ -158,7 +166,41 @@ export function latestFor(shape: Shape, pattern: Pattern): Butterfly | undefined
 
 export function resetCollection() {
   save.butterflies = [];
+  save.seenUnlocks = [];
   persist();
 }
+
+// ---------------------------------------------------------------------------
+// Garden unlocks: every butterfly grown makes the garden a little richer.
+
+export type UnlockId = 'mushroom' | 'pond' | 'rainbow' | 'bunny' | 'tree' | 'birdbath' | 'balloon' | 'fairyhouse';
+
+export const UNLOCKS: { id: UnlockId; at: number }[] = [
+  { id: 'mushroom', at: 2 },
+  { id: 'pond', at: 3 },
+  { id: 'rainbow', at: 5 },
+  { id: 'bunny', at: 7 },
+  { id: 'tree', at: 9 },
+  { id: 'birdbath', at: 12 },
+  { id: 'balloon', at: 15 },
+  { id: 'fairyhouse', at: 20 },
+];
+
+export function unlocked(): UnlockId[] {
+  const n = save.butterflies.length;
+  return UNLOCKS.filter((u) => n >= u.at).map((u) => u.id);
+}
+
+/** Unlocks earned but not yet shown in the garden. */
+export function unseenUnlocks(): UnlockId[] {
+  return unlocked().filter((u) => !save.seenUnlocks.includes(u));
+}
+
+export function markUnlocksSeen() {
+  save.seenUnlocks = unlocked();
+  persist();
+}
+
+export const playerName = () => save.name.trim();
 
 export const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);

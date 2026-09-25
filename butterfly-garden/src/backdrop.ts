@@ -1,4 +1,5 @@
 // The living sky behind every screen: day, night and dawn, with drifting clouds.
+import { sound } from './audio';
 import { el, rand } from './ui';
 
 let root: HTMLElement;
@@ -39,6 +40,23 @@ export function initBackdrop(parent: HTMLElement) {
       <path class="hill-front" d="M0,210 C200,150 380,170 520,200 C700,240 850,160 1000,190 L1000,300 L0,300 Z"/>
     </svg>`,
   );
+
+  // Little meadow flowers and grass tufts dotted over the hills.
+  const meadow = el('div', 'meadow', root);
+  const petals = ['#ffffff', '#ffc2dc', '#ffe89a', '#d9c6fa', '#c6e4ff'];
+  for (let i = 0; i < 26; i++) {
+    const bottom = rand(1, 19);
+    const tuft = i % 3 === 0;
+    const d = el('div', tuft ? 'tuft' : 'mini-flower', meadow);
+    d.style.left = `${rand(0, 98)}%`;
+    d.style.bottom = `${bottom}%`;
+    // Things further back (higher up) are a little smaller.
+    d.style.setProperty('--k', String(1.2 - bottom / 30));
+    if (!tuft) d.style.setProperty('--c', petals[i % petals.length]);
+  }
+
+  // A whisper of paper grain for a storybook feel.
+  el('div', 'grain', root);
 }
 
 export type TimeOfDay = 'day' | 'night' | 'dawn';
@@ -46,4 +64,5 @@ export type TimeOfDay = 'day' | 'night' | 'dawn';
 export function setTime(t: TimeOfDay) {
   root.dataset.time = t;
   document.documentElement.dataset.time = t;
+  sound.setNight(t === 'night');
 }

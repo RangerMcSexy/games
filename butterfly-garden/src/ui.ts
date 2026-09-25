@@ -106,6 +106,18 @@ export class Scene {
     });
   }
 
+  /** Wait for a promise (e.g. a spoken line), capped so nothing can stall. */
+  until<T>(p: Promise<T>, maxMs = 8000): Promise<void> {
+    return this.guard<void>((resolve) => {
+      const t = window.setTimeout(() => resolve(), maxMs);
+      p.then(
+        () => resolve(),
+        () => resolve(),
+      );
+      return () => clearTimeout(t);
+    });
+  }
+
   tap(target: Element, hintAfter = 5000) {
     return this.tapAny([target], hintAfter);
   }
@@ -138,6 +150,9 @@ export class Scene {
 // Idle hint: a friendly hand that points at what to tap.
 
 class Hint {
+  /** Hooks so Dot the ladybug can fly over to whatever the hand points at. */
+  onShow?: (target: Element) => void;
+  onHide?: () => void;
   private hand?: HTMLElement;
   private timer = 0;
   private follow = 0;
@@ -164,6 +179,7 @@ class Hint {
     this.hand.style.left = `${c.x}px`;
     this.hand.style.top = `${c.y + c.h * 0.25}px`;
     replay(this.hand, 'show');
+    this.onShow?.(t);
   }
 
   hide() {
@@ -171,6 +187,7 @@ class Hint {
     clearTimeout(this.timer);
     clearInterval(this.timer);
     this.hand?.classList.remove('show');
+    this.onHide?.();
   }
 }
 
