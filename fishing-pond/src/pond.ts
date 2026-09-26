@@ -335,6 +335,8 @@ export async function pondScreen(host: Host): Promise<'aquarium'> {
     root.classList.add(`w-${w}`);
     setWeather(w);
     sound.ambience(w);
+    // Night-only fish hurry away when the sun comes back.
+    if (w !== 'night') for (const s of swimmers) if (s.fish.night && s !== biter) s.speed *= 4;
     if (speak) {
       sound.magic();
       const r = skyObj.getBoundingClientRect();

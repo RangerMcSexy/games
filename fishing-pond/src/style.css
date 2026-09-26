@@ -1572,11 +1572,6 @@ svg {
 .t-boat .pip-wing-l {
   transform-origin: 70px 92px;
 }
-.t-lily {
-  top: calc(64% - 1.6vmin);
-  right: 10%;
-  width: 16vmin;
-}
 .t-frog {
   position: absolute;
   right: 4%;

@@ -1,5 +1,5 @@
 // The title screen and the fish tank (the collection).
-import { ICONS, boatSVG, castleSVG, chestSVG, cloudSVG, coralSVG, fishSVG, frogSVG, hillsSVG, lilyPadSVG, plantSVG, sillySVG, silhouetteSVG, snailSVG, sunSVG } from './art';
+import { ICONS, boatSVG, castleSVG, chestSVG, cloudSVG, coralSVG, fishSVG, frogSVG, hillsSVG, plantSVG, sillySVG, silhouetteSVG, snailSVG, sunSVG } from './art';
 import { sound } from './audio';
 import { FISH, SILLY, fishById, markUnlocksSeen, playerName, save, speciesCount, unlocked, unseenUnlocks, type Fish, type UnlockId } from './data';
 import { Swimmer } from './swim';
@@ -31,7 +31,6 @@ export async function titleScreen(host: Host): Promise<'play' | 'aquarium'> {
   el('div', 'hills', bg, hillsSVG());
   const water = el('div', 't-water', bg);
   el('div', 'water-shine', water);
-  el('div', 'lily t-lily', bg, lilyPadSVG(true));
   const frog = el('div', 't-frog', bg, frogSVG());
   const boat = el('div', 't-boat', bg, boatSVG());
   const jumper = el('div', 't-jumper', bg);

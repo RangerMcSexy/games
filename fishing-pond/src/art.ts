@@ -366,8 +366,10 @@ export function sunSVG(): string {
 }
 
 export function moonSVG(): string {
+  const glow = nextId('mg');
   return `<svg viewBox="-60 -60 120 120" aria-hidden="true" class="moon-art">
-    <circle r="44" fill="#fff6c9" opacity=".18"/>
+    <defs><radialGradient id="${glow}"><stop offset=".4" stop-color="#fff6c9" stop-opacity=".35"/><stop offset="1" stop-color="#fff6c9" stop-opacity="0"/></radialGradient></defs>
+    <circle r="58" fill="url(#${glow})"/>
     <path d="M10,-36 A36,36 0 1 0 30,20 A28,28 0 1 1 10,-36 Z" fill="#fff3b0" ${S}/>
     <path d="M-16,-2 Q-12,2 -8,-2" fill="none" ${S} stroke-width="3"/>
     <path d="M-14,10 Q-8,15 -2,10" fill="none" ${S} stroke-width="2.5"/>
@@ -379,7 +381,7 @@ export function cloudSVG(rain = false): string {
   const c = rain ? '#c5cfe0' : '#fff';
   return `<svg viewBox="-70 -40 140 70" aria-hidden="true" class="cloud-art">
     <path d="M-50,20 C-66,20 -66,-4 -48,-4 C-48,-26 -18,-32 -8,-16 C0,-36 36,-34 38,-10 C58,-12 64,20 44,20 Z" fill="${c}" ${S}/>
-    ${rain ? `<path d="M-16,4 Q-12,0 -8,4 M8,4 Q12,0 16,4" fill="none" ${S} stroke-width="3"/><path d="M-6,12 Q0,8 6,12" fill="none" ${S} stroke-width="2.5"/>` : ''}
+    ${rain ? `<path d="M-16,4 Q-12,0 -8,4 M8,4 Q12,0 16,4" fill="none" ${S} stroke-width="3"/><path d="M-6,10 Q0,16 6,10" fill="none" ${S} stroke-width="2.5"/><circle cx="-22" cy="8" r="4" fill="#ff9fb8" opacity=".5"/><circle cx="22" cy="8" r="4" fill="#ff9fb8" opacity=".5"/>` : ''}
   </svg>`;
 }
 
