@@ -1,12 +1,16 @@
 # Makes the games' spoken lines with a free, natural voice (see
 # scripts/voice/generate.py), saves them to main and republishes the site.
 #
-# Run it from the Actions tab: "Make voice clips" → Run workflow.
+# Run it from the Actions tab: "Make voice clips" → Run workflow, or by
+# changing voice/request.json on main (e.g. {"mode": "full", "voice": "kokoro:af_heart"}).
 #   audition  a few lines in many voices, at <site>/voice/audition/
 #   full      every line in the chosen voice (e.g. kokoro:af_heart)
 name: Make voice clips
 
 on:
+  push:
+    branches: [main]
+    paths: [voice/request.json]
   workflow_dispatch:
     inputs:
       mode:
@@ -33,6 +37,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+      - name: What to make
+        id: req
+        run: |
+          if [ "${{ github.event_name }}" = push ]; then
+            echo "mode=$(jq -r '.mode // "audition"' voice/request.json)" >> "$GITHUB_OUTPUT"
+            echo "voice=$(jq -r '.voice // "kokoro:af_heart"' voice/request.json)" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=${{ inputs.mode }}" >> "$GITHUB_OUTPUT"
+            echo "voice=${{ inputs.voice }}" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -42,25 +56,25 @@ jobs:
       # Each voice engine gets its own Python environment (their
       # dependencies clash). CPU-only PyTorch keeps the download small.
       - name: Kokoro
-        if: inputs.mode == 'audition' || startsWith(inputs.voice, 'kokoro:')
+        if: steps.req.outputs.mode == 'audition' || startsWith(steps.req.outputs.voice, 'kokoro:')
         run: |
           python -m venv /tmp/kokoro
           /tmp/kokoro/bin/pip install --extra-index-url https://download.pytorch.org/whl/cpu "kokoro==0.9.4" soundfile
-          if [ "${{ inputs.mode }}" = audition ]; then
+          if [ "${{ steps.req.outputs.mode }}" = audition ]; then
             /tmp/kokoro/bin/python scripts/voice/generate.py audition --engine kokoro
           else
-            /tmp/kokoro/bin/python scripts/voice/generate.py full --voice "${{ inputs.voice }}"
+            /tmp/kokoro/bin/python scripts/voice/generate.py full --voice "${{ steps.req.outputs.voice }}"
           fi
       - name: Chatterbox
-        if: inputs.mode == 'audition' || startsWith(inputs.voice, 'chatterbox:')
-        continue-on-error: ${{ inputs.mode == 'audition' }}
+        if: steps.req.outputs.mode == 'audition' || startsWith(steps.req.outputs.voice, 'chatterbox:')
+        continue-on-error: ${{ steps.req.outputs.mode == 'audition' }}
         run: |
           python -m venv /tmp/chatterbox
           /tmp/chatterbox/bin/pip install --extra-index-url https://download.pytorch.org/whl/cpu "chatterbox-tts==0.1.7" soundfile
-          if [ "${{ inputs.mode }}" = audition ]; then
+          if [ "${{ steps.req.outputs.mode }}" = audition ]; then
             /tmp/chatterbox/bin/python scripts/voice/generate.py audition --engine chatterbox
           else
-            /tmp/chatterbox/bin/python scripts/voice/generate.py full --voice "${{ inputs.voice }}"
+            /tmp/chatterbox/bin/python scripts/voice/generate.py full --voice "${{ steps.req.outputs.voice }}"
           fi
 
       - name: Save to main
@@ -69,7 +83,8 @@ jobs:
           git config user.email "41898499+github-actions[bot]@users.noreply.github.com"
           git add voice
           if git diff --cached --quiet; then echo "No changes"; exit 0; fi
-          git commit -m "Voice clips: ${{ inputs.mode }} ${{ inputs.mode == 'full' && inputs.voice || '' }}"
+          git commit -m "Voice clips: ${{ steps.req.outputs.mode }} ${{ steps.req.outputs.mode == 'full' && steps.req.outputs.voice || '' }}"
+          git pull --rebase origin main
           git push
       # A push made by this workflow doesn't start other workflows on its
       # own, so ask for the site to be republished.
