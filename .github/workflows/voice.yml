@@ -36,7 +36,8 @@ concurrency:
 jobs:
   voice:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    # A full set of Chatterbox lines takes about an hour on GitHub's machines.
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
         with:

@@ -1,10 +1,4 @@
 {
-  "mode": "audition",
-  "voices": [
-    "chatterbox:0.6:af_nicole",
-    "chatterbox:0.6:af_heart",
-    "chatterbox:0.6:af_bella",
-    "chatterbox:0.6:bf_emma",
-    "chatterbox:0.6:bf_isabella"
-  ]
+  "mode": "full",
+  "voice": "chatterbox:0.6:bf_emma"
 }
