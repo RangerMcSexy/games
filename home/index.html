@@ -112,16 +112,22 @@
       }
       .games {
         display: grid;
-        grid-template-columns: repeat(4, auto);
-        gap: 3.5vmin;
+        grid-template-columns: repeat(5, auto);
+        align-items: start;
+        gap: 3vmin;
       }
       @media (max-aspect-ratio: 1/1) {
         .games {
           grid-template-columns: repeat(2, auto);
-          gap: 6vw;
+          gap: 3.5vh 6vw;
+        }
+        /* An odd one out sits in the middle of its row. */
+        .game:last-child:nth-child(odd) {
+          grid-column: 1 / -1;
+          justify-self: center;
         }
         .tile {
-          --size: clamp(120px, 40vw, 280px);
+          --size: clamp(100px, min(36vw, 19vh), 260px);
         }
         h1 {
           font-size: clamp(38px, 12vw, 110px);
@@ -142,7 +148,7 @@
         text-align: center;
       }
       .tile {
-        width: var(--size, clamp(110px, 27vmin, 280px));
+        width: var(--size, clamp(96px, min(27vmin, 15vw), 260px));
         aspect-ratio: 1;
         display: grid;
         place-items: center;
@@ -334,6 +340,35 @@
           </span>
           <span>Fishing Pond</span>
         </a>
+        <a class="game" href="leapy-pond/" style="--d: -3.2s">
+          <span class="tile" style="--bg: #d3f0ff; --edge: #8ccbe8">
+            <svg viewBox="-50 -50 100 100" aria-hidden="true">
+              <!-- Hoppy the frog on a lily pad. -->
+              <g stroke="#5a4272" stroke-width="3.5" stroke-linejoin="round">
+                <path d="M0,40 L-9,30 A46,15 0 1 0 9,30 Z" fill="#6fcf5f" />
+                <ellipse cx="-20" cy="30" rx="12" ry="6" fill="#5bbf45" />
+                <ellipse cx="20" cy="30" rx="12" ry="6" fill="#5bbf45" />
+                <path d="M-27,27 C-32,2 -21,-10 0,-10 C21,-10 32,2 27,27 C18,35 -18,35 -27,27 Z" fill="#7ed957" />
+                <circle cx="-14" cy="-14" r="11" fill="#7ed957" />
+                <circle cx="14" cy="-14" r="11" fill="#7ed957" />
+              </g>
+              <ellipse cx="0" cy="18" rx="15" ry="10" fill="#c9f2a8" />
+              <circle cx="-14" cy="-15" r="7.5" fill="#fff" />
+              <circle cx="14" cy="-15" r="7.5" fill="#fff" />
+              <circle cx="-13" cy="-15" r="4.2" fill="#5a4272" />
+              <circle cx="15" cy="-15" r="4.2" fill="#5a4272" />
+              <path d="M-12,2 Q0,12 12,2" fill="none" stroke="#5a4272" stroke-width="3" stroke-linecap="round" />
+              <circle cx="-19" cy="4" r="4" fill="#ff8fb1" opacity=".55" />
+              <circle cx="19" cy="4" r="4" fill="#ff8fb1" opacity=".55" />
+              <g transform="translate(34,-30)">
+                <ellipse cx="-5" cy="-5" rx="6" ry="4" fill="#e8f7ff" stroke="#5a4272" stroke-width="2" transform="rotate(-30 -5 -5)" />
+                <ellipse cx="5" cy="-5" rx="6" ry="4" fill="#e8f7ff" stroke="#5a4272" stroke-width="2" transform="rotate(30 5 -5)" />
+                <circle r="5" fill="#5a4272" />
+              </g>
+            </svg>
+          </span>
+          <span>Leapy Pond</span>
+        </a>
       </nav>
     </main>
 
@@ -362,7 +397,7 @@
       paintTitle(name ?? '');
 
       // A badge on each game: butterflies grown, treats baked, pictures
-      // painted, kinds of fish found. Read from each game's own save.
+      // painted, kinds of fish found, pond friends met. Read from each game's own save.
       const read = (key) => {
         try {
           return JSON.parse(localStorage.getItem(key) || 'null') || {};
@@ -375,6 +410,7 @@
         'bakery/': [read('little-bakery.v1').treats?.length],
         'colour-splash/': [read('colour-splash.v1').paintings?.length],
         'fishing-pond/': [Object.keys(read('fishing-pond.v1').caught ?? {}).length, 12],
+        'leapy-pond/': [read('leapy-pond.v1').friends?.length, 12],
       };
       for (const [href, [n, of]] of Object.entries(counts)) {
         if (!n) continue;

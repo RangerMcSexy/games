@@ -1,4 +1,4 @@
-// Collects every spoken line from the four games into voice/lines.json, the
+// Collects every spoken line from all the games into voice/lines.json, the
 // list scripts/voice/generate.py turns into audio clips.
 //
 // Lines are keyed by what they say, with the child's name left out, exactly
@@ -7,7 +7,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const GAMES = ['butterfly-garden', 'bakery', 'colour-splash', 'fishing-pond'];
+const GAMES = ['butterfly-garden', 'bakery', 'colour-splash', 'fishing-pond', 'leapy-pond'];
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const unnamed = (text) => text.replace(/\{name\}'s\s*/g, '').replace(/,?\s*\{name\}/g, '');
 
