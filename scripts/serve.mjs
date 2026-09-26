@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 const site = join(dirname(fileURLToPath(import.meta.url)), '..', 'site');
 // Not 5173, so it never clashes with a single game's `npm run dev`.
 const port = Number(process.env.PORT) || 8080;
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.woff2': 'font/woff2', '.png': 'image/png', '.svg': 'image/svg+xml' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.json': 'application/json', '.mp3': 'audio/mpeg', '.woff2': 'font/woff2', '.png': 'image/png', '.svg': 'image/svg+xml' };
 
 if (!existsSync(site)) {
   console.error('No site/ folder yet. Run "npm run build" first.');

@@ -35,6 +35,23 @@ Played this way, the games share a few things:
 After the first visit the games are saved on the device, so they also work
 **offline** (in the car, on a plane).
 
+## The voice
+
+Every spoken line has a clip in a natural, free AI voice
+([Kokoro](https://github.com/hexgrad/kokoro), Apache 2.0, or
+[Chatterbox](https://github.com/resemble-ai/chatterbox), MIT), made once and
+bundled with the site. On each device the games play, in order of preference:
+
+1. a grown-up's own recording of that line (grown-up settings: hold the gear),
+2. the bundled clip (lines with the child's name use the version without it),
+3. the device's built-in voice.
+
+To remake the clips, e.g. after adding lines or to change voice, go to the
+**Actions** tab, pick **Make voice clips** and **Run workflow**:
+`audition` makes sample lines in several voices at `<site>/voice/audition/`,
+`full` makes every line in the voice you name. The clips are saved to `main`
+and the site is republished.
+
 ## Put them online (GitHub Pages)
 
 Every change to `main` is built and published automatically by

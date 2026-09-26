@@ -37,11 +37,24 @@ const font = 'baloo-2-latin-800-normal.woff2';
 mkdirSync(join(site, 'fonts'));
 cpSync(join(root, GAMES[0], 'node_modules', '@fontsource', 'baloo-2', 'files', font), join(site, 'fonts', font));
 
+// The voice clips (made by scripts/voice) and the voice audition page.
+const voice = [];
+if (existsSync(join(root, 'voice', 'manifest.json'))) {
+  const manifest = JSON.parse(readFileSync(join(root, 'voice', 'manifest.json'), 'utf8'));
+  voice.push('voice/manifest.json', ...Object.values(manifest.clips).map((f) => `voice/${f}`));
+  mkdirSync(join(site, 'voice'));
+  cpSync(join(root, 'voice', 'manifest.json'), join(site, 'voice', 'manifest.json'));
+  cpSync(join(root, 'voice', 'clips'), join(site, 'voice', 'clips'), { recursive: true });
+}
+if (existsSync(join(root, 'voice', 'audition'))) cpSync(join(root, 'voice', 'audition'), join(site, 'voice', 'audition'), { recursive: true });
+
 // The offline helper, stamped with a fingerprint of everything it keeps so
 // devices pick up new versions.
 const hash = createHash('sha256');
-for (const f of ['index.html', 'ask-name.js', ...GAMES.map((g) => `${g}/index.html`)]) hash.update(readFileSync(join(site, f)));
-const sw = readFileSync(join(root, 'home', 'sw.js'), 'utf8').replace('__VERSION__', hash.digest('hex').slice(0, 12));
+for (const f of ['index.html', 'ask-name.js', ...GAMES.map((g) => `${g}/index.html`), ...voice.slice(0, 1)]) hash.update(readFileSync(join(site, f)));
+const sw = readFileSync(join(root, 'home', 'sw.js'), 'utf8')
+  .replace('__VERSION__', hash.digest('hex').slice(0, 12))
+  .replace('const VOICE = [];', `const VOICE = ${JSON.stringify(voice)};`);
 writeFileSync(join(site, 'sw.js'), sw);
 
 console.log('\nDone: the games are in site/. Run "npm start" to play them.');

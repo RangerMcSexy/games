@@ -118,7 +118,46 @@ const sameWords = (id: string) => {
   return text === undefined ? [id] : LINES.filter((l) => l.text === text).map((l) => l.id);
 };
 
+// Clips of every line in a natural voice, made once by scripts/voice and
+// served next to the games (../voice/). A parent's recording still comes
+// first; the device's own voice is the last resort. Lines with the child's
+// name use the version without it ("Well done!").
+let clips: Record<string, string> = {};
+const clipBuffers = new Map<string, Promise<AudioBuffer | null>>();
+
+async function loadClips() {
+  if (!location.protocol.startsWith('http')) return;
+  try {
+    const res = await fetch('../voice/manifest.json');
+    if (res.ok) clips = ((await res.json()) as { clips?: Record<string, string> }).clips ?? {};
+  } catch {
+    // No clips (e.g. a single game run on its own): the device voice it is.
+  }
+}
+
+function clipBuffer(file: string): Promise<AudioBuffer | null> {
+  let p = clipBuffers.get(file);
+  if (!p) {
+    p = (async () => {
+      const ctx = sound.context;
+      if (!ctx) return null;
+      try {
+        const res = await fetch(`../voice/${file}`);
+        const data = await res.arrayBuffer();
+        return await new Promise<AudioBuffer>((ok, fail) => ctx.decodeAudioData(data, ok, fail));
+      } catch {
+        return null;
+      }
+    })();
+    clipBuffers.set(file, p);
+    // Try again next time if it failed (e.g. no audio context yet).
+    void p.then((b) => b || clipBuffers.delete(file));
+  }
+  return p;
+}
+
 export async function loadRecordings() {
+  void loadClips();
   const [shared, own] = await Promise.all([readAll(SHARED_DB), readAll(OWN_DB)]);
   for (const line of LINES) {
     let blob = shared.get(line.text);
@@ -260,9 +299,12 @@ function cut() {
   sound.duck(false);
 }
 
+/** A line with the name left out: "{name}'s Bakery!" → "Bakery!". */
+const unnamed = (text: string) => text.replace(/\{name\}'s\s*/g, '').replace(/,?\s*\{name\}/g, '');
+
 function fill(text: string) {
   const name = playerName();
-  return name ? text.replace(/\{name\}/g, name) : text.replace(/,?\s*\{name\}/g, '').replace(/\{name\}'s\s*/g, '');
+  return name ? text.replace(/\{name\}/g, name) : unnamed(text);
 }
 
 /** Robot voice for arbitrary text. Resolves when finished (or cut off). */
@@ -303,10 +345,11 @@ async function sayOne(id: string): Promise<void> {
   const line = byId.get(id);
   if (!line) return;
   if (!save.sound || document.hidden) return;
-  if (blobs.has(id)) {
+  const clip = clips[unnamed(line.text)];
+  if (blobs.has(id) || clip) {
     cut();
     const my = token;
-    const buf = await bufferFor(id);
+    const buf = blobs.has(id) ? await bufferFor(id) : await clipBuffer(clip);
     if (my !== token) return;
     if (buf && sound.context) {
       return new Promise((resolve) => {
