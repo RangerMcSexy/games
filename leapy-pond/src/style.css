@@ -1,0 +1,1886 @@
+/* Leapy Pond: soft, chunky, toddler-friendly styling. */
+
+:root {
+  --ink: #3d4a6b;
+  --cream: #fffaf0;
+  --safe-top: max(12px, env(safe-area-inset-top));
+  --safe-bottom: max(10px, env(safe-area-inset-bottom));
+  font-family: 'Baloo 2', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  background: #5cc4f0;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+button {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+  outline: 4px solid #fff;
+  outline-offset: 4px;
+}
+
+svg {
+  display: block;
+  overflow: visible;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.scene.in {
+  opacity: 1;
+}
+.scene.out {
+  opacity: 0;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Top bar & buttons */
+
+.top-bar {
+  position: absolute;
+  top: var(--safe-top);
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  display: flex;
+  gap: 10px;
+  z-index: 50;
+  pointer-events: none;
+}
+.top-bar .spacer {
+  flex: 1;
+}
+.top-bar button {
+  pointer-events: auto;
+}
+
+.round-btn {
+  display: grid;
+  place-items: center;
+  width: clamp(48px, 9vmin, 70px);
+  height: clamp(48px, 9vmin, 70px);
+  border-radius: 50%;
+  background: #c3a6ec;
+  color: #c3a6ec;
+  box-shadow:
+    0 5px 0 rgba(90, 66, 114, 0.25),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.12s,
+    opacity 0.3s,
+    visibility 0.3s;
+}
+.round-btn svg {
+  width: 58%;
+  height: 58%;
+}
+.round-btn:active {
+  transform: translateY(3px) scale(0.95);
+}
+.round-btn.off {
+  background: #a99bb8;
+}
+.home-btn {
+  background: #ffae5c;
+  color: #ffae5c;
+}
+.round-btn.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.big-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(84px, 18vmin, 150px);
+  height: clamp(84px, 18vmin, 150px);
+  border-radius: 50%;
+  --c: #7fd48f;
+  --d: #56b169;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.45), transparent 45%), var(--c);
+  color: var(--c);
+  border: 5px solid #fff;
+  box-shadow:
+    0 1vmin 0 var(--d),
+    0 1.6vmin 2.4vmin rgba(90, 66, 114, 0.25);
+  transition: transform 0.12s;
+}
+.big-btn svg {
+  width: 56%;
+  height: 56%;
+}
+.big-btn:active {
+  transform: translateY(0.8vmin) scale(0.96);
+}
+.big-btn.green {
+  --c: #7fd48f;
+  --d: #56b169;
+}
+.big-btn.orange {
+  --c: #ffb870;
+  --d: #e8914a;
+}
+.big-btn.purple {
+  --c: #c3a3f0;
+  --d: #9a7ad0;
+}
+.big-btn.blue {
+  --c: #89c2f5;
+  --d: #5e9bd6;
+}
+.big-btn.nudge {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.count-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 2em;
+  height: 2em;
+  padding: 0 0.4em;
+  display: grid;
+  place-items: center;
+  border-radius: 1em;
+  background: #ff8595;
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(16px, 2.8vmin, 24px);
+  line-height: 1;
+  border: 3px solid #fff;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Hint & effects */
+
+.hint-hand {
+  position: fixed;
+  z-index: 70;
+  pointer-events: none;
+  font-size: clamp(56px, 12vmin, 110px);
+  line-height: 1;
+  opacity: 0;
+  transform: translate(-30%, 0);
+  filter: drop-shadow(0 4px 4px rgba(90, 66, 114, 0.3));
+}
+.hint-hand.show {
+  animation: handTap 2.4s ease-in-out forwards;
+}
+
+.fx-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 80;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  line-height: 1;
+}
+.p-confetti {
+  border-radius: 3px;
+}
+.p-bits {
+  border-radius: 40% 60% 30% 70%;
+  border: 2px solid var(--ink);
+}
+.p-sparkle svg {
+  width: 100%;
+  height: 100%;
+}
+.fly-clone {
+  position: absolute;
+  z-index: 81;
+}
+.fly-clone svg {
+  width: 100%;
+  height: 100%;
+}
+
+
+/* Gear (grown-ups) */
+
+.gear-btn {
+  background: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.95);
+  box-shadow: none;
+  width: clamp(40px, 7vmin, 54px);
+  height: clamp(40px, 7vmin, 54px);
+  align-self: center;
+  position: relative;
+}
+.gear-btn .ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  --p: 0%;
+  background: conic-gradient(#ffffff var(--p), transparent 0);
+  -webkit-mask: radial-gradient(circle, transparent 60%, #000 62%);
+  mask: radial-gradient(circle, transparent 60%, #000 62%);
+}
+.gear-btn.holding .ring {
+  animation: ring 3s linear forwards;
+}
+
+/* Settings panel */
+
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  background: rgba(40, 25, 60, 0.5);
+  opacity: 0;
+  transition: opacity 0.25s;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+.settings-overlay.open {
+  opacity: 1;
+}
+.settings {
+  position: relative;
+  width: min(94vw, 640px);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+  border-radius: 22px;
+  box-shadow: 0 20px 60px rgba(40, 20, 60, 0.4);
+  overflow: hidden;
+}
+.settings-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 12px 22px;
+  border-bottom: 2px solid #f1e6d6;
+}
+.settings-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.settings-head .close-btn {
+  position: static;
+  width: 44px;
+  height: 44px;
+}
+.settings-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: 6px 22px 22px;
+}
+.set-sec {
+  padding: 14px 0;
+  border-bottom: 2px solid #f4ece0;
+}
+.set-sec h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+.set-help,
+.set-count,
+.set-foot {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #7a6a8a;
+}
+.set-count {
+  font-weight: 600;
+  color: var(--ink);
+}
+.set-warn {
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff1d6;
+  color: #7a5a2a;
+}
+.set-input {
+  width: 100%;
+  font: inherit;
+  font-size: 18px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid #e3d6f0;
+  background: #fff;
+  color: var(--ink);
+  user-select: text;
+  -webkit-user-select: text;
+}
+.line-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.line-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 10px 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 2px solid #efe6f6;
+}
+.line-row.has {
+  border-color: #b8e3b0;
+  background: #f5fcf2;
+}
+.line-text {
+  flex: 1;
+  min-width: 0;
+}
+.line-say {
+  font-size: 15px;
+  font-weight: 600;
+}
+.line-when {
+  font-size: 12px;
+  color: #9a8aa8;
+}
+.line-btns {
+  display: flex;
+  gap: 6px;
+}
+.lb {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  background: #f1eaf8;
+  color: var(--ink);
+}
+.lb[disabled] {
+  opacity: 0.35;
+}
+.lb.rec span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ff5d73;
+  transition: border-radius 0.2s;
+}
+.lb.rec.recording {
+  background: #ffdfe4;
+  animation: pulse 0.9s ease-in-out infinite;
+}
+.lb.rec.recording span {
+  border-radius: 3px;
+}
+.line-row:not(.has) .lb.del {
+  visibility: hidden;
+}
+.set-danger {
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #ffe3e7;
+  color: #b0324a;
+  font-weight: 700;
+  font-size: 15px;
+}
+.set-danger[disabled] {
+  opacity: 0.6;
+}
+.set-foot {
+  margin-top: 14px;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Shared keyframes */
+
+@property --p {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+@keyframes handTap {
+  0% {
+    opacity: 0;
+    transform: translate(-30%, 30%);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-30%, 0);
+  }
+  30% {
+    transform: translate(-30%, -18%) scale(0.92);
+  }
+  45% {
+    transform: translate(-30%, 0);
+  }
+  60% {
+    transform: translate(-30%, -18%) scale(0.92);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-30%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-30%, 0);
+  }
+}
+@keyframes guideIdle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-4%) rotate(-3deg);
+  }
+}
+@keyframes cheer {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  30% {
+    transform: translateY(-40%) rotate(-10deg) scale(1.1);
+  }
+  60% {
+    transform: translateY(-10%) rotate(200deg);
+  }
+  100% {
+    transform: translateY(0) rotate(360deg);
+  }
+}
+@keyframes hopSmall {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-20%);
+  }
+}
+@keyframes waveBug {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-14deg);
+  }
+  75% {
+    transform: rotate(14deg);
+  }
+}
+@keyframes tickle {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  20% {
+    transform: rotate(-12deg) scale(1.08, 0.94);
+  }
+  40% {
+    transform: rotate(12deg) scale(0.95, 1.06);
+  }
+  60% {
+    transform: rotate(-8deg);
+  }
+  80% {
+    transform: rotate(6deg);
+  }
+}
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  20% {
+    transform: rotate(-12deg) scale(1.05, 0.95);
+  }
+  45% {
+    transform: rotate(10deg) scale(0.96, 1.05);
+  }
+  70% {
+    transform: rotate(-5deg);
+  }
+}
+@keyframes ring {
+  to {
+    --p: 100%;
+  }
+}
+@keyframes letterBounce {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0);
+  }
+  80% {
+    transform: translateY(-0.12em) rotate(-4deg);
+  }
+  90% {
+    transform: translateY(0) rotate(2deg);
+  }
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-1.4vmin) rotate(-4deg);
+  }
+}
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* Like popIn, but leaves `transform` alone so centred things stay centred. */
+@keyframes appear {
+  0% {
+    scale: 0;
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+@keyframes pickBounce {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18) rotate(-4deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-8deg) scale(1.05);
+  }
+  45% {
+    transform: rotate(7deg);
+  }
+  70% {
+    transform: rotate(-4deg);
+  }
+}
+@keyframes jiggle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.04, 0.96);
+  }
+  60% {
+    transform: scale(0.98, 1.03);
+  }
+}
+@keyframes blinkEyes {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes tailWag {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+@keyframes picBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3%);
+  }
+}
+@keyframes chosen {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.14) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1.08);
+  }
+}
+@keyframes shineSweep {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+@keyframes twinkleBtn {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  50% {
+    transform: rotate(10deg) scale(1.06);
+  }
+}
+@keyframes newestIn {
+  0% {
+    transform: translateY(-120%) scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes splatIn {
+  0% {
+    scale: 0.2;
+  }
+  100% {
+    scale: 1;
+  }
+}
+@keyframes flagSway {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+@keyframes balloonBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-6%) rotate(3deg);
+  }
+}
+@keyframes bulbGlow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ======================================================================== */
+/* Leapy Pond                                                               */
+
+:root {
+  --bar: clamp(48px, 9vmin, 70px);
+  --big: clamp(84px, 18vmin, 150px);
+}
+/* The play triangle looks centred when nudged right a little. */
+.big-btn > svg:first-child {
+  margin-left: 6%;
+}
+.pond-btn > svg:first-child {
+  margin-left: 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Water and the things on it, seen from above */
+
+.water-pattern {
+  position: absolute;
+  inset: 0;
+  background-color: #5cc4f0;
+  /* Glints on the water. Every one sits well inside its tile, so the tiles
+     join up without seams. */
+  background-image:
+    radial-gradient(ellipse 50px 12px at 30% 30%, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(ellipse 36px 9px at 74% 64%, rgba(255, 255, 255, 0.25), transparent),
+    radial-gradient(ellipse 24px 7px at 58% 14%, rgba(255, 255, 255, 0.28), transparent),
+    radial-gradient(ellipse 28px 8px at 18% 82%, rgba(255, 255, 255, 0.2), transparent),
+    radial-gradient(circle 60px at 50% 50%, rgba(140, 225, 255, 0.28), transparent);
+  background-size: 280px 280px;
+}
+.water-pattern::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 60%, transparent 55%, rgba(20, 90, 140, 0.28)),
+    radial-gradient(circle at 20% 80%, rgba(20, 100, 150, 0.12), transparent 40%),
+    radial-gradient(circle at 85% 20%, rgba(170, 235, 255, 0.25), transparent 45%);
+  pointer-events: none;
+}
+
+.leap-scene {
+  overflow: hidden;
+}
+.world {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* Only the pads and Hoppy take taps; everything else is water. */
+.pad,
+.frog {
+  pointer-events: auto;
+}
+.pad,
+.decor-pad,
+.reeds,
+.fish-shadow,
+.frog {
+  position: absolute;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+}
+.pad svg,
+.decor-pad svg,
+.reeds svg,
+.fish-shadow svg {
+  width: 100%;
+  height: 100%;
+}
+.pad {
+  cursor: pointer;
+}
+.decor-pad {
+  opacity: 0.9;
+  animation: padDrift 7s ease-in-out infinite;
+}
+.decor-pad:nth-child(2n) {
+  animation-duration: 9s;
+  animation-direction: reverse;
+}
+.fish-shadow {
+  aspect-ratio: 80 / 32;
+  animation: shadowSwim 12s linear infinite;
+}
+.fish-shadow.flip {
+  scale: -1 1;
+}
+/* The pads Hoppy can hop to glow softly. */
+.pad.choice::before {
+  content: '';
+  position: absolute;
+  inset: -7%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 210, 0.55) 55%, rgba(255, 255, 210, 0) 70%);
+  animation: padGlow 1.3s ease-in-out infinite;
+  pointer-events: none;
+}
+.pad.choice > svg {
+  animation: padPulse 1.3s ease-in-out infinite;
+}
+.pad.bob > svg {
+  animation: padBob 0.5s ease-out;
+}
+.pad.nope {
+  animation: nope 0.5s ease-in-out;
+}
+.pad.goal .pad-art {
+  filter: drop-shadow(0 0 1.4vmin rgba(255, 245, 170, 0.9));
+}
+
+.flower {
+  position: absolute;
+  left: -12%;
+  top: -10%;
+  width: 44%;
+  aspect-ratio: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 0 rgba(20, 70, 90, 0.2));
+}
+.flower.big {
+  left: -14%;
+  top: -14%;
+  width: 58%;
+  animation: flowerTurn 6s ease-in-out infinite;
+}
+.flower.tiny {
+  left: 20%;
+  top: 20%;
+  width: 60%;
+}
+.flower svg,
+.fly svg,
+.goal-friend svg {
+  width: 100%;
+  height: 100%;
+}
+
+.fly {
+  position: absolute;
+  right: -10%;
+  top: -16%;
+  width: 36%;
+  aspect-ratio: 1;
+  pointer-events: none;
+  animation: flyHover 1.6s ease-in-out infinite;
+}
+.fly-art .wing-l,
+.fly-art .wing-r {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: wingBuzz 0.08s linear infinite alternate;
+}
+
+.stone .stone-num {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: clamp(20px, 5vmin, 44px);
+  font-weight: 800;
+  -webkit-text-stroke: 0.14em #2f4858;
+  paint-order: stroke fill;
+  animation: appear 0.4s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+.goal-friend {
+  position: absolute;
+  right: 4%;
+  top: 2%;
+  width: 52%;
+  aspect-ratio: 1;
+  pointer-events: none;
+  animation: hopSmall 1.6s ease-in-out infinite;
+}
+.goal-friend.hello {
+  animation: popIn 0.6s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.goal-q {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: clamp(30px, 8vmin, 70px);
+  font-weight: 800;
+  -webkit-text-stroke: 0.12em #5a9aae;
+  paint-order: stroke fill;
+}
+
+/* Hoppy */
+.frog {
+  cursor: pointer;
+  z-index: 2;
+}
+.frog-shadow {
+  position: absolute;
+  left: 54%;
+  top: 58%;
+  width: 70%;
+  height: 76%;
+  border-radius: 50%;
+  background: rgba(20, 70, 90, 0.35);
+  opacity: 0.35;
+  transform: translate(-50%, -50%);
+}
+.frog-lift,
+.frog-turn {
+  position: absolute;
+  inset: 0;
+}
+.frog-turn {
+  transition: transform 0.14s ease-out;
+}
+.frog-turn svg {
+  width: 100%;
+  height: 100%;
+}
+.frog-art .legs-leap {
+  display: none;
+}
+.frog.leaping .legs-leap {
+  display: inline;
+}
+.frog.leaping .legs-sit {
+  display: none;
+}
+.frog-art .frog-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blinkEyes 4.5s infinite;
+}
+.frog.tickle .frog-turn svg {
+  animation: tickle 0.6s ease-in-out;
+}
+.frog.gulp .frog-turn svg {
+  animation: jiggle 0.4s ease-in-out 2;
+}
+.frog.dance .frog-turn svg {
+  animation: hopSmall 0.45s ease-in-out 4;
+}
+.tongue {
+  position: absolute;
+  z-index: 5;
+  height: clamp(6px, 1.3vmin, 12px);
+  border-radius: 999px;
+  background: #ff7a9a;
+  border: 2px solid #2f4858;
+  transform-origin: 0 50%;
+  translate: 0 -50%;
+  scale: 0 1;
+  pointer-events: none;
+}
+
+.ripple {
+  position: absolute;
+  width: clamp(60px, 16vmin, 160px);
+  aspect-ratio: 1;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: rippleOut 1.1s ease-out forwards;
+  pointer-events: none;
+}
+.ripple.big {
+  width: clamp(120px, 34vmin, 320px);
+}
+.jump-fish {
+  position: absolute;
+  z-index: 6;
+  width: clamp(56px, 12vmin, 110px);
+  aspect-ratio: 1;
+  pointer-events: none;
+  animation: fishLeap 1.4s ease-in-out forwards;
+}
+.jump-fish.flip {
+  scale: -1 1;
+}
+.jump-fish svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* How far across the pond: a dot per move, a star for the friend. */
+.trail {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: var(--safe-bottom);
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.4vmin, 12px);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+.trail .dot {
+  width: clamp(12px, 2.4vmin, 20px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  transition:
+    background 0.3s,
+    scale 0.3s;
+}
+.trail .dot.done {
+  background: #7ed957;
+}
+.trail .dot.now {
+  background: #ffd84a;
+  scale: 1.35;
+}
+.trail .dot.goal {
+  width: auto;
+  aspect-ratio: auto;
+  background: none;
+  color: #fff;
+  font-size: clamp(18px, 3.6vmin, 30px);
+  line-height: 1;
+  -webkit-text-stroke: 0.1em #e8b21c;
+  paint-order: stroke fill;
+}
+.trail .dot.goal.now,
+.trail .dot.goal.done {
+  color: #ffd84a;
+  -webkit-text-stroke-color: #fff;
+}
+
+.end-buttons {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(var(--safe-top) + var(--bar) + 2vh);
+  display: flex;
+  justify-content: center;
+  gap: 6vmin;
+  animation: appear 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+/* Meeting a friend */
+.reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 60, 90, 0);
+  transition: background 0.4s;
+}
+.reveal.open {
+  background: rgba(20, 60, 90, 0.35);
+}
+.reveal.closing {
+  background: rgba(20, 60, 90, 0);
+}
+.reveal-card {
+  --fx: 0px;
+  --fy: 0px;
+  position: relative;
+  width: min(72vmin, 540px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  animation: revealIn 0.75s cubic-bezier(0.3, 1.3, 0.5, 1) both;
+  transition: opacity 0.15s;
+}
+.reveal.closing .reveal-card {
+  opacity: 0;
+}
+.reveal-card::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(#ffffff 40%, #d9f7e0);
+  border: 0.9vmin solid #fff;
+  box-shadow: 0 2vmin 4vmin rgba(20, 60, 90, 0.3);
+}
+.reveal-rays {
+  position: absolute;
+  inset: -6%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255, 240, 160, 0.55) 0 9deg, transparent 9deg 22.5deg);
+  -webkit-mask: radial-gradient(circle, #000 30%, transparent 70%);
+  mask: radial-gradient(circle, #000 30%, transparent 70%);
+  animation: spin 14s linear infinite;
+}
+.reveal-art {
+  position: relative;
+  width: 54%;
+  aspect-ratio: 1;
+  animation: revealBob 1.4s ease-in-out infinite;
+}
+.reveal-art svg {
+  width: 100%;
+  height: 100%;
+}
+.reveal-name {
+  position: absolute;
+  bottom: 9%;
+  padding: 0.05em 0.8em 0;
+  border-radius: 999px;
+  background: #fff;
+  font-size: clamp(22px, 6vmin, 50px);
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 0.6vmin 0 rgba(47, 72, 88, 0.2);
+  animation: appear 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) 0.4s both;
+}
+.reveal-new {
+  position: absolute;
+  top: 6%;
+  right: 8%;
+  font-size: clamp(50px, 13vmin, 110px);
+  line-height: 1;
+  color: #ffd23f;
+  -webkit-text-stroke: 0.06em #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0.5vmin 0.6vmin rgba(47, 72, 88, 0.3));
+  animation: starIn 0.8s cubic-bezier(0.3, 1.6, 0.5, 1) 0.5s both;
+}
+.reveal-new span {
+  display: block;
+  animation: twinkleBtn 1.4s ease-in-out infinite;
+}
+
+/* The friends move a little: wings flap, tails swish, tadpoles wiggle. */
+.friend-art .f-wings {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: flutter 0.5s ease-in-out infinite alternate;
+}
+.f-bee .f-wings,
+.f-dragonfly .f-wings {
+  animation-duration: 0.12s;
+}
+.friend-art .f-tail {
+  transform-box: fill-box;
+  transform-origin: right center;
+  animation: tailWag 0.8s ease-in-out infinite;
+}
+.friend-art .tad {
+  animation: tadWiggle 1s ease-in-out infinite;
+}
+.friend-art .tad.t1 {
+  animation-delay: -0.3s;
+}
+.friend-art .tad.t2 {
+  animation-delay: -0.6s;
+}
+.friend-art .frog-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blinkEyes 5s infinite;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Title */
+
+.title-scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--safe-top) + var(--bar) * 0.3) 16px calc(var(--safe-bottom) + 2vh);
+}
+.title-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+.title-bg .water-pattern {
+  animation: waterDrift 30s linear infinite;
+}
+.t-pad,
+.t-reeds {
+  position: absolute;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  animation: padDrift 7s ease-in-out infinite;
+}
+.t-reeds {
+  width: clamp(80px, 20vmin, 200px);
+  animation: none;
+}
+.t-pad:nth-child(odd) {
+  animation-duration: 9s;
+  animation-direction: reverse;
+}
+.t-pad svg,
+.t-reeds svg,
+.t-home > svg,
+.t-frog svg,
+.t-fly svg {
+  width: 100%;
+  height: 100%;
+}
+.t-home {
+  position: absolute;
+  left: 22%;
+  top: 70%;
+  width: clamp(130px, 30vmin, 300px);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+}
+.t-frog {
+  position: absolute;
+  left: 14%;
+  top: 8%;
+  width: 72%;
+  aspect-ratio: 1;
+  rotate: 18deg;
+  cursor: pointer;
+}
+.t-frog .frog-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blinkEyes 4.5s infinite;
+}
+.t-frog.hop {
+  animation: titleHop 0.6s ease-in-out;
+}
+.t-fly {
+  position: absolute;
+  left: 34%;
+  top: 56%;
+  width: clamp(40px, 8vmin, 80px);
+  aspect-ratio: 1;
+  cursor: pointer;
+  animation: flyLoop 9s ease-in-out infinite;
+}
+.t-fly.zoom {
+  animation:
+    flyZoom 0.8s ease-in-out,
+    flyLoop 9s ease-in-out infinite 0.8s;
+}
+.logo {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(42px, 12vmin, 130px);
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+.logo-words {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.3em;
+}
+.logo-word {
+  white-space: nowrap;
+}
+.logo-letter {
+  display: inline-block;
+  -webkit-text-stroke: 0.14em #fff;
+  paint-order: stroke fill;
+  text-shadow: 0 0.09em 0 rgba(47, 72, 88, 0.22);
+  animation: letterHop 2.4s ease-in-out infinite;
+}
+.logo-name {
+  font-size: 0.5em;
+  color: #fff;
+  -webkit-text-stroke: 0.16em #5bbf45;
+  paint-order: stroke fill;
+  transform: rotate(-4deg);
+  margin-bottom: 0.08em;
+  animation: floaty 3s ease-in-out infinite;
+}
+.title-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6vmin;
+}
+.play-btn {
+  width: clamp(100px, 22vmin, 180px);
+  height: clamp(100px, 22vmin, 180px);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Your pond */
+
+.pond-scene {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 1.4vh;
+  padding: calc(var(--safe-top) + var(--bar) + 1vh) max(12px, env(safe-area-inset-right)) var(--safe-bottom) max(12px, env(safe-area-inset-left));
+  background: linear-gradient(#a8e08a, #8fd373);
+}
+.my-pond {
+  position: relative;
+  border-radius: 12vmin / 10vmin;
+  overflow: hidden;
+  border: 1vmin solid #d9f2c4;
+  box-shadow:
+    inset 0 1vmin 2vmin rgba(20, 70, 90, 0.3),
+    0 0.8vmin 0 #7cc460;
+}
+.p-spot {
+  position: absolute;
+  width: clamp(56px, 14vmin, 140px);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  cursor: pointer;
+}
+.p-spot.hoppy {
+  width: clamp(80px, 21vmin, 200px);
+}
+.p-pad {
+  position: absolute;
+  inset: -12% -12% -22%;
+}
+.p-pad svg,
+.p-friend svg {
+  width: 100%;
+  height: 100%;
+}
+.p-friend {
+  position: absolute;
+  inset: 0;
+}
+.p-friend.hop {
+  animation: hopSmall 0.5s ease-in-out 2;
+}
+.fly-spot .p-friend {
+  animation: flyBob 2.6s ease-in-out infinite;
+}
+.swim-spot {
+  animation: swimDrift 8s ease-in-out infinite;
+}
+.pad-spot .p-friend {
+  animation: breathe 3s ease-in-out infinite;
+}
+.p-ring {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: 2%;
+  height: 26%;
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  animation: ringPulse 2.4s ease-in-out infinite;
+}
+.p-spot.wiggle .p-friend {
+  animation: wiggle 0.6s ease-in-out;
+}
+.p-spot.show-new {
+  filter: drop-shadow(0 0 1.4vmin rgba(255, 245, 170, 0.95));
+}
+.my-pond .ripple {
+  width: clamp(50px, 12vmin, 120px);
+}
+
+.p-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.4vmin;
+  --slot: clamp(34px, min(7.4vmin, calc((100vw - 32vmin - 60px) / 12.6)), 76px);
+}
+.collection {
+  display: grid;
+  grid-template-columns: repeat(12, var(--slot));
+  gap: 0.6vmin;
+  padding: 1vmin;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+}
+.slot {
+  width: var(--slot);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.85);
+  border: 3px solid transparent;
+}
+.slot svg {
+  width: 80%;
+  height: 80%;
+}
+.slot.got {
+  background: #fff8d6;
+  border-color: #ffd23f;
+}
+.slot.wiggle {
+  animation: wiggle 0.6s ease-in-out;
+}
+.slot.shake {
+  animation: shake 0.4s ease-in-out;
+}
+.play-btn-small {
+  flex: none;
+  width: clamp(70px, 14vmin, 130px);
+  height: clamp(70px, 14vmin, 130px);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Pond keyframes */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes rippleOut {
+  from {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+@keyframes revealIn {
+  from {
+    transform: translate(var(--fx), var(--fy)) scale(0.12) rotate(-20deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(0, 0) scale(1) rotate(0);
+  }
+}
+@keyframes revealBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-4%) rotate(3deg);
+  }
+}
+@keyframes starIn {
+  from {
+    transform: scale(0) rotate(-180deg);
+  }
+  to {
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-12%);
+  }
+  75% {
+    transform: translateX(12%);
+  }
+}
+@keyframes padDrift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0);
+  }
+  50% {
+    transform: translate(3%, 2%) rotate(6deg);
+  }
+}
+@keyframes padGlow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+@keyframes padPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+@keyframes padBob {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(0.9);
+  }
+  70% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes nope {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-9deg);
+  }
+  45% {
+    transform: rotate(8deg);
+  }
+  70% {
+    transform: rotate(-4deg);
+  }
+}
+@keyframes flowerTurn {
+  0%,
+  100% {
+    transform: rotate(-8deg) scale(1);
+  }
+  50% {
+    transform: rotate(8deg) scale(1.05);
+  }
+}
+@keyframes flyHover {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-8deg);
+  }
+  25% {
+    transform: translate(14%, -10%) rotate(10deg);
+  }
+  50% {
+    transform: translate(-6%, -18%) rotate(-4deg);
+  }
+  75% {
+    transform: translate(-14%, -4%) rotate(6deg);
+  }
+}
+@keyframes wingBuzz {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.55);
+  }
+}
+@keyframes shadowSwim {
+  from {
+    transform: translateX(-60vw);
+  }
+  to {
+    transform: translateX(60vw);
+  }
+}
+@keyframes fishLeap {
+  0% {
+    transform: translate(-50%, -30%) rotate(40deg) scale(0.4);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate(10%, -160%) rotate(-10deg) scale(1);
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(70%, -30%) rotate(-60deg) scale(0.5);
+    opacity: 0;
+  }
+}
+@keyframes flutter {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0.7);
+  }
+}
+@keyframes tadWiggle {
+  0%,
+  100% {
+    transform: translateX(0) rotate(-6deg);
+  }
+  50% {
+    transform: translateX(4px) rotate(6deg);
+  }
+}
+@keyframes waterDrift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 280px;
+  }
+}
+@keyframes titleHop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  15% {
+    transform: translateY(0) scale(1.06, 0.92);
+  }
+  50% {
+    transform: translateY(-16%) scale(1.22);
+  }
+  85% {
+    transform: translateY(0) scale(0.96, 1.04);
+  }
+}
+@keyframes flyLoop {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0);
+  }
+  25% {
+    transform: translate(18vmin, -10vmin) rotate(20deg);
+  }
+  50% {
+    transform: translate(8vmin, -24vmin) rotate(-10deg);
+  }
+  75% {
+    transform: translate(-6vmin, -12vmin) rotate(12deg);
+  }
+}
+@keyframes flyZoom {
+  0% {
+    transform: translate(0, 0) rotate(0) scale(1);
+  }
+  50% {
+    transform: translate(10vmin, -30vmin) rotate(360deg) scale(1.3);
+  }
+  100% {
+    transform: translate(0, 0) rotate(720deg) scale(1);
+  }
+}
+@keyframes letterHop {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  76% {
+    transform: translateY(0) scale(1.1, 0.88);
+  }
+  84% {
+    transform: translateY(-0.2em) scale(0.95, 1.08);
+  }
+  92% {
+    transform: translateY(0) scale(1.05, 0.95);
+  }
+}
+@keyframes flyBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-10%) rotate(4deg);
+  }
+}
+@keyframes swimDrift {
+  0%,
+  100% {
+    transform: translateX(-6%);
+  }
+  50% {
+    transform: translateX(6%);
+  }
+}
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03, 0.97);
+  }
+}
+@keyframes ringPulse {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.4;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Portrait & small screens */
+
+@media (orientation: portrait) {
+  .title-scene {
+    padding-top: calc(var(--safe-top) + var(--bar) + 2vh);
+  }
+  .t-home {
+    left: 50%;
+    top: 58%;
+    width: clamp(150px, 48vw, 340px);
+  }
+  .t-fly {
+    left: 64%;
+    top: 46%;
+  }
+  .p-bottom {
+    --slot: clamp(34px, min(10vw, 7vh), 76px);
+  }
+  .collection {
+    grid-template-columns: repeat(6, var(--slot));
+    border-radius: 4vmin;
+  }
+}
+
+/* Short landscape screens (phones on their side). */
+@media (orientation: landscape) and (max-height: 500px) {
+  .logo {
+    font-size: 13vh;
+  }
+  .t-home {
+    top: 64%;
+    left: 16%;
+  }
+}
+
+/* Calmer screens for anyone who asks their device for less motion. Hops
+   still hop: they are the game. */
+@media (prefers-reduced-motion: reduce) {
+  .logo-letter,
+  .logo-name,
+  .play-btn,
+  .reveal-rays,
+  .decor-pad,
+  .t-pad,
+  .title-bg .water-pattern,
+  .flower.big,
+  .pad.choice > svg,
+  .swim-spot,
+  .fly-spot .p-friend,
+  .pad-spot .p-friend,
+  .p-ring {
+    animation: none;
+  }
+  .fish-shadow,
+  .t-fly {
+    animation-play-state: paused;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Layout polish, the same in every game                                    */
+
+/* The grown-up gear matches the round buttons beside it, just quieter. */
+.gear-btn {
+  width: clamp(48px, 9vmin, 70px);
+  height: clamp(48px, 9vmin, 70px);
+  background: rgba(255, 255, 255, 0.75);
+  color: #c3a6ec;
+  box-shadow:
+    0 5px 0 rgba(90, 66, 114, 0.15),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Play sits dead centre, under the title; its partner button to its right. */
+.title-buttons {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 5vmin;
+  width: 100%;
+}
+.title-buttons > .play-btn {
+  grid-column: 2;
+}
+.title-buttons > :not(.play-btn) {
+  grid-column: 3;
+  justify-self: start;
+}
+
+/* A new friend in your pond: the button bounces with a sparkly star. */
+.pond-btn .new-star {
+  position: absolute;
+  top: -14px;
+  left: -12px;
+  font-size: clamp(30px, 5.5vmin, 46px);
+  line-height: 1;
+  color: #ffd43b;
+  -webkit-text-stroke: 2px #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 2px 2px rgba(90, 66, 114, 0.3));
+  opacity: 0;
+  scale: 0.3;
+  transition:
+    opacity 0.3s,
+    scale 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.pond-btn.has-new .new-star {
+  opacity: 1;
+  scale: 1;
+  animation: starTwinkle 1.4s ease-in-out infinite;
+}
+.pond-btn.has-new {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes starTwinkle {
+  0%,
+  100% {
+    rotate: -12deg;
+  }
+  50% {
+    rotate: 12deg;
+  }
+}
