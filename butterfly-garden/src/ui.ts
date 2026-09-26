@@ -70,7 +70,13 @@ export class Scene {
         reject(e);
       };
       this.rejects.add(rej);
+      let settled = false;
       cleanup = executor((v) => {
+        // Only the first resolve counts: a stray late one (e.g. a timer the
+        // executor forgot to clear) must not re-run the cleanup, which could
+        // undo whatever the next step has set up since.
+        if (settled) return;
+        settled = true;
         this.rejects.delete(rej);
         cleanup?.();
         if (this.dead) reject(new Aborted());

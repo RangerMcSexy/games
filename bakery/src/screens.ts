@@ -207,6 +207,12 @@ export async function shopScreen(host: Host): Promise<'play' | 'home'> {
         void sayAll(namesOf(t));
       });
     });
+    // Each kind of treat is drawn with a different gap below it; stand them
+    // all right on the shelf board.
+    for (const b of shelves.querySelectorAll<HTMLElement>('.shelf-treat')) {
+      const box = b.querySelector('svg')!.getBBox();
+      b.style.translate = `0 ${((100 - (box.y + box.height)) / 215) * 100}%`;
+    }
   };
   const justBaked = save.treats.length > 0 && Date.now() - save.treats[save.treats.length - 1].created < 60_000;
   requestAnimationFrame(fill);
