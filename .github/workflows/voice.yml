@@ -1,0 +1,79 @@
+# Makes the games' spoken lines with a free, natural voice (see
+# scripts/voice/generate.py), saves them to main and republishes the site.
+#
+# Run it from the Actions tab: "Make voice clips" → Run workflow.
+#   audition  a few lines in many voices, at <site>/voice/audition/
+#   full      every line in the chosen voice (e.g. kokoro:af_heart)
+name: Make voice clips
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: audition or full
+        type: choice
+        options: [audition, full]
+        default: audition
+      voice:
+        description: 'For "full": the voice, e.g. kokoro:af_heart or chatterbox:0.6'
+        default: kokoro:af_heart
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: voice
+
+jobs:
+  voice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: sudo apt-get update && sudo apt-get install -y espeak-ng ffmpeg
+      - run: node scripts/voice/lines.mjs
+
+      # Each voice engine gets its own Python environment (their
+      # dependencies clash). CPU-only PyTorch keeps the download small.
+      - name: Kokoro
+        if: inputs.mode == 'audition' || startsWith(inputs.voice, 'kokoro:')
+        run: |
+          python -m venv /tmp/kokoro
+          /tmp/kokoro/bin/pip install --extra-index-url https://download.pytorch.org/whl/cpu "kokoro==0.9.4" soundfile
+          if [ "${{ inputs.mode }}" = audition ]; then
+            /tmp/kokoro/bin/python scripts/voice/generate.py audition --engine kokoro
+          else
+            /tmp/kokoro/bin/python scripts/voice/generate.py full --voice "${{ inputs.voice }}"
+          fi
+      - name: Chatterbox
+        if: inputs.mode == 'audition' || startsWith(inputs.voice, 'chatterbox:')
+        continue-on-error: ${{ inputs.mode == 'audition' }}
+        run: |
+          python -m venv /tmp/chatterbox
+          /tmp/chatterbox/bin/pip install --extra-index-url https://download.pytorch.org/whl/cpu "chatterbox-tts==0.1.7" soundfile
+          if [ "${{ inputs.mode }}" = audition ]; then
+            /tmp/chatterbox/bin/python scripts/voice/generate.py audition --engine chatterbox
+          else
+            /tmp/chatterbox/bin/python scripts/voice/generate.py full --voice "${{ inputs.voice }}"
+          fi
+
+      - name: Save to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898499+github-actions[bot]@users.noreply.github.com"
+          git add voice
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "Voice clips: ${{ inputs.mode }} ${{ inputs.mode == 'full' && inputs.voice || '' }}"
+          git push
+      # A push made by this workflow doesn't start other workflows on its
+      # own, so ask for the site to be republished.
+      - name: Republish the site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

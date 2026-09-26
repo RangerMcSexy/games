@@ -6,12 +6,14 @@
 const VERSION = '__VERSION__';
 const CACHE = `games-${VERSION}`;
 const FILES = ['./', 'ask-name.js', 'butterfly-garden/', 'bakery/', 'colour-splash/', 'fishing-pond/', 'fonts/baloo-2-latin-800-normal.woff2'];
+// The voice clips, filled in by the build.
+const VOICE = [];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches
       .open(CACHE)
-      .then((c) => c.addAll(FILES.map((f) => new Request(f, { cache: 'reload' }))))
+      .then((c) => c.addAll([...FILES, ...VOICE].map((f) => new Request(f, { cache: 'reload' }))))
       .then(() => self.skipWaiting()),
   );
 });
