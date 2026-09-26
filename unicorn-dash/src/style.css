@@ -1,0 +1,1858 @@
+/* Unicorn Dash: soft, chunky, toddler-friendly styling. */
+
+:root {
+  --ink: #3d4a6b;
+  --cream: #fffaf0;
+  --safe-top: max(12px, env(safe-area-inset-top));
+  --safe-bottom: max(10px, env(safe-area-inset-bottom));
+  font-family: 'Baloo 2', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  background: #bfe6ff;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+button {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+  outline: 4px solid #fff;
+  outline-offset: 4px;
+}
+
+svg {
+  display: block;
+  overflow: visible;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.scene.in {
+  opacity: 1;
+}
+.scene.out {
+  opacity: 0;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Top bar & buttons */
+
+.top-bar {
+  position: absolute;
+  top: var(--safe-top);
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  display: flex;
+  gap: 10px;
+  z-index: 50;
+  pointer-events: none;
+}
+.top-bar .spacer {
+  flex: 1;
+}
+.top-bar button {
+  pointer-events: auto;
+}
+
+.round-btn {
+  display: grid;
+  place-items: center;
+  width: clamp(48px, 9vmin, 70px);
+  height: clamp(48px, 9vmin, 70px);
+  border-radius: 50%;
+  background: #c3a6ec;
+  color: #c3a6ec;
+  box-shadow:
+    0 5px 0 rgba(90, 66, 114, 0.25),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.12s,
+    opacity 0.3s,
+    visibility 0.3s;
+}
+.round-btn svg {
+  width: 58%;
+  height: 58%;
+}
+.round-btn:active {
+  transform: translateY(3px) scale(0.95);
+}
+.round-btn.off {
+  background: #a99bb8;
+}
+.home-btn {
+  background: #ffae5c;
+  color: #ffae5c;
+}
+.round-btn.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.big-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(84px, 18vmin, 150px);
+  height: clamp(84px, 18vmin, 150px);
+  border-radius: 50%;
+  --c: #7fd48f;
+  --d: #56b169;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.45), transparent 45%), var(--c);
+  color: var(--c);
+  border: 5px solid #fff;
+  box-shadow:
+    0 1vmin 0 var(--d),
+    0 1.6vmin 2.4vmin rgba(90, 66, 114, 0.25);
+  transition: transform 0.12s;
+}
+.big-btn svg {
+  width: 56%;
+  height: 56%;
+}
+.big-btn:active {
+  transform: translateY(0.8vmin) scale(0.96);
+}
+.big-btn.green {
+  --c: #7fd48f;
+  --d: #56b169;
+}
+.big-btn.orange {
+  --c: #ffb870;
+  --d: #e8914a;
+}
+.big-btn.purple {
+  --c: #c3a3f0;
+  --d: #9a7ad0;
+}
+.big-btn.blue {
+  --c: #89c2f5;
+  --d: #5e9bd6;
+}
+.big-btn.nudge {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.count-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 2em;
+  height: 2em;
+  padding: 0 0.4em;
+  display: grid;
+  place-items: center;
+  border-radius: 1em;
+  background: #ff8595;
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(16px, 2.8vmin, 24px);
+  line-height: 1;
+  border: 3px solid #fff;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Hint & effects */
+
+.hint-hand {
+  position: fixed;
+  z-index: 70;
+  pointer-events: none;
+  font-size: clamp(56px, 12vmin, 110px);
+  line-height: 1;
+  opacity: 0;
+  transform: translate(-30%, 0);
+  filter: drop-shadow(0 4px 4px rgba(90, 66, 114, 0.3));
+}
+.hint-hand.show {
+  animation: handTap 2.4s ease-in-out forwards;
+}
+
+.fx-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 80;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  line-height: 1;
+}
+.p-confetti {
+  border-radius: 3px;
+}
+.p-bits {
+  border-radius: 40% 60% 30% 70%;
+  border: 2px solid var(--ink);
+}
+.p-sparkle svg {
+  width: 100%;
+  height: 100%;
+}
+.fly-clone {
+  position: absolute;
+  z-index: 81;
+}
+.fly-clone svg {
+  width: 100%;
+  height: 100%;
+}
+
+
+/* Gear (grown-ups) */
+
+.gear-btn {
+  background: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.95);
+  box-shadow: none;
+  width: clamp(40px, 7vmin, 54px);
+  height: clamp(40px, 7vmin, 54px);
+  align-self: center;
+  position: relative;
+}
+.gear-btn .ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  --p: 0%;
+  background: conic-gradient(#ffffff var(--p), transparent 0);
+  -webkit-mask: radial-gradient(circle, transparent 60%, #000 62%);
+  mask: radial-gradient(circle, transparent 60%, #000 62%);
+}
+.gear-btn.holding .ring {
+  animation: ring 3s linear forwards;
+}
+
+/* Settings panel */
+
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  background: rgba(40, 25, 60, 0.5);
+  opacity: 0;
+  transition: opacity 0.25s;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+.settings-overlay.open {
+  opacity: 1;
+}
+.settings {
+  position: relative;
+  width: min(94vw, 640px);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+  border-radius: 22px;
+  box-shadow: 0 20px 60px rgba(40, 20, 60, 0.4);
+  overflow: hidden;
+}
+.settings-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 12px 22px;
+  border-bottom: 2px solid #f1e6d6;
+}
+.settings-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.settings-head .close-btn {
+  position: static;
+  width: 44px;
+  height: 44px;
+}
+.settings-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: 6px 22px 22px;
+}
+.set-sec {
+  padding: 14px 0;
+  border-bottom: 2px solid #f4ece0;
+}
+.set-sec h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+.set-help,
+.set-count,
+.set-foot {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #7a6a8a;
+}
+.set-count {
+  font-weight: 600;
+  color: var(--ink);
+}
+.set-warn {
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff1d6;
+  color: #7a5a2a;
+}
+.set-input {
+  width: 100%;
+  font: inherit;
+  font-size: 18px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid #e3d6f0;
+  background: #fff;
+  color: var(--ink);
+  user-select: text;
+  -webkit-user-select: text;
+}
+.line-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.line-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 10px 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 2px solid #efe6f6;
+}
+.line-row.has {
+  border-color: #b8e3b0;
+  background: #f5fcf2;
+}
+.line-text {
+  flex: 1;
+  min-width: 0;
+}
+.line-say {
+  font-size: 15px;
+  font-weight: 600;
+}
+.line-when {
+  font-size: 12px;
+  color: #9a8aa8;
+}
+.line-btns {
+  display: flex;
+  gap: 6px;
+}
+.lb {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  background: #f1eaf8;
+  color: var(--ink);
+}
+.lb[disabled] {
+  opacity: 0.35;
+}
+.lb.rec span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ff5d73;
+  transition: border-radius 0.2s;
+}
+.lb.rec.recording {
+  background: #ffdfe4;
+  animation: pulse 0.9s ease-in-out infinite;
+}
+.lb.rec.recording span {
+  border-radius: 3px;
+}
+.line-row:not(.has) .lb.del {
+  visibility: hidden;
+}
+.set-danger {
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #ffe3e7;
+  color: #b0324a;
+  font-weight: 700;
+  font-size: 15px;
+}
+.set-danger[disabled] {
+  opacity: 0.6;
+}
+.set-foot {
+  margin-top: 14px;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Shared keyframes */
+
+@property --p {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+@keyframes handTap {
+  0% {
+    opacity: 0;
+    transform: translate(-30%, 30%);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-30%, 0);
+  }
+  30% {
+    transform: translate(-30%, -18%) scale(0.92);
+  }
+  45% {
+    transform: translate(-30%, 0);
+  }
+  60% {
+    transform: translate(-30%, -18%) scale(0.92);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-30%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-30%, 0);
+  }
+}
+@keyframes guideIdle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-4%) rotate(-3deg);
+  }
+}
+@keyframes cheer {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  30% {
+    transform: translateY(-40%) rotate(-10deg) scale(1.1);
+  }
+  60% {
+    transform: translateY(-10%) rotate(200deg);
+  }
+  100% {
+    transform: translateY(0) rotate(360deg);
+  }
+}
+@keyframes hopSmall {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-20%);
+  }
+}
+@keyframes waveBug {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-14deg);
+  }
+  75% {
+    transform: rotate(14deg);
+  }
+}
+@keyframes tickle {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  20% {
+    transform: rotate(-12deg) scale(1.08, 0.94);
+  }
+  40% {
+    transform: rotate(12deg) scale(0.95, 1.06);
+  }
+  60% {
+    transform: rotate(-8deg);
+  }
+  80% {
+    transform: rotate(6deg);
+  }
+}
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  20% {
+    transform: rotate(-12deg) scale(1.05, 0.95);
+  }
+  45% {
+    transform: rotate(10deg) scale(0.96, 1.05);
+  }
+  70% {
+    transform: rotate(-5deg);
+  }
+}
+@keyframes ring {
+  to {
+    --p: 100%;
+  }
+}
+@keyframes letterBounce {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0);
+  }
+  80% {
+    transform: translateY(-0.12em) rotate(-4deg);
+  }
+  90% {
+    transform: translateY(0) rotate(2deg);
+  }
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-1.4vmin) rotate(-4deg);
+  }
+}
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* Like popIn, but leaves `transform` alone so centred things stay centred. */
+@keyframes appear {
+  0% {
+    scale: 0;
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+@keyframes pickBounce {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18) rotate(-4deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-8deg) scale(1.05);
+  }
+  45% {
+    transform: rotate(7deg);
+  }
+  70% {
+    transform: rotate(-4deg);
+  }
+}
+@keyframes jiggle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.04, 0.96);
+  }
+  60% {
+    transform: scale(0.98, 1.03);
+  }
+}
+@keyframes blinkEyes {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes tailWag {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+@keyframes picBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3%);
+  }
+}
+@keyframes chosen {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.14) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1.08);
+  }
+}
+@keyframes shineSweep {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+@keyframes twinkleBtn {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  50% {
+    transform: rotate(10deg) scale(1.06);
+  }
+}
+@keyframes newestIn {
+  0% {
+    transform: translateY(-120%) scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes splatIn {
+  0% {
+    scale: 0.2;
+  }
+  100% {
+    scale: 1;
+  }
+}
+@keyframes flagSway {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+@keyframes balloonBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-6%) rotate(3deg);
+  }
+}
+@keyframes bulbGlow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ======================================================================== */
+/* Unicorn Dash                                                             */
+
+:root {
+  --bar: clamp(48px, 9vmin, 70px);
+  --big: clamp(84px, 18vmin, 150px);
+  --plum: #4a3b6b;
+}
+/* The play triangle looks centred when nudged right a little. */
+.big-btn > svg:first-child {
+  margin-left: 6%;
+}
+.dress-btn > svg:first-child {
+  margin-left: 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* The meadow: sky, sun, clouds, hills and grass */
+
+.meadow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(#8fd3ff, #c4e8ff 55%, #ffe6f3);
+}
+.meadow .sun {
+  position: absolute;
+  right: 7%;
+  top: calc(var(--safe-top) + var(--bar) + 2vmin);
+  width: clamp(64px, 14vmin, 140px);
+  aspect-ratio: 1;
+}
+.meadow .sun svg {
+  width: 100%;
+  height: 100%;
+}
+.sun-art .rays {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spin 40s linear infinite;
+}
+.meadow .cloud {
+  position: absolute;
+  left: 0;
+  width: calc(clamp(110px, 22vmin, 240px) * var(--s, 1));
+  opacity: 0.95;
+  will-change: transform;
+}
+.cloud svg {
+  width: 100%;
+  height: auto;
+}
+.hills {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--ground, 80vh) + 3px);
+  translate: 0 -100%;
+  overflow: hidden;
+}
+.hills-strip {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.hills-tile {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+.hills-tile svg {
+  width: 100%;
+  height: 100%;
+}
+.hills.far {
+  height: clamp(90px, 30vh, 320px);
+}
+.hills.near {
+  height: clamp(60px, 18vh, 200px);
+}
+.grass {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--ground, 80vh);
+  bottom: 0;
+  border-top: 5px solid #6cc25f;
+  background-color: #8fdc74;
+  background-image:
+    radial-gradient(circle 5px at 20% 30%, #b3ea96 98%, transparent),
+    radial-gradient(circle 4px at 70% 55%, #b3ea96 98%, transparent),
+    radial-gradient(circle 3px at 44% 80%, #78c95f 98%, transparent),
+    radial-gradient(circle 4px at 90% 18%, #78c95f 98%, transparent);
+  background-size: 180px 90px;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Sparkle */
+
+.uni {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+.uni-tilt {
+  transform-origin: 47.6% 96.8%;
+}
+.uni-tilt svg {
+  width: 100%;
+  height: auto;
+}
+.uni-art {
+  transform-origin: 47.6% 96.8%;
+}
+.uni-art .leg {
+  transform-box: fill-box;
+  transform-origin: 50% 6%;
+  transition: transform 0.12s ease-out;
+}
+.uni.run .leg.lf,
+.uni.run .leg.lf2 {
+  animation: gallopFront 0.36s linear infinite;
+}
+.uni.run .leg.lb,
+.uni.run .leg.lb2 {
+  animation: gallopBack 0.36s linear infinite;
+}
+.uni.run .leg.lf2,
+.uni.run .leg.lb2 {
+  animation-delay: -0.09s;
+}
+.uni.run .uni-art > .body {
+  animation: gallopBob 0.36s ease-in-out infinite;
+}
+/* In the air: front legs tucked up, back legs stretched out. */
+.uni.air .leg.lf,
+.uni.air .leg.lf2 {
+  transform: rotate(-58deg);
+}
+.uni.air .leg.lb,
+.uni.air .leg.lb2 {
+  transform: rotate(42deg);
+}
+.uni-art .tail {
+  transform-box: fill-box;
+  transform-origin: 80% 18%;
+  animation: tailSwish 2.4s ease-in-out infinite;
+}
+.uni.run .uni-art .tail {
+  animation-duration: 0.72s;
+}
+.uni-art .uni-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blinkEyes 4.5s infinite;
+}
+.uni-art .wing {
+  transform-box: fill-box;
+  transform-origin: 100% 100%;
+  animation: wingFlap 0.6s ease-in-out infinite alternate;
+}
+.uni.air .uni-art .wing {
+  animation-duration: 0.2s;
+}
+.uni-art .cape {
+  transform-box: fill-box;
+  transform-origin: 90% 6%;
+  animation: capeFlap 0.9s ease-in-out infinite alternate;
+}
+.uni.run .uni-art .cape {
+  animation-duration: 0.36s;
+}
+.uni-art .horn-glint {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: twinkleBtn 1.4s ease-in-out infinite;
+}
+.uni.squash .uni-art {
+  animation: squash 0.3s ease-out;
+}
+.uni.dance .uni-art {
+  animation: rearUp 0.8s ease-in-out 2;
+}
+.uni.hop .uni-art {
+  animation: uniHop 0.75s ease-in-out;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Dashing */
+
+.dash-scene {
+  overflow: hidden;
+}
+.world {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tree,
+.shroom,
+.bloom,
+.obstacle,
+.puddle,
+.present,
+.rainbow,
+.critter.bunny {
+  position: absolute;
+  translate: -50% -100%;
+}
+.star,
+.balloon,
+.critter.butterfly {
+  position: absolute;
+  translate: -50% -50%;
+}
+.world svg {
+  width: 100%;
+  height: auto;
+}
+.tree {
+  opacity: 0.95;
+}
+.bloom svg {
+  transform-origin: 50% 100%;
+  animation: sway 3s ease-in-out infinite;
+  animation-delay: inherit;
+}
+.rainbow {
+  opacity: 0.9;
+}
+
+.star svg {
+  animation: starBob 2s ease-in-out infinite;
+  animation-delay: inherit;
+  filter: drop-shadow(0 0 0.8vmin rgba(255, 240, 150, 0.9));
+}
+
+.critter {
+  pointer-events: auto;
+  cursor: pointer;
+}
+.critter.bunny.hello svg {
+  animation: bunnyHop 0.6s ease-in-out;
+}
+.critter.butterfly {
+  animation: flutterPath 7s ease-in-out infinite;
+}
+.critter.butterfly.hello {
+  animation:
+    flyZoom 0.9s ease-in-out,
+    flutterPath 7s ease-in-out infinite 0.9s;
+}
+.butterfly-art .b-wings {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wingFlutter 0.25s ease-in-out infinite alternate;
+}
+
+.fence-num {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  translate: -50% -10%;
+  color: #fff;
+  font-size: clamp(22px, 5vmin, 48px);
+  font-weight: 800;
+  line-height: 1;
+  -webkit-text-stroke: 0.14em var(--plum);
+  paint-order: stroke fill;
+  animation: appear 0.4s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+.puddle.splash svg {
+  animation: puddleSplash 0.5s ease-out;
+}
+
+.balloon {
+  pointer-events: auto;
+  cursor: pointer;
+  animation:
+    balloonRise 0.8s cubic-bezier(0.3, 1.3, 0.5, 1) both,
+    balloonBob 2.4s ease-in-out infinite;
+}
+/* A generous invisible tap area around each balloon. */
+.balloon::after {
+  content: '';
+  position: absolute;
+  inset: -20% -45%;
+}
+.balloon.nope svg {
+  animation: nope 0.5s ease-in-out;
+}
+.balloon.away {
+  pointer-events: none;
+  animation: floatAway 1.6s ease-in forwards;
+}
+
+.present {
+  pointer-events: auto;
+  cursor: pointer;
+}
+.present::after {
+  content: '';
+  position: absolute;
+  inset: -30%;
+}
+.present.choice::before {
+  content: '';
+  position: absolute;
+  inset: -25%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 250, 200, 0.75) 40%, rgba(255, 250, 200, 0) 70%);
+  animation: padGlow 1.3s ease-in-out infinite;
+  pointer-events: none;
+}
+.present.choice svg {
+  animation: presentWiggle 1.4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+.present-art .lid {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.present.open .lid {
+  animation: lidOff 0.8s ease-in forwards;
+}
+.present.gone {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+/* How far along: stars caught, a dot per move, a star for the present. */
+.trail {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: var(--safe-bottom);
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.4vmin, 12px);
+  padding: 6px 14px 6px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+.trail .dot {
+  width: clamp(12px, 2.4vmin, 20px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  transition:
+    background 0.3s,
+    scale 0.3s;
+}
+.trail .dot.done {
+  background: #c3a3f0;
+}
+.trail .dot.now {
+  background: #ffd84a;
+  scale: 1.35;
+}
+.trail .dot.goal {
+  width: auto;
+  aspect-ratio: auto;
+  background: none;
+  color: #fff;
+  font-size: clamp(18px, 3.6vmin, 30px);
+  line-height: 1;
+  -webkit-text-stroke: 0.1em #c3a3f0;
+  paint-order: stroke fill;
+}
+.trail .dot.goal.now,
+.trail .dot.goal.done {
+  color: #ffd84a;
+  -webkit-text-stroke-color: #fff;
+}
+.star-count {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: 4px;
+  color: #fff;
+  font-size: clamp(18px, 3.8vmin, 32px);
+  font-weight: 800;
+  line-height: 1;
+  -webkit-text-stroke: 0.14em #e0a01c;
+  paint-order: stroke fill;
+}
+.star-count svg {
+  width: clamp(26px, 5vmin, 42px);
+  height: auto;
+}
+.star-count.bump svg {
+  animation: pickBounce 0.35s ease-out;
+}
+
+.end-buttons {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(var(--safe-top) + var(--bar) + 2vh);
+  display: flex;
+  justify-content: center;
+  gap: 6vmin;
+  animation: appear 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+/* Opening a present */
+.reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  background: rgba(74, 59, 107, 0);
+  transition: background 0.4s;
+}
+.reveal.open {
+  background: rgba(74, 59, 107, 0.35);
+}
+.reveal.closing {
+  background: rgba(74, 59, 107, 0);
+}
+.reveal-card {
+  --fx: 0px;
+  --fy: 0px;
+  position: relative;
+  width: min(72vmin, 540px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  animation: revealIn 0.75s cubic-bezier(0.3, 1.3, 0.5, 1) both;
+  transition: opacity 0.15s;
+}
+.reveal.closing .reveal-card {
+  opacity: 0;
+}
+.reveal-card::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(#ffffff 40%, #f1e4ff);
+  border: 0.9vmin solid #fff;
+  box-shadow: 0 2vmin 4vmin rgba(74, 59, 107, 0.3);
+}
+.reveal-rays {
+  position: absolute;
+  inset: -6%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255, 240, 160, 0.55) 0 9deg, transparent 9deg 22.5deg);
+  -webkit-mask: radial-gradient(circle, #000 30%, transparent 70%);
+  mask: radial-gradient(circle, #000 30%, transparent 70%);
+  animation: spin 14s linear infinite;
+}
+.reveal-art {
+  position: relative;
+  width: 50%;
+  aspect-ratio: 1;
+  animation: revealBob 1.4s ease-in-out infinite;
+}
+.reveal-art svg {
+  width: 100%;
+  height: 100%;
+}
+.reveal-name {
+  position: absolute;
+  bottom: 9%;
+  padding: 0.05em 0.8em 0;
+  border-radius: 999px;
+  background: #fff;
+  font-size: clamp(22px, 6vmin, 50px);
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 0.6vmin 0 rgba(74, 59, 107, 0.2);
+  animation: appear 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) 0.4s both;
+}
+.reveal-new {
+  position: absolute;
+  top: 6%;
+  right: 8%;
+  font-size: clamp(50px, 13vmin, 110px);
+  line-height: 1;
+  color: #ffd23f;
+  -webkit-text-stroke: 0.06em #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0.5vmin 0.6vmin rgba(74, 59, 107, 0.3));
+  animation: starIn 0.8s cubic-bezier(0.3, 1.6, 0.5, 1) 0.5s both;
+}
+.reveal-new span {
+  display: block;
+  animation: twinkleBtn 1.4s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Title */
+
+.title-scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--safe-top) + var(--bar) * 0.3) 16px calc(var(--safe-bottom) + 2vh);
+}
+.title-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+.t-rainbow {
+  position: absolute;
+  left: 26%;
+  top: calc(var(--ground, 80vh) + 2px);
+  width: clamp(240px, 56vmin, 640px);
+  translate: -50% -100%;
+  opacity: 0.9;
+}
+.t-rainbow svg {
+  width: 100%;
+  height: auto;
+}
+.t-uni {
+  left: 26%;
+  top: var(--ground, 80vh);
+  width: clamp(150px, 36vmin, 400px);
+  translate: -47.6% -96.8%;
+  will-change: auto;
+}
+.t-uni .uni-tilt {
+  cursor: pointer;
+}
+.logo {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(42px, 12vmin, 130px);
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+.logo-words {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.3em;
+}
+.logo-word {
+  white-space: nowrap;
+}
+.logo-letter {
+  display: inline-block;
+  -webkit-text-stroke: 0.14em #fff;
+  paint-order: stroke fill;
+  text-shadow: 0 0.09em 0 rgba(74, 59, 107, 0.22);
+  animation: letterHop 2.4s ease-in-out infinite;
+}
+.logo-name {
+  font-size: 0.5em;
+  color: #fff;
+  -webkit-text-stroke: 0.16em #b184f5;
+  paint-order: stroke fill;
+  transform: rotate(-4deg);
+  margin-bottom: 0.08em;
+  animation: floaty 3s ease-in-out infinite;
+}
+.title-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6vmin;
+}
+.play-btn {
+  width: clamp(100px, 22vmin, 180px);
+  height: clamp(100px, 22vmin, 180px);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Dressing up */
+
+.dress-scene {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 1.4vh;
+  padding: calc(var(--safe-top) + var(--bar) + 1vh) max(12px, env(safe-area-inset-right)) var(--safe-bottom) max(12px, env(safe-area-inset-left));
+}
+.d-stage {
+  position: relative;
+  min-height: 0;
+}
+.d-rainbow {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: min(96%, 150vh);
+  translate: -50% 0;
+  opacity: 0.9;
+}
+.d-rainbow svg {
+  width: 100%;
+  height: auto;
+}
+.d-uni {
+  left: 50%;
+  top: auto;
+  bottom: 0;
+  translate: -47.6% 3.2%;
+  will-change: auto;
+  cursor: pointer;
+}
+
+.p-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.4vmin;
+  --slot: clamp(34px, min(7.4vmin, calc((100vw - 32vmin - 60px) / 12.6)), 76px);
+}
+.collection {
+  display: grid;
+  grid-template-columns: repeat(12, var(--slot));
+  gap: 0.6vmin;
+  padding: 1vmin;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+}
+.slot {
+  position: relative;
+  width: var(--slot);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.85);
+  border: 3px solid transparent;
+}
+.slot svg {
+  width: 80%;
+  height: 80%;
+}
+.slot.got {
+  background: #fff8d6;
+  border-color: #ffd23f;
+}
+/* What Sparkle has on: a purple ring and a tick of colour. */
+.slot.on {
+  background: #f3e9ff;
+  border-color: #b184f5;
+  box-shadow: 0 0 0 3px #fff;
+}
+.slot.new {
+  animation: pulse 1.2s ease-in-out 3;
+}
+.slot.wiggle {
+  animation: wiggle 0.6s ease-in-out;
+}
+.slot.shake {
+  animation: shake 0.4s ease-in-out;
+}
+.play-btn-small {
+  flex: none;
+  width: clamp(70px, 14vmin, 130px);
+  height: clamp(70px, 14vmin, 130px);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Keyframes */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes gallopFront {
+  0%,
+  100% {
+    transform: rotate(-34deg);
+  }
+  50% {
+    transform: rotate(24deg);
+  }
+}
+@keyframes gallopBack {
+  0%,
+  100% {
+    transform: rotate(28deg);
+  }
+  50% {
+    transform: rotate(-26deg);
+  }
+}
+@keyframes gallopBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+@keyframes tailSwish {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(9deg);
+  }
+}
+@keyframes wingFlap {
+  from {
+    transform: rotate(-4deg);
+  }
+  to {
+    transform: rotate(16deg) scaleY(0.9);
+  }
+}
+@keyframes capeFlap {
+  from {
+    transform: skewX(0) scaleX(1);
+  }
+  to {
+    transform: skewX(-6deg) scaleX(1.05);
+  }
+}
+@keyframes squash {
+  0% {
+    transform: scale(1.06, 0.9);
+  }
+  60% {
+    transform: scale(0.98, 1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes rearUp {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  40%,
+  60% {
+    transform: rotate(-14deg) translateY(-4%);
+  }
+}
+@keyframes uniHop {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  15% {
+    transform: translateY(0) scale(1.05, 0.93);
+  }
+  50% {
+    transform: translateY(-28%) rotate(-8deg);
+  }
+  85% {
+    transform: translateY(0) scale(0.97, 1.03);
+  }
+}
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+@keyframes starBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-8deg) scale(1);
+  }
+  50% {
+    transform: translateY(-8%) rotate(8deg) scale(1.08);
+  }
+}
+@keyframes bunnyHop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-45%) rotate(-6deg);
+  }
+  70% {
+    transform: translateY(0) scale(1.06, 0.92);
+  }
+}
+@keyframes flutterPath {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-6deg);
+  }
+  25% {
+    transform: translate(40%, -30%) rotate(8deg);
+  }
+  50% {
+    transform: translate(-20%, -60%) rotate(-4deg);
+  }
+  75% {
+    transform: translate(-50%, -20%) rotate(6deg);
+  }
+}
+@keyframes flyZoom {
+  0% {
+    transform: translate(0, 0) rotate(0) scale(1);
+  }
+  50% {
+    transform: translate(60%, -120%) rotate(360deg) scale(1.3);
+  }
+  100% {
+    transform: translate(0, 0) rotate(720deg) scale(1);
+  }
+}
+@keyframes wingFlutter {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0.6);
+  }
+}
+@keyframes puddleSplash {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.15, 0.7);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes balloonRise {
+  from {
+    transform: translateY(120%) scale(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes floatAway {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-160%) rotate(12deg);
+    opacity: 0;
+  }
+}
+@keyframes nope {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-9deg);
+  }
+  45% {
+    transform: rotate(8deg);
+  }
+  70% {
+    transform: rotate(-4deg);
+  }
+}
+@keyframes padGlow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+@keyframes presentWiggle {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0);
+  }
+  70% {
+    transform: rotate(-6deg);
+  }
+  80% {
+    transform: rotate(6deg);
+  }
+  90% {
+    transform: rotate(-3deg);
+  }
+}
+@keyframes lidOff {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  30% {
+    transform: translateY(-60%) rotate(-10deg);
+  }
+  100% {
+    transform: translate(60%, -260%) rotate(40deg);
+    opacity: 0;
+  }
+}
+@keyframes revealIn {
+  from {
+    transform: translate(var(--fx), var(--fy)) scale(0.12) rotate(-20deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(0, 0) scale(1) rotate(0);
+  }
+}
+@keyframes revealBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-4%) rotate(3deg);
+  }
+}
+@keyframes starIn {
+  from {
+    transform: scale(0) rotate(-180deg);
+  }
+  to {
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-12%);
+  }
+  75% {
+    transform: translateX(12%);
+  }
+}
+@keyframes letterHop {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  76% {
+    transform: translateY(0) scale(1.1, 0.88);
+  }
+  84% {
+    transform: translateY(-0.2em) scale(0.95, 1.08);
+  }
+  92% {
+    transform: translateY(0) scale(1.05, 0.95);
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Portrait & small screens */
+
+@media (orientation: portrait) {
+  .title-scene {
+    padding-top: calc(var(--safe-top) + var(--bar) + 2vh);
+  }
+  /* The sun keeps clear of the title. */
+  .title-bg .meadow .sun {
+    top: 30%;
+  }
+  .t-uni {
+    left: 50%;
+    width: clamp(170px, 56vw, 420px);
+  }
+  .t-rainbow {
+    left: 50%;
+    width: clamp(260px, 92vw, 700px);
+  }
+  .p-bottom {
+    --slot: clamp(34px, min(10vw, 7vh), 76px);
+  }
+  .collection {
+    grid-template-columns: repeat(6, var(--slot));
+    border-radius: 4vmin;
+  }
+}
+
+/* Short landscape screens (phones on their side). */
+@media (orientation: landscape) and (max-height: 500px) {
+  .logo {
+    font-size: 13vh;
+  }
+  .t-uni {
+    left: 20%;
+    width: 34vh;
+  }
+  .t-rainbow {
+    left: 20%;
+  }
+}
+
+/* Calmer screens for anyone who asks their device for less motion. Running
+   and jumping still happen: they are the game. */
+@media (prefers-reduced-motion: reduce) {
+  .logo-letter,
+  .logo-name,
+  .play-btn,
+  .reveal-rays,
+  .sun-art .rays,
+  .bloom svg,
+  .star svg,
+  .present.choice svg,
+  .uni-art .tail,
+  .uni-art .wing,
+  .uni-art .cape {
+    animation: none;
+  }
+  .critter.butterfly {
+    animation-play-state: paused;
+  }
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Layout polish, the same in every game                                    */
+
+/* The grown-up gear matches the round buttons beside it, just quieter. */
+.gear-btn {
+  width: clamp(48px, 9vmin, 70px);
+  height: clamp(48px, 9vmin, 70px);
+  background: rgba(255, 255, 255, 0.75);
+  color: #c3a6ec;
+  box-shadow:
+    0 5px 0 rgba(90, 66, 114, 0.15),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Play sits dead centre, under the title; its partner button to its right. */
+.title-buttons {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 5vmin;
+  width: 100%;
+}
+.title-buttons > .play-btn {
+  grid-column: 2;
+}
+.title-buttons > :not(.play-btn) {
+  grid-column: 3;
+  justify-self: start;
+}
+
+/* Something new to wear: the button bounces with a sparkly star. */
+.dress-btn .new-star {
+  position: absolute;
+  top: -14px;
+  left: -12px;
+  font-size: clamp(30px, 5.5vmin, 46px);
+  line-height: 1;
+  color: #ffd43b;
+  -webkit-text-stroke: 2px #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 2px 2px rgba(90, 66, 114, 0.3));
+  opacity: 0;
+  scale: 0.3;
+  transition:
+    opacity 0.3s,
+    scale 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.dress-btn.has-new .new-star {
+  opacity: 1;
+  scale: 1;
+  animation: starTwinkle 1.4s ease-in-out infinite;
+}
+.dress-btn.has-new {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes starTwinkle {
+  0%,
+  100% {
+    rotate: -12deg;
+  }
+  50% {
+    rotate: 12deg;
+  }
+}

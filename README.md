@@ -9,6 +9,7 @@ Little browser games for little ones (about ages 2 to 4).
 | [🌈 Colour Splash](colour-splash/) | Tap to splash colour onto 12 pictures that come alive when they're finished, and fill a gallery wall that grows. For ages 2 to 3. |
 | [🎣 Little Fishing Pond](fishing-pond/) | Go fishing with Pip the penguin: tap the water, wait for a nibble, reel in 12 kinds of fish (and some silly surprises), and fill a fish tank that grows. For ages 2 to 3. |
 | [🐸 Leapy Pond](leapy-pond/) | Hop across a big pond with Hoppy the frog: catch flies, find flowers by colour, count stepping stones, and meet 12 pond friends who come to live in your pond. For ages 2 to 4. |
+| [🦄 Unicorn Dash](unicorn-dash/) | Dash across a sunny meadow with Sparkle the unicorn: tap to jump logs and fences, catch stars, pop balloons by colour, count jumps, and open a present at the end of every dash to find 12 things to dress her up in. For ages 2 to 4. |
 
 ## Play them all (recommended)
 
@@ -31,7 +32,8 @@ Played this way, the games share a few things:
 - **Voice recordings:** a line that's the same in several games, like "Yay!"
   or "Blue!", only needs recording once.
 - **Progress:** the home page shows a badge on each game: butterflies grown,
-  treats baked, pictures painted, kinds of fish found, pond friends met.
+  treats baked, pictures painted, kinds of fish found, pond friends met,
+  presents found.
 
 After the first visit the games are saved on the device, so they also work
 **offline** (in the car, on a plane).
