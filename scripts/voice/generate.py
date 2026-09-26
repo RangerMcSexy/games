@@ -96,15 +96,24 @@ class Chatterbox:
         from chatterbox.tts import ChatterboxTTS
 
         self.model = ChatterboxTTS.from_pretrained(device="cpu")
+        self.builtin = self.model.conds
         ref = VOICE_DIR / "reference.wav"
         self.default_ref = str(ref) if ref.exists() else None
+        self.loaded = None
 
     def say(self, voice, text, wav):
         import torchaudio
 
         exaggeration, _, ref = voice.partition(":")
         ref = str(VOICE_DIR / "refs" / f"{ref}.flac") if ref else self.default_ref
-        audio = self.model.generate(text, audio_prompt_path=ref, exaggeration=float(exaggeration), cfg_weight=0.4)
+        # Study the voice to copy once, not before every line (much faster).
+        if ref != self.loaded:
+            if ref:
+                self.model.prepare_conditionals(ref, exaggeration=float(exaggeration))
+            else:
+                self.model.conds = self.builtin
+            self.loaded = ref
+        audio = self.model.generate(text, exaggeration=float(exaggeration), cfg_weight=0.4)
         torchaudio.save(wav, audio, self.model.sr)
 
 
