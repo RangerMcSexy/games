@@ -57,7 +57,7 @@ export async function leapScreen(host: Host): Promise<'pond' | 'again'> {
   const measure = () => {
     W = sc.root.clientWidth || innerWidth;
     H = sc.root.clientHeight || innerHeight;
-    P = Math.max(74, Math.min(165, Math.min(W, H) * 0.21));
+    P = Math.max(90, Math.min(165, Math.min(W, H) * 0.23));
     HOP = Math.max(P * 1.3, Math.min(P * 2.1, H * 0.3));
     ANCHOR = H * 0.73;
   };

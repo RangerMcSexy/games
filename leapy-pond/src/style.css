@@ -858,6 +858,17 @@ svg {
 .pad.choice > svg {
   animation: padPulse 1.3s ease-in-out infinite;
 }
+/* A generous invisible tap area around each pad Hoppy can hop to, so a
+   small finger that lands just off the edge still counts. */
+.pad.choice::after {
+  content: '';
+  position: absolute;
+  inset: -35%;
+  border-radius: 50%;
+}
+.pad.stone.choice::after {
+  inset: -70%;
+}
 .pad.bob > svg {
   animation: padBob 0.5s ease-out;
 }
