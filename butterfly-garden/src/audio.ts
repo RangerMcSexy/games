@@ -45,6 +45,7 @@ class Sound {
   private ducked = false;
   private night = false;
   private paused = false;
+  private sleeping = false;
 
   /** Must be called from a user gesture (iOS/Safari requirement). */
   unlock() {
@@ -74,7 +75,15 @@ class Sound {
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
       this.startMusic();
     }
-    if (this.context.state === 'suspended') void this.context.resume();
+    // Safari says 'interrupted' (not 'suspended') after a call or an app switch.
+    if (this.context.state !== 'running' && !this.sleeping) this.context.resume().catch(() => {});
+  }
+
+  /** Go quiet while the game is hidden (another app, or the screen is off). */
+  sleep(on: boolean) {
+    this.sleeping = on;
+    if (!this.context) return;
+    (on ? this.context.suspend() : this.context.resume()).catch(() => {});
   }
 
   get soundOn() {
@@ -132,7 +141,7 @@ class Sound {
     { type = 'sine' as OscillatorType, vol = 0.5, slide = 0, delay = 0, attack = 0.005, out = this.sfx as AudioNode } = {},
   ) {
     const ctx = this.context;
-    if (!ctx) return;
+    if (!ctx || this.sleeping) return;
     const t = ctx.currentTime + delay;
     const o = ctx.createOscillator();
     const g = ctx.createGain();
@@ -149,7 +158,7 @@ class Sound {
 
   private noise(dur: number, { freq = 1200, q = 1, vol = 0.4, delay = 0, type = 'bandpass' as BiquadFilterType, sweep = 0, attack = 0 } = {}) {
     const ctx = this.context;
-    if (!ctx || !this.noiseBuf) return;
+    if (!ctx || !this.noiseBuf || this.sleeping) return;
     const t = ctx.currentTime + delay;
     const src = ctx.createBufferSource();
     src.buffer = this.noiseBuf;
@@ -273,7 +282,7 @@ class Sound {
   }
   buzz() {
     const ctx = this.context;
-    if (!ctx) return;
+    if (!ctx || this.sleeping) return;
     const t = ctx.currentTime;
     const o = ctx.createOscillator();
     const lfo = ctx.createOscillator();
@@ -307,6 +316,8 @@ class Sound {
     window.setInterval(() => {
       if (ctx.state !== 'running') return;
       const beat = this.night ? 0.72 : 0.56;
+      // After a pause, pick the tune up from now rather than rushing to catch up.
+      if (this.nextBeat < ctx.currentTime) this.nextBeat = ctx.currentTime + 0.05;
       while (this.nextBeat < ctx.currentTime + 0.3) {
         const bars = MELODY[this.bar];
         const t = this.nextBeat - ctx.currentTime;

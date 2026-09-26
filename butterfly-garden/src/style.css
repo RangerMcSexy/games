@@ -1714,10 +1714,13 @@ svg.butterfly.flapping .flap-r {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cloud,
   .logo-letter,
   .title-cat {
     animation: none;
+  }
+  /* Clouds start off-screen, so freeze them mid-sky instead. */
+  .cloud {
+    animation-play-state: paused;
   }
 }
 

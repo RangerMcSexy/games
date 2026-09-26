@@ -609,6 +609,7 @@ svg {
   left: 9%;
   top: calc(var(--safe-top) + 12vmin);
   width: clamp(150px, 34vmin, 330px);
+  transition: translate 0.7s ease-in-out;
 }
 .kitchen-window svg {
   width: 100%;
@@ -639,6 +640,12 @@ svg {
   right: 7%;
   top: calc(var(--safe-top) + 14vmin);
   width: clamp(130px, 30vmin, 280px);
+  transition: translate 0.7s ease-in-out;
+}
+/* On the title the window and shelf step down so the sign isn't over them. */
+.on-title .kitchen-window,
+.on-title .kitchen-shelf {
+  translate: 0 var(--title-drop, 12vmin);
 }
 .kitchen-shelf svg {
   width: 100%;
@@ -2076,7 +2083,6 @@ html[data-time='night'] .hatch-view {
 @media (prefers-reduced-motion: reduce) {
   .logo-letter,
   .title-treat,
-  .win-cloud,
   .strip-step.active,
   .stroller-inner,
   .u-bunting .flag,
@@ -2085,6 +2091,9 @@ html[data-time='night'] .hatch-view {
   .treat .flame,
   .bunny-ears {
     animation: none;
+  }
+  .win-cloud {
+    animation-play-state: paused;
   }
 }
 

@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#bfe6ff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Games" />
+    <meta name="description" content="Little games for little ones." />
+    <title>Games</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%88%3C/text%3E%3C/svg%3E" />
+    <style>
+      @font-face {
+        font-family: 'Baloo 2';
+        font-weight: 800;
+        font-display: swap;
+        src: url('fonts/baloo-2-latin-800-normal.woff2') format('woff2');
+      }
+      :root {
+        --ink: #5a4272;
+        --safe-top: max(14px, env(safe-area-inset-top));
+        --safe-bottom: max(14px, env(safe-area-inset-bottom));
+        font-family: 'Baloo 2', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
+        font-weight: 800;
+        color: var(--ink);
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        overscroll-behavior: none;
+        touch-action: none;
+        background: #bfe6ff;
+      }
+      .sky {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(#9fd8ff, #d6f0ff 60%, #f3fbff);
+      }
+      .cloud {
+        position: absolute;
+        width: 24vmin;
+        height: 7vmin;
+        border-radius: 7vmin;
+        background: #fff;
+        opacity: 0.9;
+        animation: drift linear infinite;
+      }
+      .cloud::before,
+      .cloud::after {
+        content: '';
+        position: absolute;
+        background: #fff;
+        border-radius: 50%;
+      }
+      .cloud::before {
+        width: 10vmin;
+        height: 10vmin;
+        left: 3vmin;
+        top: -5vmin;
+      }
+      .cloud::after {
+        width: 13vmin;
+        height: 13vmin;
+        left: 9vmin;
+        top: -7vmin;
+      }
+      .hills {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 34vh;
+      }
+      .hills svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      main {
+        position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4vmin;
+        padding: var(--safe-top) 16px var(--safe-bottom);
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(38px, 10vmin, 110px);
+        line-height: 1;
+        text-align: center;
+      }
+      h1 span {
+        display: inline-block;
+        -webkit-text-stroke: 0.14em #fff;
+        paint-order: stroke fill;
+        text-shadow: 0 0.09em 0 rgba(90, 66, 114, 0.22);
+        animation: bounce 2.4s ease-in-out infinite;
+      }
+      .games {
+        display: grid;
+        grid-template-columns: repeat(4, auto);
+        gap: 3.5vmin;
+      }
+      @media (max-aspect-ratio: 1/1) {
+        .games {
+          grid-template-columns: repeat(2, auto);
+          gap: 6vw;
+        }
+        .tile {
+          --size: clamp(120px, 40vw, 280px);
+        }
+        h1 {
+          font-size: clamp(38px, 12vw, 110px);
+        }
+        .game {
+          font-size: clamp(18px, 5vw, 34px);
+        }
+      }
+      .game {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1vmin;
+        color: var(--ink);
+        text-decoration: none;
+        font-size: clamp(16px, 4vmin, 34px);
+        line-height: 1.1;
+        text-align: center;
+      }
+      .tile {
+        width: var(--size, clamp(110px, 27vmin, 280px));
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        border-radius: 26%;
+        background: var(--bg);
+        border: 0.7vmin solid #fff;
+        box-shadow:
+          0 1.2vmin 0 var(--edge),
+          0 2vmin 3vmin rgba(90, 66, 114, 0.18);
+        transition: transform 0.15s;
+        animation: float 3.2s ease-in-out var(--d) infinite;
+      }
+      .tile svg {
+        width: 74%;
+        height: 74%;
+        overflow: visible;
+      }
+      .game:active .tile,
+      .game.go .tile {
+        transform: scale(0.9);
+        animation-play-state: paused;
+      }
+      @keyframes drift {
+        from {
+          transform: translateX(-30vmin);
+        }
+        to {
+          transform: translateX(calc(100vw + 30vmin));
+        }
+      }
+      @keyframes bounce {
+        0%,
+        70%,
+        100% {
+          transform: translateY(0);
+        }
+        80% {
+          transform: translateY(-0.12em);
+        }
+      }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-1.2vmin);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        h1 span,
+        .tile {
+          animation: none;
+        }
+        .cloud {
+          animation-play-state: paused;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sky">
+      <div class="cloud" style="top: 12%; animation-duration: 80s; animation-delay: -20s"></div>
+      <div class="cloud" style="top: 26%; animation-duration: 110s; animation-delay: -70s; scale: 0.7"></div>
+      <div class="cloud" style="top: 8%; animation-duration: 95s; animation-delay: -55s; scale: 0.85"></div>
+    </div>
+    <div class="hills" aria-hidden="true">
+      <svg viewBox="0 0 1000 300" preserveAspectRatio="none">
+        <path fill="#b8e6a0" d="M0,140 C150,60 300,70 450,130 C600,190 780,70 1000,110 L1000,300 L0,300 Z" />
+        <path fill="#98d884" d="M0,210 C200,150 380,170 520,200 C700,240 850,160 1000,190 L1000,300 L0,300 Z" />
+      </svg>
+    </div>
+
+    <main>
+      <h1 id="title" aria-label="Games"></h1>
+      <nav class="games">
+        <a class="game" href="butterfly-garden/" style="--d: 0s">
+          <span class="tile" style="--bg: #d9f2ff; --edge: #9fcfee">
+            <svg viewBox="-50 -50 100 100" aria-hidden="true">
+              <g stroke="#5a4272" stroke-width="3.5" stroke-linejoin="round">
+                <path d="M-3,-4 C-20,-40 -46,-34 -40,-12 C-36,2 -16,4 -3,0 Z" fill="#ff9ec4" />
+                <path d="M3,-4 C20,-40 46,-34 40,-12 C36,2 16,4 3,0 Z" fill="#c9a8ff" />
+                <path d="M-3,2 C-20,6 -34,22 -24,32 C-14,40 -4,22 -3,6 Z" fill="#ffd36e" />
+                <path d="M3,2 C20,6 34,22 24,32 C14,40 4,22 3,6 Z" fill="#8fd3ff" />
+                <rect x="-4" y="-16" width="8" height="42" rx="4" fill="#5a4272" />
+              </g>
+              <circle cx="-26" cy="-18" r="4.5" fill="#fff" opacity="0.8" />
+              <circle cx="26" cy="-18" r="4.5" fill="#fff" opacity="0.8" />
+              <path d="M-2,-16 C-6,-28 -12,-32 -16,-34 M2,-16 C6,-28 12,-32 16,-34" fill="none" stroke="#5a4272" stroke-width="3" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span>Butterflies</span>
+        </a>
+        <a class="game" href="bakery/" style="--d: -0.8s">
+          <span class="tile" style="--bg: #ffe3ec; --edge: #f2a9c0">
+            <svg viewBox="-50 -50 100 100" aria-hidden="true">
+              <g stroke="#5a4272" stroke-width="3.5" stroke-linejoin="round">
+                <path d="M-28,4 L-20,40 L20,40 L28,4 Z" fill="#fff3c9" />
+                <path d="M-14,6 L-10,40 M0,6 L0,40 M14,6 L10,40" fill="none" stroke-width="2.5" />
+                <path d="M-32,6 C-40,-6 -28,-16 -20,-14 C-22,-28 -4,-34 0,-24 C6,-34 24,-28 20,-14 C30,-16 40,-6 32,6 Z" fill="#ff9ec4" />
+                <circle cx="0" cy="-32" r="7" fill="#ff5a6e" />
+              </g>
+              <path d="M0,-39 C2,-44 6,-46 10,-46" fill="none" stroke="#5a4272" stroke-width="3" stroke-linecap="round" />
+              <g stroke-width="3.5" stroke-linecap="round">
+                <path d="M-18,-6 l4,-2" stroke="#8fd3ff" />
+                <path d="M-4,-14 l3,3" stroke="#ffd36e" />
+                <path d="M10,-6 l4,2" stroke="#9be07a" />
+                <path d="M16,-18 l-2,3" stroke="#c9a8ff" />
+              </g>
+            </svg>
+          </span>
+          <span>Bakery</span>
+        </a>
+        <a class="game" href="colour-splash/" style="--d: -1.6s">
+          <span class="tile" style="--bg: #fff4d6; --edge: #f0cf7e">
+            <svg viewBox="-50 -50 100 100" aria-hidden="true">
+              <path d="M-6,-38 C8,-44 18,-30 28,-30 C42,-30 44,-12 36,-4 C46,6 38,24 24,22 C22,38 4,42 -6,32 C-18,42 -36,34 -32,20 C-46,14 -44,-6 -32,-10 C-40,-24 -22,-36 -6,-38 Z" fill="#fff" stroke="#5a4272" stroke-width="3.5" stroke-linejoin="round" />
+              <circle cx="-16" cy="-14" r="11" fill="#ff7a8a" />
+              <circle cx="12" cy="-16" r="10" fill="#ffd36e" />
+              <circle cx="20" cy="8" r="10" fill="#8fd3ff" />
+              <circle cx="-2" cy="18" r="10" fill="#9be07a" />
+              <circle cx="-20" cy="10" r="8" fill="#c9a8ff" />
+              <circle cx="40" cy="-30" r="5" fill="#ff9ec4" stroke="#5a4272" stroke-width="3" />
+              <circle cx="-40" cy="34" r="4" fill="#8fd3ff" stroke="#5a4272" stroke-width="3" />
+            </svg>
+          </span>
+          <span>Colours</span>
+        </a>
+        <a class="game" href="fishing-pond/" style="--d: -2.4s">
+          <span class="tile" style="--bg: #dcf6ee; --edge: #95d8c2">
+            <svg viewBox="-50 -50 100 100" aria-hidden="true">
+              <g stroke="#5a4272" stroke-width="3.5" stroke-linejoin="round">
+                <path d="M22,0 L44,-18 L40,0 L44,18 Z" fill="#ff9a4d" />
+                <path d="M-40,0 C-30,-26 10,-28 26,0 C10,28 -30,26 -40,0 Z" fill="#ffb347" />
+                <path d="M-8,-20 C-2,-32 10,-30 14,-16" fill="#ff9a4d" />
+                <path d="M-12,-18 C-16,-6 -16,6 -12,18" fill="none" stroke-width="3" />
+              </g>
+              <circle cx="-26" cy="-4" r="6.5" fill="#fff" stroke="#5a4272" stroke-width="3" />
+              <circle cx="-25" cy="-4" r="3" fill="#5a4272" />
+              <path d="M-36,8 C-33,11 -30,11 -28,9" fill="none" stroke="#5a4272" stroke-width="3" stroke-linecap="round" />
+              <g fill="none" stroke="#6ec3ff" stroke-width="3">
+                <circle cx="-38" cy="-30" r="4" />
+                <circle cx="-30" cy="-40" r="2.5" />
+              </g>
+            </svg>
+          </span>
+          <span>Fishing</span>
+        </a>
+      </nav>
+    </main>
+
+    <script>
+      // The child's name is shared with the games (set it in any game's
+      // grown-up settings).
+      let name = 'Mia';
+      try {
+        const shared = localStorage.getItem('mia-games.name');
+        if (shared !== null) name = shared.trim();
+      } catch {
+        /* storage disabled */
+      }
+      const title = document.getElementById('title');
+      const text = name ? `${name}'s Games` : 'Games';
+      const colours = ['#ff7a8a', '#ffb347', '#f5c742', '#7fcf6a', '#6ec3ff', '#b58cff', '#ff8fc8'];
+      [...text].forEach((ch, i) => {
+        const s = document.createElement('span');
+        s.textContent = ch === ' ' ? ' ' : ch;
+        s.style.color = colours[i % colours.length];
+        s.style.animationDelay = `${i * 0.08}s`;
+        title.append(s);
+      });
+      title.setAttribute('aria-label', text);
+      document.title = text;
+
+      // Toddler-proofing: no zooming, scrolling or long-press menus.
+      document.addEventListener('contextmenu', (e) => e.preventDefault());
+      document.addEventListener('gesturestart', (e) => e.preventDefault());
+      document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+
+      // A happy pop, then off to the game.
+      let audio;
+      function pop() {
+        try {
+          audio ??= new (window.AudioContext || window.webkitAudioContext)();
+          const t = audio.currentTime;
+          const o = audio.createOscillator();
+          const g = audio.createGain();
+          o.frequency.setValueAtTime(520, t);
+          o.frequency.exponentialRampToValueAtTime(1020, t + 0.14);
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(0.4, t + 0.005);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+          o.connect(g).connect(audio.destination);
+          o.start(t);
+          o.stop(t + 0.2);
+        } catch {
+          /* no sound, no matter */
+        }
+      }
+      for (const a of document.querySelectorAll('.game')) {
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (document.querySelector('.game.go')) return;
+          a.classList.add('go');
+          pop();
+          setTimeout(() => (location.href = a.getAttribute('href')), 220);
+        });
+      }
+      // Coming back with the browser's back button: un-press the tile.
+      addEventListener('pageshow', () => document.querySelector('.game.go')?.classList.remove('go'));
+
+      // A home-screen icon for "Add to Home Screen" (iOS wants a PNG).
+      try {
+        const svg = document.querySelector('.game .tile svg').outerHTML.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" ');
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = c.height = 180;
+          const g = c.getContext('2d');
+          g.fillStyle = '#d9f2ff';
+          g.fillRect(0, 0, 180, 180);
+          g.drawImage(img, 20, 20, 140, 140);
+          const link = document.createElement('link');
+          link.rel = 'apple-touch-icon';
+          link.href = c.toDataURL('image/png');
+          document.head.append(link);
+        };
+        img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      } catch {
+        /* cosmetic only */
+      }
+    </script>
+  </body>
+</html>

@@ -173,6 +173,7 @@ export function balloonsSVG(): string {
 export const ICONS = {
   play: `<svg viewBox="-50 -50 100 100"><path d="M-14,-26 L28,0 L-14,26 Z" fill="#fff" stroke="#fff" stroke-width="10" stroke-linejoin="round"/></svg>`,
   home: `<svg viewBox="-50 -50 100 100"><path d="M-28,-2 L0,-28 L28,-2 L28,28 L-28,28 Z" fill="#fff" stroke="#fff" stroke-width="8" stroke-linejoin="round"/><rect x="-8" y="8" width="16" height="22" rx="3" fill="currentColor"/></svg>`,
+  games: `<svg viewBox="-50 -50 100 100"><g fill="#fff"><rect x="-30" y="-30" width="26" height="26" rx="7"/><rect x="4" y="-30" width="26" height="26" rx="7"/><rect x="-30" y="4" width="26" height="26" rx="7"/><rect x="4" y="4" width="26" height="26" rx="7"/></g></svg>`,
   gallery: `<svg viewBox="-50 -50 100 100"><rect x="-34" y="-28" width="68" height="56" rx="6" fill="#fff" stroke="#fff" stroke-width="6"/><path d="M-26,20 L-8,-2 L4,10 L14,0 L28,20 Z" fill="currentColor"/><circle cx="16" cy="-14" r="7" fill="currentColor"/></svg>`,
   more: `<svg viewBox="-50 -50 100 100"><path d="M-22,0 L20,0 M4,-18 L22,0 L4,18" stroke="#fff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   magic: `<svg viewBox="-50 -50 100 100"><path d="${starPath(34, 0.46)}" fill="#fff" stroke="#fff" stroke-width="6" stroke-linejoin="round"/><circle cx="30" cy="-30" r="5" fill="#fff"/><circle cx="-32" cy="28" r="4" fill="#fff"/></svg>`,

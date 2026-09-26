@@ -113,6 +113,28 @@ function load(): SaveData {
 
 export const save: SaveData = load();
 
+// The child's name is shared by every game opened from the same address (the
+// games home page), so it only has to be typed once.
+const NAME_KEY = 'mia-games.name';
+try {
+  const shared = localStorage.getItem(NAME_KEY);
+  if (shared !== null) save.name = shared;
+  // A name set here before names were shared becomes the shared one.
+  else if (save.name !== 'Mia') localStorage.setItem(NAME_KEY, save.name);
+} catch {
+  // Storage disabled: this game keeps its own name.
+}
+
+export function setName(name: string) {
+  save.name = name;
+  persist();
+  try {
+    localStorage.setItem(NAME_KEY, name);
+  } catch {
+    // Storage disabled.
+  }
+}
+
 export function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(save));

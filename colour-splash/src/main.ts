@@ -1,3 +1,4 @@
+import './font.css';
 import './style.css';
 import { ICONS } from './art';
 import { sound } from './audio';
@@ -48,7 +49,10 @@ async function keepAwake() {
 }
 document.addEventListener('pointerdown', () => void keepAwake(), { capture: true });
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') wakeLock = null;
+  const hidden = document.visibilityState === 'hidden';
+  if (hidden) stopSpeaking();
+  else wakeLock = null;
+  sound.sleep(hidden);
 });
 
 // ---------------------------------------------------------------------------
@@ -85,11 +89,22 @@ soundBtn.addEventListener('pointerdown', (e) => {
 // Flow
 
 let current: Scene | null = null;
+let onTitle = true;
+
+// Opened from the games home page (served at …/colour-splash/): on the title screen
+// the home button leads back there instead of hiding.
+const fromGames = location.protocol.startsWith('http') && /\/colour-splash\/(index\.html)?$/.test(location.pathname);
+function showHomeBtn() {
+  homeBtn.classList.toggle('hidden', onTitle && !fromGames);
+  homeBtn.innerHTML = onTitle ? ICONS.games : ICONS.home;
+  homeBtn.setAttribute('aria-label', onTitle ? 'All games' : 'Home');
+}
 const host = {
   stage,
   setScene(s: Scene) {
     current = s;
-    homeBtn.classList.toggle('hidden', s.root.classList.contains('title-scene'));
+    onTitle = s.root.classList.contains('title-scene');
+    showHomeBtn();
   },
 };
 
@@ -101,7 +116,10 @@ const goHome = () => {
 homeBtn.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   sound.tapSoft();
-  goHome();
+  if (onTitle) {
+    stopSpeaking();
+    location.href = '../';
+  } else goHome();
 });
 
 // Settings changed (name, reset): restart from the title so everything updates.

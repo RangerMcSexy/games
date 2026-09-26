@@ -2,7 +2,7 @@
 // starting a fresh collection. Opened by holding the gear for 3 seconds.
 import { ICONS } from './art';
 import { sound } from './audio';
-import { persist, resetCollection, save } from './data';
+import { resetCollection, save, setName } from './data';
 import { el } from './ui';
 import { LINES, Recorder, deleteRecording, hasRecording, lineText, previewLine, recordingCount, saveRecording, stopSpeaking } from './voice';
 
@@ -56,10 +56,7 @@ function openSettings(onChange: () => void) {
   input.maxLength = 20;
   input.value = save.name;
   input.autocomplete = 'off';
-  input.addEventListener('input', () => {
-    save.name = input.value;
-    persist();
-  });
+  input.addEventListener('input', () => setName(input.value));
 
   // Voice ------------------------------------------------------------------
   const voiceSec = el('section', 'set-sec', body);

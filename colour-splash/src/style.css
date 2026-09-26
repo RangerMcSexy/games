@@ -1631,3 +1631,19 @@ svg {
     padding-top: 2.5vh;
   }
 }
+
+/* Calmer screens for anyone who asks their device for less motion. The
+   "come alive" payoff still plays: it is the reward for finishing. */
+@media (prefers-reduced-motion: reduce) {
+  .logo-letter,
+  .logo-name,
+  .title-pic,
+  .play-btn,
+  .magic-btn,
+  .u-bunting .flag,
+  .u-lights .bulb,
+  .u-balloons .balloon,
+  .guide-body {
+    animation: none;
+  }
+}

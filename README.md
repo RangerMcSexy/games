@@ -9,7 +9,24 @@ Little browser games for Mia.
 | [🌈 Colour Splash](colour-splash/) | Tap to splash colour onto 12 pictures that come alive when they're finished, and fill a gallery wall that grows. For ages 2 to 3. |
 | [🎣 Little Fishing Pond](fishing-pond/) | Go fishing with Pip the penguin: tap the water, wait for a nibble, reel in 12 kinds of fish (and some silly surprises), and fill a fish tank that grows. For ages 2 to 3. |
 
-## How to run a game
+## Play them all (recommended)
+
+You need [Node.js](https://nodejs.org) 18 or newer. From this folder:
+
+```bash
+npm run build            # builds every game (the first time takes a minute)
+npm start                # serves them all
+```
+
+Open the `On a tablet:` address it prints (e.g. `http://192.168.1.20:5173`) on
+a tablet or phone on the same Wi-Fi, and use **Add to Home Screen**. The icon
+opens **Mia's Games**, a home page with a big button for each game. In a game,
+the button at the top left of the title screen goes back to it.
+
+Played this way, the games share the child's name: change it in any game's
+grown-up settings and every game (and the home page) uses it.
+
+## How to run one game
 
 You need [Node.js](https://nodejs.org) 18 or newer.
 

@@ -2269,3 +2269,26 @@ svg {
     display: none;
   }
 }
+
+/* Calmer screens for anyone who asks their device for less motion. Catches
+   and fish still move: they are the game. */
+@media (prefers-reduced-motion: reduce) {
+  .logo-letter,
+  .logo-name,
+  .play-btn,
+  .sun-art .rays,
+  .water-shine,
+  .weed-art .sway,
+  .reveal-rays,
+  .t-boat,
+  .aq-sign.golden {
+    animation: none;
+  }
+  /* Drifters freeze where they are rather than jumping back to the edge. */
+  .clouds .cloud,
+  .title-bg .cloud,
+  .firefly,
+  .u-snail {
+    animation-play-state: paused;
+  }
+}

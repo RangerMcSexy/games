@@ -215,7 +215,7 @@ function fill(text: string) {
 /** Robot voice for arbitrary text. Resolves when finished (or cut off). */
 export function sayText(text: string): Promise<void> {
   stopSpeaking();
-  if (!save.sound || !('speechSynthesis' in window)) return Promise.resolve();
+  if (!save.sound || document.hidden || !('speechSynthesis' in window)) return Promise.resolve();
   const my = token;
   return new Promise((resolve) => {
     try {
@@ -244,7 +244,7 @@ export function sayText(text: string): Promise<void> {
 export async function say(id: string): Promise<void> {
   const line = byId.get(id);
   if (!line) return;
-  if (!save.sound) return;
+  if (!save.sound || document.hidden) return;
   if (blobs.has(id)) {
     stopSpeaking();
     const my = token;

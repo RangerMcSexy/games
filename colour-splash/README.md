@@ -70,7 +70,8 @@ Each one also makes its own sound (beep beep, quack, roar, meow…).
 **Hold the small gear (top right) for 3 seconds.** In there you can:
 
 - Change the child's name, which is shown on the title, on the gallery sign and
-  in "You did it, Mia!". It defaults to Mia.
+  in "You did it, Mia!". It defaults to Mia. When the games are played together
+  from the games home page, the name is shared by all of them.
 - **Record your own voice** for every spoken line: tap ● to record, tap again
   to stop. Anything you don't record uses the device's built-in voice.
   Recordings stay on the device.
@@ -89,8 +90,8 @@ npm run build    # production build
 ```
 
 `npm run build` produces a **single self-contained file**, `dist/index.html`,
-with all the code, art and sound built in. It works offline, except for the
-rounded font, which falls back to a system font.
+with all the code, art and sound built in. It works offline,
+rounded font included.
 
 On a tablet, open it in the browser and use **Add to Home Screen** so it opens
 full-screen like an app.
