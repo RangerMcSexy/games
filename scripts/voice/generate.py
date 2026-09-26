@@ -9,9 +9,15 @@ voice models are big downloads.
              voice/clips/*.mp3 and voice/manifest.json, which the games
              play when a grown-up hasn't recorded that line.
 
+  refs       The recordings Chatterbox copies voices from (see below).
+
 Voices are named "kokoro:<voice>" (Apache 2.0, https://github.com/hexgrad/kokoro)
-or "chatterbox:<expressiveness>" (MIT, https://github.com/resemble-ai/chatterbox).
-Chatterbox copies the voice in voice/reference.wav if that file exists.
+or "chatterbox:<expressiveness>[:<reference>]" (MIT,
+https://github.com/resemble-ai/chatterbox). Chatterbox has no voices of its
+own: it copies the voice of a short recording and adds its own expression.
+"chatterbox:0.6:af_nicole" copies voice/refs/af_nicole.flac, a storybook
+passage read by Kokoro's af_nicole ("refs" makes these). Without a reference
+it copies voice/reference.wav if that file exists, else its built-in voice.
 """
 
 import argparse
@@ -38,6 +44,11 @@ AUDITION_LINES = [
 ]
 
 AUDITION_VOICES = [
+    ("chatterbox:0.6:af_nicole", "Soft 1: gentle, breathy (American)"),
+    ("chatterbox:0.6:af_heart", "Soft 2: warm (American)"),
+    ("chatterbox:0.6:af_bella", "Soft 3: bright (American)"),
+    ("chatterbox:0.6:bf_emma", "Soft 4: warm (British)"),
+    ("chatterbox:0.6:bf_isabella", "Soft 5: clear (British)"),
     ("kokoro:af_heart", "Heart (American)"),
     ("kokoro:af_bella", "Bella (American)"),
     ("kokoro:af_nicole", "Nicole (American, soft)"),
@@ -49,6 +60,15 @@ AUDITION_VOICES = [
     ("chatterbox:0.5", "Chatterbox (calm)"),
     ("chatterbox:0.8", "Chatterbox (excited)"),
 ]
+
+
+# What the Kokoro voices read for Chatterbox to copy: gentle, a little
+# playful, about 12 seconds.
+REF_TEXT = (
+    "Once upon a time, in a little garden by the pond, a tiny caterpillar woke up "
+    "and stretched in the warm morning sun. She wiggled, and giggled, and said hello "
+    "to all her friends. Oh, what a lovely day it was going to be!"
+)
 
 
 class Kokoro:
@@ -77,12 +97,14 @@ class Chatterbox:
 
         self.model = ChatterboxTTS.from_pretrained(device="cpu")
         ref = VOICE_DIR / "reference.wav"
-        self.ref = str(ref) if ref.exists() else None
+        self.default_ref = str(ref) if ref.exists() else None
 
     def say(self, voice, text, wav):
         import torchaudio
 
-        audio = self.model.generate(text, audio_prompt_path=self.ref, exaggeration=float(voice), cfg_weight=0.4)
+        exaggeration, _, ref = voice.partition(":")
+        ref = str(VOICE_DIR / "refs" / f"{ref}.flac") if ref else self.default_ref
+        audio = self.model.generate(text, audio_prompt_path=ref, exaggeration=float(exaggeration), cfg_weight=0.4)
         torchaudio.save(wav, audio, self.model.sr)
 
 
@@ -112,12 +134,28 @@ def clip_name(text):
     return hashlib.sha1(text.encode()).hexdigest()[:12] + ".mp3"
 
 
-def audition(engine):
-    """Samples for every audition voice of one engine, then (re)builds the page
-    from whatever voices have samples, so engines can run one at a time."""
+def refs(voices):
+    """Makes the Kokoro recordings the Chatterbox voices in `voices` copy."""
+    for name in voices:
+        engine, _, rest = name.partition(":")
+        ref = rest.partition(":")[2]
+        path = VOICE_DIR / "refs" / f"{ref}.flac"
+        if engine != "chatterbox" or not ref or path.exists():
+            continue
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if "kokoro" not in engines:
+            engines["kokoro"] = Kokoro()
+        engines["kokoro"].say(ref, REF_TEXT, str(path))
+        print(f"reference: {ref}", flush=True)
+
+
+def audition(engine, only):
+    """Samples for the audition voices of one engine (all, or those in `only`),
+    then (re)builds the page from whatever voices have samples, so engines
+    and voices can be added one run at a time."""
     out = VOICE_DIR / "audition"
     for name, _ in AUDITION_VOICES:
-        if not name.startswith(engine + ":"):
+        if not name.startswith(engine + ":") or (only and name not in only):
             continue
         folder = out / name.replace(":", "-")
         shutil.rmtree(folder, ignore_errors=True)
@@ -223,8 +261,15 @@ AUDITION_PAGE = """<!doctype html>
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("mode", choices=["audition", "full"])
+    p.add_argument("mode", choices=["audition", "full", "refs"])
     p.add_argument("--voice", default="kokoro:af_heart", help='for "full", e.g. kokoro:af_heart')
     p.add_argument("--engine", default="kokoro", help='for "audition": kokoro or chatterbox')
+    p.add_argument("--voices", default="", help="comma-separated voices (default: every audition voice)")
     a = p.parse_args()
-    audition(a.engine) if a.mode == "audition" else full(a.voice)
+    only = [v for v in a.voices.split(",") if v]
+    if a.mode == "audition":
+        audition(a.engine, only)
+    elif a.mode == "refs":
+        refs(only or [name for name, _ in AUDITION_VOICES])
+    else:
+        full(a.voice)
