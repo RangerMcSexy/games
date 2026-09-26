@@ -2845,3 +2845,40 @@ svg.butterfly.flapping .flap-r {
 .garden-scene.night .gi-fairyhouse {
   filter: none;
 }
+
+/* ------------------------------------------------------------------------ */
+/* Layout polish, the same in every game                                    */
+
+/* The grown-up gear matches the round buttons beside it, just quieter. */
+.gear-btn {
+  width: clamp(48px, 9vmin, 70px);
+  height: clamp(48px, 9vmin, 70px);
+  background: rgba(255, 255, 255, 0.75);
+  color: #c3a6ec;
+  box-shadow:
+    0 5px 0 rgba(90, 66, 114, 0.15),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Play sits dead centre, under the title; its partner button to its right. */
+.title-buttons {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 5vmin;
+  width: 100%;
+}
+.title-buttons > .play-btn {
+  grid-column: 2;
+}
+.title-buttons > :not(.play-btn) {
+  grid-column: 3;
+  justify-self: start;
+}
+
+/* Narrow phones: the title starts below the top bar. */
+@media (max-width: 600px) {
+  .logo {
+    top: calc(var(--safe-top) + clamp(48px, 9vmin, 70px) + 14px);
+  }
+}

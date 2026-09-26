@@ -30,6 +30,7 @@ import {
   save,
   setWeather,
   speciesCount,
+  unseenUnlocks,
   type Fish,
   type Silly,
   type Weather,
@@ -152,10 +153,13 @@ export async function pondScreen(host: Host): Promise<'aquarium'> {
   const tankBtn = el('button', 'big-btn blue tank-btn', root, ICONS.tank);
   tankBtn.setAttribute('aria-label', 'Fish tank');
   const badge = el('span', 'count-badge', tankBtn);
+  el('span', 'new-star', tankBtn, '★');
   const paintBadge = () => {
     const n = speciesCount();
     badge.textContent = String(n);
     badge.classList.toggle('hidden', !n);
+    // Something new to see in the fish tank: it bounces and sparkles.
+    tankBtn.classList.toggle('has-new', unseenUnlocks().length > 0);
   };
   paintBadge();
 
@@ -600,6 +604,7 @@ export async function pondScreen(host: Host): Promise<'aquarium'> {
 
   async function reveal(c: Catch) {
     state = 'reveal';
+    const newBefore = unseenUnlocks().length;
     const isNew = c.kind === 'fish' ? addCatch('fish', c.fish.id) : addCatch('silly', c.silly.id);
     const allNow = c.kind === 'fish' && isNew && speciesCount() === FISH.length;
     const art = c.kind === 'fish' ? catchArt('fish', c.fish, '') : catchArt('silly', undefined, c.silly.id);
@@ -651,10 +656,11 @@ export async function pondScreen(host: Host): Promise<'aquarium'> {
     await sc.when<void>((resolve) => {
       let spoken = false;
       let tapped = false;
+      let linger = 0;
       const go = () => spoken && tapped && resolve();
       void talk.then(() => {
         spoken = true;
-        setTimeout(() => {
+        linger = window.setTimeout(() => {
           tapped = true;
           go();
         }, 900);
@@ -669,6 +675,7 @@ export async function pondScreen(host: Host): Promise<'aquarium'> {
       return () => {
         onTap = null;
         clearTimeout(cap);
+        clearTimeout(linger);
       };
     });
 
@@ -691,6 +698,13 @@ export async function pondScreen(host: Host): Promise<'aquarium'> {
     burst(tb.left + tb.width / 2, tb.top + tb.height / 2, { kind: 'sparkle', count: 8, spread: 0.5 });
     if (c.kind === 'fish') respawn(c.swimmer);
     biter = null;
+    // That catch made the fish tank fancier: say so (fishing carries on).
+    if (unseenUnlocks().length > newBefore) {
+      await sc.wait(500);
+      sound.magic();
+      burst(tb.left + tb.width / 2, tb.top + tb.height / 2, { kind: 'sparkle', count: 18, spread: 1 });
+      void say('aquariumNew');
+    }
   }
 
   async function flow() {

@@ -505,6 +505,22 @@ export function eggSVG(): string {
   </svg>`;
 }
 
+/** A sugar shaker: a glass jar of sparkly sugar with a holey silver lid. */
+export function sugarSVG(): string {
+  return `<svg class="sugar-shaker" viewBox="-60 -80 120 150" aria-hidden="true">
+    <ellipse cx="0" cy="64" rx="40" ry="6" fill="${INK}" opacity=".13"/>
+    <path d="M-36,-28 C-44,0 -44,40 -34,60 L34,60 C44,40 44,0 36,-28 Z" fill="#eaf6ff" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M-38,4 C-40,26 -38,46 -32,58 L32,58 C38,46 40,26 38,4 C20,12 -20,12 -38,4 Z" fill="#fffdf8"/>
+    <g fill="#ffd6e6"><circle cx="-18" cy="30" r="3"/><circle cx="10" cy="22" r="2.5"/><circle cx="20" cy="44" r="3"/><circle cx="-6" cy="48" r="2.5"/></g>
+    <g fill="#fff" stroke="#e8dccb" stroke-width="1.5"><rect x="-26" y="18" width="9" height="9" rx="2"/><rect x="4" y="34" width="9" height="9" rx="2" transform="rotate(15 8 38)"/></g>
+    <path d="M-26,-16 C-30,6 -30,30 -24,48" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" opacity=".8"/>
+    <path d="M-40,-30 C-40,-62 40,-62 40,-30 Z" fill="#dfe6f2" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
+    <rect x="-42" y="-34" width="84" height="12" rx="5" fill="#c8d2e4" stroke="${INK}" stroke-width="4"/>
+    <g fill="${INK}" opacity=".55"><circle cx="-14" cy="-46" r="3"/><circle cx="0" cy="-50" r="3"/><circle cx="14" cy="-46" r="3"/><circle cx="-7" cy="-40" r="2.5"/><circle cx="7" cy="-40" r="2.5"/></g>
+    <path d="M-22,-50 C-16,-56 -8,-58 0,-58" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".8"/>
+  </svg>`;
+}
+
 export function flourSVG(): string {
   return `<svg class="flour-bag" viewBox="-60 -80 120 150" aria-hidden="true">
     <ellipse cx="0" cy="64" rx="46" ry="6" fill="${INK}" opacity=".13"/>

@@ -1647,3 +1647,90 @@ svg {
     animation: none;
   }
 }
+
+/* ------------------------------------------------------------------------ */
+/* Layout polish, the same in every game                                    */
+
+/* The grown-up gear matches the round buttons beside it, just quieter. */
+.gear-btn {
+  width: clamp(48px, 9vmin, 70px);
+  height: clamp(48px, 9vmin, 70px);
+  background: rgba(255, 255, 255, 0.75);
+  color: #c3a6ec;
+  box-shadow:
+    0 5px 0 rgba(90, 66, 114, 0.15),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Play sits dead centre, under the title; its partner button to its right. */
+.title-buttons {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 5vmin;
+  width: 100%;
+}
+.title-buttons > .play-btn {
+  grid-column: 2;
+}
+.title-buttons > :not(.play-btn) {
+  grid-column: 3;
+  justify-self: start;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Hold a picture up to the light (src/tilt.ts)                             */
+
+.tilt {
+  position: relative;
+  transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+/* Once popped in, the tilt owns the transform (taps still wiggle). */
+.tilt.settled:not(.chosen):not(.wiggle) {
+  animation: none;
+}
+.tilt.tilting {
+  animation: none !important;
+  transition: transform 0.08s linear;
+}
+.tilt .shine {
+  position: absolute;
+  inset: 0;
+  border-radius: 12%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s;
+  background:
+    radial-gradient(circle at var(--sx, 50%) var(--sy, 50%), rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(
+      115deg,
+      transparent 25%,
+      rgba(255, 214, 240, 0.22) 42%,
+      rgba(200, 236, 255, 0.22) 58%,
+      transparent 75%
+    );
+}
+.tilt.tilting .shine {
+  opacity: 1;
+}
+/* The chosen picture gets one bright sweep of light. */
+.pick-card.chosen .shine {
+  opacity: 1;
+  background: linear-gradient(110deg, transparent 38%, rgba(255, 255, 255, 0.75) 50%, transparent 62%);
+  background-size: 260% 100%;
+  animation: shineSweep 0.7s ease-out both;
+}
+@keyframes shineSweep {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tilt {
+    transform: none !important;
+  }
+}

@@ -31,6 +31,8 @@ export const LINES: Line[] = [
   { id: 'cookie', text: 'Cookie!', when: 'Naming things' },
   { id: 'eggs', text: 'Crack the eggs!', when: 'Three eggs to tap' },
   { id: 'rollAway', text: 'Whoops! Come back, egg!', when: 'Silly: an egg rolls away' },
+  { id: 'sugar', text: 'Shake in the sugar!', when: 'The sugar shaker (three taps)' },
+  { id: 'sweet', text: 'Mmm, sweet!', when: 'After the sugar' },
   { id: 'flour', text: 'Tap the flour!', when: 'Pouring the flour' },
   { id: 'achoo', text: 'Achoo! Bless you!', when: 'Silly: the mouse sneezes' },
   { id: 'pickColour', text: 'Pick a colour!', when: 'Choosing a colour' },

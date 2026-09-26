@@ -6,6 +6,7 @@ import { guide } from './guide';
 import { PICTURES, naturalFills, pictureById, pictureSVG, type Picture } from './pictures';
 import { HINT_MS, Scene, burst, burstAt, el, pick, rand, replay } from './ui';
 import { say } from './voice';
+import { tiltable } from './tilt';
 
 export interface Host {
   stage: HTMLElement;
@@ -77,6 +78,7 @@ export async function titleScreen(host: Host): Promise<'play' | 'gallery'> {
     b.style.setProperty('--d', `${i * 0.35}s`);
     b.style.setProperty('--tilt', `${[-5, 2, 6][i]}deg`);
     makeLively(b, pic);
+    tiltable(b);
   });
 
   const buttons = el('div', 'title-buttons', sc.root);
@@ -131,6 +133,7 @@ export async function pickerScreen(host: Host): Promise<Picture> {
       b.style.setProperty('--d', `${i * 0.08}s`);
       b.style.setProperty('--tilt', `${[-3, 2, -1][i]}deg`);
       if (last) el('span', 'done-star', b, '★');
+      tiltable(b);
       return b;
     });
   };
@@ -233,6 +236,7 @@ export async function galleryScreen(host: Host): Promise<'play'> {
       b.style.setProperty('--d', `${i * 0.05}s`);
       b.setAttribute('aria-label', pic.id);
       makeLively(b, pic);
+      tiltable(b);
     });
   };
   requestAnimationFrame(layout);

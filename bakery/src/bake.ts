@@ -15,6 +15,7 @@ import {
   shakerSVG,
   shapeSVG,
   spoonSVG,
+  sugarSVG,
   sprite,
   treatSVG,
   type TreatLook,
@@ -49,7 +50,7 @@ export interface BakeHost {
 
 export type BakeEnd = 'shop' | 'again';
 
-const STEPS: SpriteName[] = ['egg', 'glass-of-milk', 'spoon', 'fire', 'sparkles'];
+const STEPS: SpriteName[] = ['egg', 'candy', 'glass-of-milk', 'spoon', 'fire', 'sparkles'];
 
 /** A big number that pops up while counting. */
 function countPop(target: Element, n: number) {
@@ -217,8 +218,35 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
   await sc.wait(400);
   eggRow.remove();
 
-  // --- 2. Flour and colour -------------------------------------------------
+  // --- 2. Shake in the sugar ------------------------------------------------
   setStep(1);
+  const sugarJar = el('button', 'sugar-btn', bench, sugarSVG());
+  sugarJar.setAttribute('aria-label', 'Sugar');
+  await sc.wait(400);
+  void say('sugar');
+  for (let n = 1; n <= 3; n++) {
+    await sc.tap(sugarJar);
+    replay(sugarJar, 'shaking');
+    sound.shake();
+    const s = sugarJar.getBoundingClientRect();
+    const to = center(bowlBox);
+    // Sparkly sugar showers from the lid into the bowl.
+    burst(s.left + s.width * 0.5, s.top + s.height * 0.1, { kind: 'bits', count: 12, colors: ['#ffffff', '#fff6fb', '#ffe3ef'], spread: 0.5, size: 0.6 });
+    await sc.wait(220);
+    burst(to.x, to.y - to.h * 0.25, { kind: 'sparkle', count: 6, colors: ['#ffffff', '#ffd6e6'], spread: 0.45, size: 0.7 });
+    replay(bowlBox, 'jiggle');
+    countPop(bowlBox, n);
+    await sc.wait(450);
+  }
+  sound.sparkle();
+  void say('sweet');
+  guide.cheer();
+  sugarJar.classList.add('gone');
+  await sc.wait(500);
+  sugarJar.remove();
+
+  // --- 3. Flour and colour -------------------------------------------------
+  setStep(2);
   const bag = el('button', 'flour-btn', bench, flourSVG());
   await sc.wait(400);
   void say('flour');
@@ -254,8 +282,8 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
   burst(bc.x, bc.y - bc.h * 0.25, { kind: 'bits', count: 10, colors: [PALETTE[batter].batter], spread: 0.5, size: 0.8 });
   await clearChoices();
 
-  // --- 3. Stir -------------------------------------------------------------
-  setStep(2);
+  // --- 4. Stir -------------------------------------------------------------
+  setStep(3);
   const spoon = el('div', 'spoon-box', bowlBox, spoonSVG());
   void say('stir');
   await stir(sc, bowlBox, bowl, spoon);
@@ -274,8 +302,8 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
   }
   spoon.remove();
 
-  // --- 4. Shape, then into the oven -----------------------------------------
-  setStep(3);
+  // --- 5. Shape, then into the oven -----------------------------------------
+  setStep(4);
   void say('pickShape');
   const shapePick = await choose(SHAPES, (s) => shapeSVG(s, batter), 'shape-choice', wish.shape);
   const shape = shapePick.item;
@@ -358,8 +386,8 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
   await sc.wait(450);
   await flip(treatBox, () => oven.remove());
 
-  // --- 5. Decorate ---------------------------------------------------------
-  setStep(4);
+  // --- 6. Decorate ---------------------------------------------------------
+  setStep(5);
   void say('icing');
   const icingPick = await choose(withWish(COLORS, wish.color), (c) => icingPotSVG(c), 'icing-choice', wish.color);
   const icing: ColorId = icingPick.item;

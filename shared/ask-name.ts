@@ -107,6 +107,15 @@ const CSS = `
   text-decoration: underline;
   cursor: pointer;
 }
+/* Short screens (a phone on its side): a smaller card that still fits. */
+@media (max-height: 520px) {
+  .ask-card { padding: 14px 18px 10px; }
+  .ask-card h2 { font-size: 26px; }
+  .ask-card p { margin-bottom: 10px; font-size: 14px; }
+  .ask-card input { padding: 6px 12px; font-size: 22px; }
+  .ask-go { margin-top: 10px; padding: 8px; font-size: 22px; }
+  .ask-skip { margin-top: 6px; }
+}
 @keyframes askFade {
   from { opacity: 0; }
 }

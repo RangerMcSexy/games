@@ -10,16 +10,17 @@ works with a finger on a tablet or with a mouse.
    bubble shows what they'd like, e.g. "Pink! Heart! Cupcake!".
 2. **What shall we bake?** Pick a cake, a cupcake or a cookie.
 3. **Crack 3 eggs.** The game counts along: "One! Two! Three!"
-4. **Tap the flour**, then **pick a colour** for the batter.
-5. **Stir.** Rub round the bowl or just tap it.
-6. **Pick a shape**: circle, heart or star.
-7. **Into the oven.** Tap the door shut. It goes *tick-tock… DING!* Tap to
+4. **Shake in the sugar.** Three shakes of the sugar shaker, counted again.
+5. **Tap the flour**, then **pick a colour** for the batter.
+6. **Stir.** Rub round the bowl or just tap it.
+7. **Pick a shape**: circle, heart or star.
+8. **Into the oven.** Tap the door shut. It goes *tick-tock… DING!* Tap to
    open it.
-8. **Decorate.** Pick the icing, shake on sprinkles, and choose what goes on
+9. **Decorate.** Pick the icing, shake on sprinkles, and choose what goes on
    top: a cherry, a strawberry, or **candles** (count them on, then blow them
    out).
-9. **Serve!** Tap the treat and watch the customer gobble it up.
-10. A twin treat goes into the **shop window**.
+10. **Serve!** Tap the treat and watch the customer gobble it up.
+11. A twin treat goes into the **shop window**.
 
 **Pip the mouse chef** helps out. If the child is stuck for 3 seconds, a hand and
 Pip hop over to show what to tap. Tickle Pip and he giggles.
