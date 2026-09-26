@@ -1,0 +1,2276 @@
+/* Little Fishing Pond: soft, chunky, toddler-friendly styling. */
+
+:root {
+  --ink: #3d4a6b;
+  --cream: #fffaf0;
+  --safe-top: max(12px, env(safe-area-inset-top));
+  --safe-bottom: max(10px, env(safe-area-inset-bottom));
+  font-family: 'Baloo 2', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  background: #8fd3ff;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+button {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+  outline: 4px solid #fff;
+  outline-offset: 4px;
+}
+
+svg {
+  display: block;
+  overflow: visible;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.scene.in {
+  opacity: 1;
+}
+.scene.out {
+  opacity: 0;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Top bar & buttons */
+
+.top-bar {
+  position: absolute;
+  top: var(--safe-top);
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  display: flex;
+  gap: 10px;
+  z-index: 50;
+  pointer-events: none;
+}
+.top-bar .spacer {
+  flex: 1;
+}
+.top-bar button {
+  pointer-events: auto;
+}
+
+.round-btn {
+  display: grid;
+  place-items: center;
+  width: clamp(48px, 9vmin, 70px);
+  height: clamp(48px, 9vmin, 70px);
+  border-radius: 50%;
+  background: #c3a6ec;
+  color: #c3a6ec;
+  box-shadow:
+    0 5px 0 rgba(90, 66, 114, 0.25),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.12s,
+    opacity 0.3s,
+    visibility 0.3s;
+}
+.round-btn svg {
+  width: 58%;
+  height: 58%;
+}
+.round-btn:active {
+  transform: translateY(3px) scale(0.95);
+}
+.round-btn.off {
+  background: #a99bb8;
+}
+.home-btn {
+  background: #ffae5c;
+  color: #ffae5c;
+}
+.round-btn.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.big-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(84px, 18vmin, 150px);
+  height: clamp(84px, 18vmin, 150px);
+  border-radius: 50%;
+  --c: #7fd48f;
+  --d: #56b169;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.45), transparent 45%), var(--c);
+  color: var(--c);
+  border: 5px solid #fff;
+  box-shadow:
+    0 1vmin 0 var(--d),
+    0 1.6vmin 2.4vmin rgba(90, 66, 114, 0.25);
+  transition: transform 0.12s;
+}
+.big-btn svg {
+  width: 56%;
+  height: 56%;
+}
+.big-btn:active {
+  transform: translateY(0.8vmin) scale(0.96);
+}
+.big-btn.green {
+  --c: #7fd48f;
+  --d: #56b169;
+}
+.big-btn.orange {
+  --c: #ffb870;
+  --d: #e8914a;
+}
+.big-btn.purple {
+  --c: #c3a3f0;
+  --d: #9a7ad0;
+}
+.big-btn.blue {
+  --c: #89c2f5;
+  --d: #5e9bd6;
+}
+.big-btn.nudge {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.count-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 2em;
+  height: 2em;
+  padding: 0 0.4em;
+  display: grid;
+  place-items: center;
+  border-radius: 1em;
+  background: #ff8595;
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(16px, 2.8vmin, 24px);
+  line-height: 1;
+  border: 3px solid #fff;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Hint & effects */
+
+.hint-hand {
+  position: fixed;
+  z-index: 70;
+  pointer-events: none;
+  font-size: clamp(56px, 12vmin, 110px);
+  line-height: 1;
+  opacity: 0;
+  transform: translate(-30%, 0);
+  filter: drop-shadow(0 4px 4px rgba(90, 66, 114, 0.3));
+}
+.hint-hand.show {
+  animation: handTap 2.4s ease-in-out forwards;
+}
+
+.fx-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 80;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  line-height: 1;
+}
+.p-confetti {
+  border-radius: 3px;
+}
+.p-bits {
+  border-radius: 40% 60% 30% 70%;
+  border: 2px solid var(--ink);
+}
+.p-sparkle svg {
+  width: 100%;
+  height: 100%;
+}
+.fly-clone {
+  position: absolute;
+  z-index: 81;
+}
+.fly-clone svg {
+  width: 100%;
+  height: 100%;
+}
+
+
+/* Gear (grown-ups) */
+
+.gear-btn {
+  background: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.95);
+  box-shadow: none;
+  width: clamp(40px, 7vmin, 54px);
+  height: clamp(40px, 7vmin, 54px);
+  align-self: center;
+  position: relative;
+}
+.gear-btn .ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  --p: 0%;
+  background: conic-gradient(#ffffff var(--p), transparent 0);
+  -webkit-mask: radial-gradient(circle, transparent 60%, #000 62%);
+  mask: radial-gradient(circle, transparent 60%, #000 62%);
+}
+.gear-btn.holding .ring {
+  animation: ring 3s linear forwards;
+}
+
+/* Settings panel */
+
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  background: rgba(40, 25, 60, 0.5);
+  opacity: 0;
+  transition: opacity 0.25s;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+.settings-overlay.open {
+  opacity: 1;
+}
+.settings {
+  position: relative;
+  width: min(94vw, 640px);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+  border-radius: 22px;
+  box-shadow: 0 20px 60px rgba(40, 20, 60, 0.4);
+  overflow: hidden;
+}
+.settings-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 12px 22px;
+  border-bottom: 2px solid #f1e6d6;
+}
+.settings-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.settings-head .close-btn {
+  position: static;
+  width: 44px;
+  height: 44px;
+}
+.settings-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: 6px 22px 22px;
+}
+.set-sec {
+  padding: 14px 0;
+  border-bottom: 2px solid #f4ece0;
+}
+.set-sec h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+.set-help,
+.set-count,
+.set-foot {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #7a6a8a;
+}
+.set-count {
+  font-weight: 600;
+  color: var(--ink);
+}
+.set-warn {
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff1d6;
+  color: #7a5a2a;
+}
+.set-input {
+  width: 100%;
+  font: inherit;
+  font-size: 18px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid #e3d6f0;
+  background: #fff;
+  color: var(--ink);
+  user-select: text;
+  -webkit-user-select: text;
+}
+.line-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.line-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 10px 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 2px solid #efe6f6;
+}
+.line-row.has {
+  border-color: #b8e3b0;
+  background: #f5fcf2;
+}
+.line-text {
+  flex: 1;
+  min-width: 0;
+}
+.line-say {
+  font-size: 15px;
+  font-weight: 600;
+}
+.line-when {
+  font-size: 12px;
+  color: #9a8aa8;
+}
+.line-btns {
+  display: flex;
+  gap: 6px;
+}
+.lb {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  background: #f1eaf8;
+  color: var(--ink);
+}
+.lb[disabled] {
+  opacity: 0.35;
+}
+.lb.rec span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ff5d73;
+  transition: border-radius 0.2s;
+}
+.lb.rec.recording {
+  background: #ffdfe4;
+  animation: pulse 0.9s ease-in-out infinite;
+}
+.lb.rec.recording span {
+  border-radius: 3px;
+}
+.line-row:not(.has) .lb.del {
+  visibility: hidden;
+}
+.set-danger {
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #ffe3e7;
+  color: #b0324a;
+  font-weight: 700;
+  font-size: 15px;
+}
+.set-danger[disabled] {
+  opacity: 0.6;
+}
+.set-foot {
+  margin-top: 14px;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Shared keyframes */
+
+@property --p {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+@keyframes handTap {
+  0% {
+    opacity: 0;
+    transform: translate(-30%, 30%);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-30%, 0);
+  }
+  30% {
+    transform: translate(-30%, -18%) scale(0.92);
+  }
+  45% {
+    transform: translate(-30%, 0);
+  }
+  60% {
+    transform: translate(-30%, -18%) scale(0.92);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-30%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-30%, 0);
+  }
+}
+@keyframes guideIdle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-4%) rotate(-3deg);
+  }
+}
+@keyframes cheer {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  30% {
+    transform: translateY(-40%) rotate(-10deg) scale(1.1);
+  }
+  60% {
+    transform: translateY(-10%) rotate(200deg);
+  }
+  100% {
+    transform: translateY(0) rotate(360deg);
+  }
+}
+@keyframes hopSmall {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-20%);
+  }
+}
+@keyframes waveBug {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-14deg);
+  }
+  75% {
+    transform: rotate(14deg);
+  }
+}
+@keyframes tickle {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  20% {
+    transform: rotate(-12deg) scale(1.08, 0.94);
+  }
+  40% {
+    transform: rotate(12deg) scale(0.95, 1.06);
+  }
+  60% {
+    transform: rotate(-8deg);
+  }
+  80% {
+    transform: rotate(6deg);
+  }
+}
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  20% {
+    transform: rotate(-12deg) scale(1.05, 0.95);
+  }
+  45% {
+    transform: rotate(10deg) scale(0.96, 1.05);
+  }
+  70% {
+    transform: rotate(-5deg);
+  }
+}
+@keyframes ring {
+  to {
+    --p: 100%;
+  }
+}
+@keyframes letterBounce {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0);
+  }
+  80% {
+    transform: translateY(-0.12em) rotate(-4deg);
+  }
+  90% {
+    transform: translateY(0) rotate(2deg);
+  }
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-1.4vmin) rotate(-4deg);
+  }
+}
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* Like popIn, but leaves `transform` alone so centred things stay centred. */
+@keyframes appear {
+  0% {
+    scale: 0;
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+@keyframes pickBounce {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18) rotate(-4deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-8deg) scale(1.05);
+  }
+  45% {
+    transform: rotate(7deg);
+  }
+  70% {
+    transform: rotate(-4deg);
+  }
+}
+@keyframes jiggle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.04, 0.96);
+  }
+  60% {
+    transform: scale(0.98, 1.03);
+  }
+}
+@keyframes blinkEyes {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes tailWag {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+@keyframes picBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3%);
+  }
+}
+@keyframes chosen {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.14) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1.08);
+  }
+}
+@keyframes shineSweep {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+@keyframes twinkleBtn {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  50% {
+    transform: rotate(10deg) scale(1.06);
+  }
+}
+@keyframes newestIn {
+  0% {
+    transform: translateY(-120%) scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes splatIn {
+  0% {
+    scale: 0.2;
+  }
+  100% {
+    scale: 1;
+  }
+}
+@keyframes flagSway {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+@keyframes balloonBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-6%) rotate(3deg);
+  }
+}
+@keyframes bulbGlow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ======================================================================== */
+/* Little Fishing Pond                                                      */
+
+:root {
+  --bar: clamp(48px, 9vmin, 70px);
+  --big: clamp(84px, 18vmin, 150px);
+}
+
+.count-badge.hidden {
+  display: none;
+}
+/* The play triangle looks centred when nudged right a little. */
+.big-btn.green svg {
+  margin-left: 8%;
+}
+.friend {
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Fish art */
+
+.fish-art .f-tail {
+  transform-origin: -30px 0;
+  animation: tailFlap 0.55s ease-in-out infinite alternate;
+}
+.fish-art .f-fin {
+  transform-origin: 2px 4px;
+  animation: finFlap 0.8s ease-in-out infinite alternate;
+}
+.fish-art.k-crab .claw {
+  animation: clawSnap 1.4s ease-in-out infinite;
+}
+.fish-art.k-crab .claw:last-of-type {
+  animation-delay: -0.7s;
+}
+.fish-art .glow-bulb {
+  animation: glowPulse 1.6s ease-in-out infinite;
+}
+.fish-art.silhouette * {
+  animation: none !important;
+}
+.fish-art.silhouette {
+  opacity: 0.75;
+}
+.swimmer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+.swimmer-body {
+  width: 100%;
+  height: 100%;
+}
+.swimmer-body svg {
+  width: 100%;
+  height: 100%;
+}
+.swimmer-body.wiggle {
+  animation: fishWiggle 0.6s ease-in-out;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Pond: sky, water and weather */
+
+.pond-scene {
+  --hill-far: #8fd48a;
+  --hill-near: #6cc46a;
+}
+.pond-scene.w-sunset {
+  --hill-far: #d99a8a;
+  --hill-near: #b98a7a;
+}
+.pond-scene.w-night {
+  --hill-far: #3c5a7a;
+  --hill-near: #2f4a68;
+}
+.pond-scene.w-rain {
+  --hill-far: #8fb89a;
+  --hill-near: #74a882;
+}
+
+.sky {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--surface);
+  overflow: hidden;
+}
+.sky-tint,
+.water-tint {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+.sky-tint.t-day {
+  background: linear-gradient(#6fc6ff, #c4ecff);
+}
+.sky-tint.t-rain {
+  background: linear-gradient(#90a4bd, #cad7e4);
+}
+.sky-tint.t-sunset {
+  background: linear-gradient(#ff9a8b, #ffc98f 60%, #ffe3a8);
+}
+.sky-tint.t-night {
+  background: linear-gradient(#1d2a5a, #3b4f8c);
+}
+.water-tint.t-day {
+  background: linear-gradient(#5cc4f0, #2f8fd0 70%, #2a7cbd);
+}
+.water-tint.t-rain {
+  background: linear-gradient(#6cb2d4, #3e82b0 70%, #356f9c);
+}
+.water-tint.t-sunset {
+  background: linear-gradient(#f0a79a, #8a7cc4 45%, #4a6fb0);
+}
+.water-tint.t-night {
+  background: linear-gradient(#2b4a8a, #1c2f66 70%, #16264f);
+}
+.w-day .t-day,
+.w-rain .t-rain,
+.w-sunset .t-sunset,
+.w-night .t-night {
+  opacity: 1;
+}
+
+.stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.6s;
+}
+.w-night .stars {
+  opacity: 1;
+}
+.stars i {
+  position: absolute;
+  width: 0.9vmin;
+  height: 0.9vmin;
+  border-radius: 50%;
+  background: #fff9c9;
+  box-shadow: 0 0 1vmin #fff9c9;
+  animation: twinkle 2.4s ease-in-out infinite;
+}
+
+.clouds .cloud {
+  position: absolute;
+  left: 0;
+  width: clamp(80px, 18vmin, 180px);
+  animation: cloudDrift 42s linear infinite;
+  transition: filter 1.6s;
+}
+.cloud.c0 {
+  top: 12%;
+}
+.cloud.c1 {
+  top: 34%;
+  width: clamp(60px, 13vmin, 130px);
+}
+.cloud.c2 {
+  top: 22%;
+}
+.w-rain .clouds .cloud {
+  filter: brightness(0.82) saturate(0.6);
+}
+.w-night .clouds .cloud {
+  filter: brightness(0.45) saturate(0.6);
+  opacity: 0.6;
+}
+.w-sunset .clouds .cloud {
+  filter: sepia(0.4) saturate(2) hue-rotate(-20deg) brightness(1.05);
+}
+
+.sky-obj {
+  position: absolute;
+  z-index: 3;
+  left: 26%;
+  top: calc(var(--safe-top) + 0.5vmin);
+  width: clamp(68px, min(17vmin, calc(var(--surface) * 0.55)), 150px);
+  aspect-ratio: 1;
+}
+.sky-obj .so {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  scale: 0.4;
+  transition:
+    opacity 1s,
+    scale 1s cubic-bezier(0.3, 1.5, 0.5, 1),
+    translate 1s;
+}
+.sky-obj .so svg {
+  width: 100%;
+  height: 100%;
+}
+.w-day .so-day,
+.w-rain .so-rain,
+.w-sunset .so-sunset,
+.w-night .so-night {
+  opacity: 1;
+  scale: 1;
+}
+.so-sunset {
+  translate: 0 30%;
+  filter: hue-rotate(-28deg) saturate(1.4);
+}
+.sun-art .rays {
+  animation: spin 24s linear infinite;
+}
+.sky-obj.boing {
+  animation: wobble 0.6s ease-in-out;
+}
+
+.hills {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--surface) - 8.5vmin);
+  height: 9vmin;
+}
+.hills svg {
+  width: 100%;
+  height: 100%;
+}
+
+.water {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--surface);
+  bottom: 0;
+  overflow: hidden;
+}
+.water-shine {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(100deg, transparent 0 7vmin, rgba(255, 255, 255, 0.07) 7vmin 9vmin, transparent 9vmin 20vmin),
+    linear-gradient(rgba(255, 255, 255, 0.35), transparent 1.2vmin);
+  animation: shimmer 9s linear infinite;
+}
+.pond-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30%;
+  background: linear-gradient(transparent, rgba(40, 70, 60, 0.25));
+}
+.weed {
+  position: absolute;
+  bottom: -2%;
+  width: clamp(36px, 9vmin, 90px);
+  height: calc(clamp(70px, 22vmin, 220px) * var(--h));
+  transform: translateX(-50%);
+}
+.weed svg {
+  width: 100%;
+  height: 100%;
+}
+.weed-art .sway {
+  transform-origin: 30px 120px;
+  animation: sway 4s ease-in-out infinite alternate;
+}
+.weed-art .sway.s2 {
+  animation-duration: 3.2s;
+  animation-delay: -1s;
+}
+.pebble {
+  position: absolute;
+  bottom: 1.5%;
+  width: calc(6vmin * var(--s));
+  height: calc(3.4vmin * var(--s));
+  border-radius: 50%;
+  background: #9aa9b8;
+  border: 3px solid rgba(61, 74, 107, 0.55);
+}
+.w-night .water-shine {
+  opacity: 0.4;
+}
+
+.fish-layer,
+.pond-fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.pond-fx {
+  z-index: 8;
+}
+.w-night .swimmer.is-glow {
+  filter: drop-shadow(0 0 1.4vmin rgba(255, 240, 120, 0.8));
+}
+.w-night .swimmer:not(.is-glow) {
+  filter: brightness(0.8) saturate(0.85);
+}
+
+.reeds {
+  position: absolute;
+  top: calc(var(--surface) - 19vmin);
+  width: 13vmin;
+  height: 20vmin;
+  pointer-events: none;
+  z-index: 2;
+}
+.reeds svg {
+  width: 100%;
+  height: 100%;
+}
+.reeds.left {
+  left: 13vmin;
+}
+.reeds.right {
+  right: 15vmin;
+  transform: scaleX(-1);
+}
+.lily {
+  position: absolute;
+  top: calc(var(--surface) - 1.6vmin);
+  width: 11vmin;
+  aspect-ratio: 80 / 32;
+  pointer-events: none;
+  z-index: 2;
+}
+.lily svg {
+  width: 100%;
+  height: 100%;
+}
+.lily.l1 {
+  left: 38%;
+}
+.lily.l2 {
+  left: 70%;
+  width: 8vmin;
+}
+
+.turtle-f {
+  position: absolute;
+  z-index: 3;
+  left: 1vmin;
+  width: clamp(80px, 17vmin, 170px);
+  aspect-ratio: 128 / 84;
+  top: calc(var(--surface) - clamp(80px, 17vmin, 170px) * 0.53);
+}
+.frog-f {
+  position: absolute;
+  z-index: 3;
+  right: 1vmin;
+  width: clamp(76px, 16vmin, 160px);
+  aspect-ratio: 128 / 96;
+  top: calc(var(--surface) - clamp(76px, 16vmin, 160px) * 0.62);
+}
+.duck-f {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  top: 0;
+  width: clamp(60px, 11vmin, 110px);
+  aspect-ratio: 104 / 80;
+}
+.turtle-f svg,
+.frog-f svg,
+.duck-f svg,
+.duck-flip {
+  width: 100%;
+  height: 100%;
+}
+.frog-f .frog-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blinkEyes 5s infinite;
+}
+.frog-f.jump .frog {
+  animation: frogJump 0.8s cubic-bezier(0.3, 0.9, 0.5, 1);
+}
+.turtle-f .turtle-head {
+  transition: translate 0.3s;
+}
+.turtle-f.peek .turtle-head {
+  animation: turtlePeek 1.2s ease-in-out;
+}
+.turtle-f.peek .turtle {
+  animation: jiggle 0.5s ease-in-out 2;
+}
+.duck-f .duck {
+  transform-origin: 0 10px;
+}
+.duck-f.dive .duck {
+  animation: duckDive 1s ease-in-out;
+}
+.w-night .friend:not(.firefly):not(.sky-obj),
+.w-night .reeds,
+.w-night .lily {
+  filter: brightness(0.72) saturate(0.8);
+}
+.friend,
+.reeds,
+.lily {
+  transition: filter 1.6s;
+}
+
+.rain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  opacity: 0;
+  transition: opacity 1.2s;
+  overflow: hidden;
+}
+.w-rain .rain {
+  opacity: 1;
+}
+.rain i {
+  position: absolute;
+  top: -10%;
+  width: 2px;
+  height: 4vmin;
+  border-radius: 2px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.85));
+  animation: rainFall 0.9s linear infinite;
+}
+
+.fireflies {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  opacity: 0;
+  transition: opacity 1.6s;
+}
+.w-night .fireflies {
+  opacity: 1;
+}
+.w-night .firefly {
+  pointer-events: auto;
+}
+.firefly {
+  position: absolute;
+  top: calc(var(--surface) + var(--y));
+  width: clamp(40px, 8vmin, 70px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  animation: fireflyDrift 7s ease-in-out infinite;
+}
+.firefly i {
+  width: 22%;
+  height: 22%;
+  border-radius: 50%;
+  background: #fff27a;
+  box-shadow:
+    0 0 1.2vmin 0.6vmin rgba(255, 240, 120, 0.8),
+    0 0 3vmin 1vmin rgba(255, 240, 120, 0.35);
+  animation: glowPulse 1.8s ease-in-out infinite;
+}
+.firefly.glow i {
+  animation: fireflyFlash 0.8s ease-out;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Pond: Pip, the line and the catch */
+
+.fishing-line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+}
+.fishing-line.on {
+  opacity: 1;
+}
+.fishing-line path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.95);
+  stroke-width: 2;
+}
+.bobber,
+.hook {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.bobber.hidden,
+.hook.hidden {
+  display: none;
+}
+.bobber svg {
+  position: absolute;
+  width: clamp(26px, 5vmin, 44px);
+  height: calc(clamp(26px, 5vmin, 44px) * 50 / 32);
+  left: calc(clamp(26px, 5vmin, 44px) * -0.5);
+  top: calc(clamp(26px, 5vmin, 44px) * 50 / 32 * -0.6);
+}
+.hook svg {
+  position: absolute;
+  width: clamp(22px, 4vmin, 36px);
+  height: calc(clamp(22px, 4vmin, 36px) * 1.2);
+  left: calc(clamp(22px, 4vmin, 36px) * -0.5);
+  top: 0;
+}
+.hook .worm {
+  animation: wormWiggle 0.7s ease-in-out infinite alternate;
+  transform-origin: 0 6px;
+}
+.hook-catch {
+  position: absolute;
+  width: clamp(60px, 14vmin, 130px);
+  aspect-ratio: 1;
+  left: calc(clamp(60px, 14vmin, 130px) * -0.5);
+  top: clamp(14px, 2.6vmin, 24px);
+}
+.hook-catch:empty {
+  display: none;
+}
+.hook-catch svg {
+  width: 100%;
+  height: 100%;
+  animation: wiggle 0.5s ease-in-out infinite;
+}
+
+.boat {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 6;
+  will-change: transform;
+}
+.boat-flip,
+.boat-flip svg {
+  width: 100%;
+  height: 100%;
+}
+.boat-flip {
+  transition: transform 0.35s;
+}
+.boat-flip.face-left {
+  transform: scaleX(-1);
+}
+.boat-art .pip {
+  transform-origin: 100px 130px;
+}
+.boat-art .pip-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blinkEyes 4.5s infinite;
+}
+.boat-art .pip-wing-l {
+  transform-origin: 70px 92px;
+}
+.boat-art .rod,
+.boat-art .pip-wing-r {
+  transform-origin: 128px 110px;
+}
+.boat.rowing .boat-flip svg {
+  animation: rowRock 0.5s ease-in-out infinite alternate;
+}
+.boat.casting .rod,
+.boat.casting .pip-wing-r {
+  animation: rodCast 0.5s ease-out;
+}
+.boat.excited .pip {
+  animation: hopSmall 0.4s ease-in-out infinite;
+}
+.boat.reeling .rod,
+.boat.reeling .pip-wing-r {
+  animation: rodBend 0.3s ease-in-out infinite alternate;
+}
+.boat.wave .pip-wing-l {
+  animation: pipWave 0.35s ease-in-out 4 alternate;
+}
+.boat.wave .pip {
+  animation: hopSmall 0.4s ease-in-out;
+}
+.boat.cheer .pip {
+  animation: pipCheer 0.8s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.boat.cheer .pip-wing-l {
+  animation: pipWave 0.2s ease-in-out 4 alternate;
+}
+
+.bang {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 7;
+  pointer-events: none;
+}
+.bang::before {
+  content: '!';
+  position: absolute;
+  left: -0.25em;
+  top: -0.6em;
+  font-size: clamp(44px, 10vmin, 96px);
+  font-weight: 800;
+  line-height: 1;
+  color: #ff5d73;
+  -webkit-text-stroke: 0.12em #fff;
+  paint-order: stroke fill;
+  opacity: 0;
+  scale: 0;
+}
+.bang {
+  font-size: 0;
+}
+.bang.show::before {
+  animation: bangPop 0.5s cubic-bezier(0.3, 1.7, 0.5, 1) forwards, bangWobble 0.5s ease-in-out 0.5s infinite alternate;
+}
+
+.ripple {
+  position: absolute;
+  width: calc(12vmin * var(--s));
+  height: calc(3.4vmin * var(--s));
+  border: 3px solid rgba(255, 255, 255, 0.75);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: rippleOut 1.1s ease-out forwards;
+}
+.bubble {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.7) 0 15%, rgba(255, 255, 255, 0.1) 30%);
+  opacity: 0;
+  animation: bubbleRise 1.6s ease-in forwards;
+}
+
+.tank-btn {
+  position: absolute;
+  z-index: 20;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: var(--safe-bottom);
+}
+.tank-btn.gulp {
+  animation: pickBounce 0.5s ease-out;
+}
+
+.reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 40, 80, 0);
+  transition: background 0.4s;
+}
+.reveal.open {
+  background: rgba(20, 40, 80, 0.35);
+}
+.reveal.closing {
+  background: rgba(20, 40, 80, 0);
+}
+.reveal-card {
+  position: relative;
+  width: min(72vmin, 540px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  animation: revealIn 0.75s cubic-bezier(0.3, 1.3, 0.5, 1) both;
+  transition: opacity 0.15s;
+}
+.reveal.closing .reveal-card {
+  opacity: 0;
+}
+.reveal-card::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(#ffffff 40%, #d6f0ff);
+  border: 0.9vmin solid #fff;
+  box-shadow: 0 2vmin 4vmin rgba(20, 40, 80, 0.3);
+}
+.reveal-card.silly::before {
+  background: radial-gradient(#ffffff 40%, #ffe6f1);
+}
+.reveal-rays {
+  position: absolute;
+  inset: -6%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255, 240, 160, 0.55) 0 9deg, transparent 9deg 22.5deg);
+  -webkit-mask: radial-gradient(circle, #000 30%, transparent 70%);
+  mask: radial-gradient(circle, #000 30%, transparent 70%);
+  animation: spin 14s linear infinite;
+}
+.reveal-art {
+  position: relative;
+  width: 64%;
+  aspect-ratio: 144 / 104;
+  animation: revealBob 1.4s ease-in-out infinite;
+}
+.reveal-card.silly .reveal-art {
+  width: 50%;
+  aspect-ratio: 1;
+  animation: wiggle 0.9s ease-in-out infinite;
+}
+.reveal-art svg {
+  width: 100%;
+  height: 100%;
+}
+.reveal-card.puffer .puff {
+  transform-origin: 4px 0;
+  animation: puff 1.2s ease-in-out 0.5s 2;
+}
+.reveal-name {
+  position: absolute;
+  bottom: 9%;
+  padding: 0.05em 0.8em 0;
+  border-radius: 999px;
+  background: #fff;
+  font-size: clamp(22px, 6vmin, 50px);
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 0.6vmin 0 rgba(61, 74, 107, 0.2);
+  animation: appear 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) 0.4s both;
+}
+.reveal-new {
+  position: absolute;
+  top: 6%;
+  right: 8%;
+  font-size: clamp(50px, 13vmin, 110px);
+  line-height: 1;
+  color: #ffd23f;
+  -webkit-text-stroke: 0.06em #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0.5vmin 0.6vmin rgba(61, 74, 107, 0.3));
+  animation: starIn 0.8s cubic-bezier(0.3, 1.6, 0.5, 1) 0.5s both;
+}
+.reveal-new span {
+  display: block;
+  animation: twinkleBtn 1.4s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Title */
+
+.title-scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--safe-top) + var(--bar) * 0.3) 16px calc(var(--safe-bottom) + 2vh);
+}
+.title-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(#6fc6ff, #c4ecff 64%);
+  --hill-far: #8fd48a;
+  --hill-near: #6cc46a;
+  --surface: 64%;
+}
+.title-bg .hills {
+  top: calc(64% - 8.5vmin);
+}
+.t-sun {
+  position: absolute;
+  left: 4%;
+  top: 6%;
+  width: clamp(70px, 16vmin, 150px);
+}
+.t-sun svg {
+  width: 100%;
+}
+.title-bg .cloud {
+  position: absolute;
+  width: clamp(80px, 18vmin, 180px);
+  animation: cloudDrift 50s linear infinite;
+}
+.title-bg .cloud.c1 {
+  top: 26%;
+  animation-delay: -25s;
+}
+.title-bg .cloud.c0 {
+  top: 10%;
+}
+.t-water {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 64%;
+  bottom: 0;
+  background: linear-gradient(#5cc4f0, #2f8fd0 70%, #2a7cbd);
+  overflow: hidden;
+}
+.t-boat {
+  position: absolute;
+  left: 8%;
+  width: clamp(130px, 32vmin, 320px);
+  aspect-ratio: 220 / 180;
+  top: calc(64% - clamp(130px, 32vmin, 320px) * 0.682);
+  cursor: pointer;
+  animation: boatBob 3s ease-in-out infinite;
+}
+.t-boat svg {
+  width: 100%;
+  height: 100%;
+}
+.t-boat.wave .pip-wing-l {
+  animation: pipWave 0.35s ease-in-out 4 alternate;
+}
+.t-boat .pip-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blinkEyes 4.5s infinite;
+}
+.t-boat .pip-wing-l {
+  transform-origin: 70px 92px;
+}
+.t-lily {
+  top: calc(64% - 1.6vmin);
+  right: 10%;
+  width: 16vmin;
+}
+.t-frog {
+  position: absolute;
+  right: 4%;
+  width: clamp(70px, 15vmin, 150px);
+  aspect-ratio: 128 / 96;
+  top: calc(64% - clamp(70px, 15vmin, 150px) * 0.62);
+  cursor: pointer;
+}
+.t-frog svg {
+  width: 100%;
+  height: 100%;
+}
+.t-frog.jump .frog {
+  animation: frogJump 0.8s cubic-bezier(0.3, 0.9, 0.5, 1);
+}
+.t-jumper {
+  position: absolute;
+  top: 64%;
+  width: clamp(60px, 13vmin, 130px);
+  aspect-ratio: 144 / 104;
+  opacity: 0;
+  cursor: pointer;
+}
+.t-jumper svg {
+  width: 100%;
+  height: 100%;
+}
+.t-jumper.leap {
+  animation: leap 1.8s ease-in-out;
+}
+.logo {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(38px, 10vmin, 110px);
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+.logo-words {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.3em;
+}
+.logo-word {
+  white-space: nowrap;
+}
+.logo-letter {
+  display: inline-block;
+  -webkit-text-stroke: 0.14em #fff;
+  paint-order: stroke fill;
+  text-shadow: 0 0.09em 0 rgba(61, 74, 107, 0.22);
+  animation: letterBounce 2.4s ease-in-out infinite;
+}
+.logo-name {
+  font-size: 0.5em;
+  color: #fff;
+  -webkit-text-stroke: 0.16em #ff8fc4;
+  paint-order: stroke fill;
+  transform: rotate(-4deg);
+  margin-bottom: 0.08em;
+  animation: floaty 3s ease-in-out infinite;
+}
+.title-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6vmin;
+}
+.play-btn {
+  width: clamp(100px, 22vmin, 180px);
+  height: clamp(100px, 22vmin, 180px);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Fish tank */
+
+.aq-scene {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 1.6vh;
+  padding: var(--safe-top) max(12px, env(safe-area-inset-right)) var(--safe-bottom) max(12px, env(safe-area-inset-left));
+}
+.aq-wall {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.5), transparent 40%),
+    repeating-linear-gradient(90deg, #fbe9d4 0 6vmin, #f6dfc6 6vmin 12vmin);
+}
+.aq-table {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26%;
+  z-index: -1;
+  background: linear-gradient(#d49a6a, #b77d52);
+  border-top: 1vmin solid #e8b284;
+}
+.aq-sign {
+  justify-self: center;
+  margin-top: calc((var(--bar) - 1.4em) / 2);
+  max-width: 50vw;
+  padding: 0.1em 0.9em 0;
+  border-radius: 999px;
+  background: #fff;
+  font-size: clamp(20px, 5vmin, 40px);
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 0.6vmin 0 rgba(61, 74, 107, 0.2);
+}
+.aq-sign.golden {
+  background: linear-gradient(110deg, #ffd23f 30%, #fff3b0 45%, #ffd23f 60%);
+  background-size: 250% 100%;
+  animation: shineSweep 3s linear infinite;
+}
+.aq-sign.unlock {
+  position: relative;
+}
+.tank {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 170vh);
+  min-height: 0;
+  border: clamp(6px, 1.3vmin, 14px) solid #cfeefc;
+  border-radius: 3vmin;
+  overflow: hidden;
+  box-shadow:
+    0 1.4vmin 0 #6fa8c8,
+    0 2.4vmin 3vmin rgba(61, 74, 107, 0.3);
+  cursor: pointer;
+}
+.tank-water {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.5), transparent 1.4vmin),
+    linear-gradient(#9fe2ff, #4fa9e6);
+}
+.tank-sand {
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  bottom: 0;
+  height: 13%;
+  background: radial-gradient(ellipse at 50% 0, #fff0c2, #f2d38a);
+  border-radius: 50% 50% 0 0 / 30% 30% 0 0;
+}
+.tank-fish,
+.tank-fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tank-glass {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.18) 22%, rgba(255, 255, 255, 0.18) 28%, transparent 30%);
+}
+.flake {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.4vmin;
+  height: 1vmin;
+  margin: -0.5vmin 0 0 -0.7vmin;
+  border-radius: 30%;
+}
+.tank .unlock {
+  position: absolute;
+  pointer-events: none;
+}
+.tank .unlock svg {
+  width: 100%;
+  height: 100%;
+}
+.unlock.new {
+  opacity: 0;
+}
+.unlock.new.show-new {
+  animation: appear 0.9s cubic-bezier(0.3, 1.5, 0.5, 1) forwards;
+}
+.u-plants {
+  bottom: 6%;
+  width: 11%;
+  height: 55%;
+}
+.u-plants.left {
+  left: 2%;
+}
+.u-plants.right {
+  right: 2%;
+}
+.u-chest {
+  left: 14%;
+  bottom: 4%;
+  width: 14%;
+  aspect-ratio: 100 / 80;
+}
+.u-castle {
+  left: 62%;
+  bottom: 5%;
+  width: 18%;
+  aspect-ratio: 120 / 112;
+}
+.u-coral {
+  left: 34%;
+  bottom: 6%;
+  width: 11%;
+  aspect-ratio: 100 / 90;
+}
+.u-snail {
+  right: 10%;
+  top: 12%;
+  width: 8%;
+  aspect-ratio: 80 / 56;
+  animation: snailCrawl 40s linear infinite alternate;
+}
+.tank-silly {
+  position: absolute;
+  bottom: 3%;
+  width: clamp(36px, 8.5%, 100px);
+  aspect-ratio: 1;
+  translate: -50% 0;
+  rotate: var(--r);
+  cursor: pointer;
+}
+.tank-silly svg {
+  width: 100%;
+  height: 100%;
+}
+.tank-silly.wiggle {
+  animation: wiggle 0.6s ease-in-out;
+}
+
+.aq-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.4vmin;
+  --slot: clamp(34px, min(7.4vmin, calc((100vw - 32vmin - 60px) / 12.6)), 76px);
+}
+.collection {
+  display: grid;
+  grid-template-columns: repeat(12, var(--slot));
+  gap: 0.6vmin;
+  padding: 1vmin;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+}
+.slot {
+  width: var(--slot);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.85);
+  border: 3px solid transparent;
+}
+.slot svg {
+  width: 88%;
+}
+.slot.got {
+  background: #fff8d6;
+  border-color: #ffd23f;
+}
+.slot.wiggle {
+  animation: wiggle 0.6s ease-in-out;
+}
+.slot.shake {
+  animation: shake 0.4s ease-in-out;
+}
+.play-btn-small {
+  flex: none;
+  width: clamp(70px, 14vmin, 130px);
+  height: clamp(70px, 14vmin, 130px);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Pond keyframes */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes tailFlap {
+  from {
+    transform: rotate(-10deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+@keyframes finFlap {
+  from {
+    transform: rotate(-12deg);
+  }
+  to {
+    transform: rotate(14deg);
+  }
+}
+@keyframes clawSnap {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0);
+  }
+  80% {
+    transform: rotate(-14deg);
+  }
+  90% {
+    transform: rotate(6deg);
+  }
+}
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+@keyframes fishWiggle {
+  0%,
+  100% {
+    rotate: 0deg;
+    scale: 1;
+  }
+  25% {
+    rotate: -14deg;
+    scale: 1.12;
+  }
+  50% {
+    rotate: 12deg;
+  }
+  75% {
+    rotate: -6deg;
+  }
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.6);
+  }
+}
+@keyframes cloudDrift {
+  from {
+    transform: translateX(-25vw);
+  }
+  to {
+    transform: translateX(110vw);
+  }
+}
+@keyframes shimmer {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 40vmin 0;
+  }
+}
+@keyframes sway {
+  from {
+    transform: rotate(-6deg);
+  }
+  to {
+    transform: rotate(6deg);
+  }
+}
+@keyframes frogJump {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  15% {
+    transform: translateY(4px) scale(1.1, 0.85);
+  }
+  45% {
+    transform: translateY(-60px) scale(0.95, 1.1);
+  }
+  75% {
+    transform: translateY(0) scale(1.08, 0.9);
+  }
+}
+@keyframes turtlePeek {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25%,
+  75% {
+    translate: 10px -8px;
+  }
+  45% {
+    translate: 10px -4px;
+  }
+}
+@keyframes duckDive {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30%,
+  65% {
+    transform: translateY(14px) rotate(70deg);
+  }
+  45% {
+    transform: translateY(16px) rotate(80deg);
+  }
+}
+@keyframes rainFall {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(115vh);
+  }
+}
+@keyframes fireflyDrift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(3vmin, -2vmin);
+  }
+  50% {
+    transform: translate(-1vmin, -4vmin);
+  }
+  75% {
+    transform: translate(-3vmin, -1vmin);
+  }
+}
+@keyframes fireflyFlash {
+  0% {
+    transform: scale(3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes wormWiggle {
+  from {
+    transform: rotate(-12deg);
+  }
+  to {
+    transform: rotate(12deg);
+  }
+}
+@keyframes rowRock {
+  from {
+    transform: rotate(-3deg);
+  }
+  to {
+    transform: rotate(3deg);
+  }
+}
+@keyframes rodCast {
+  0% {
+    transform: rotate(0);
+  }
+  35% {
+    transform: rotate(-28deg);
+  }
+  70% {
+    transform: rotate(10deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+@keyframes rodBend {
+  from {
+    transform: rotate(4deg);
+  }
+  to {
+    transform: rotate(12deg);
+  }
+}
+@keyframes pipWave {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(40deg);
+  }
+}
+@keyframes pipCheer {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-18%) scale(1.05, 0.95);
+  }
+  70% {
+    transform: translateY(2%) scale(1.04, 0.96);
+  }
+}
+@keyframes bangPop {
+  from {
+    opacity: 0;
+    scale: 0;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@keyframes bangWobble {
+  from {
+    opacity: 1;
+    scale: 1;
+    rotate: -10deg;
+  }
+  to {
+    opacity: 1;
+    scale: 1.15;
+    rotate: 10deg;
+  }
+}
+@keyframes rippleOut {
+  from {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+@keyframes bubbleRise {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(calc(-50% + 6px), calc(-50% - var(--rise) * 0.5));
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% - 4px), calc(-50% - var(--rise)));
+  }
+}
+@keyframes revealIn {
+  from {
+    transform: translate(var(--fx), var(--fy)) scale(0.12) rotate(-20deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(0, 0) scale(1) rotate(0);
+  }
+}
+@keyframes revealBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-4%) rotate(3deg);
+  }
+}
+@keyframes puff {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40%,
+  60% {
+    transform: scale(1.3);
+  }
+}
+@keyframes starIn {
+  from {
+    transform: scale(0) rotate(-180deg);
+  }
+  to {
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes boatBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-2%) rotate(2deg);
+  }
+}
+@keyframes leap {
+  0% {
+    opacity: 0;
+    transform: translate(0, 20%) rotate(-60deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate(60%, -160%) rotate(0deg);
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(120%, 20%) rotate(60deg);
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-12%);
+  }
+  75% {
+    transform: translateX(12%);
+  }
+}
+@keyframes snailCrawl {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: -500% 30%;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Portrait & small screens */
+
+@media (orientation: portrait) {
+  .title-scene {
+    padding-top: calc(var(--safe-top) + var(--bar) + 2vh);
+  }
+  .t-sun {
+    left: auto;
+    right: 6%;
+    top: 34%;
+  }
+  .aq-sign {
+    justify-self: start;
+    margin-left: calc(var(--bar) + 14px);
+    max-width: calc(100vw - var(--bar) * 3.4 - 70px);
+    padding: 0.1em 0.7em 0;
+    font-size: clamp(15px, 4.4vw, 28px);
+  }
+  .aq-bottom {
+    --slot: clamp(34px, min(10vw, 7vh), 76px);
+  }
+  .collection {
+    grid-template-columns: repeat(6, var(--slot));
+    border-radius: 4vmin;
+  }
+  .reeds.left {
+    left: 16vmin;
+  }
+  .reeds.right {
+    right: 18vmin;
+  }
+}
+
+/* Short landscape screens (phones on their side). */
+@media (orientation: landscape) and (max-height: 500px) {
+  .logo {
+    font-size: 11vh;
+  }
+  .reeds {
+    display: none;
+  }
+}

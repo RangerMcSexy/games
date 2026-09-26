@@ -7,6 +7,7 @@ Little browser games for Mia.
 | [🦋 Butterfly Garden](butterfly-garden/) | Grow a caterpillar into a butterfly, collect all 25 in the book, and play in a garden that grows. |
 | [🧁 Little Bakery](bakery/) | Bake cakes, cupcakes and cookies for silly animal customers, and fill a shop window that grows. Made extra simple for ages 2 to 3. |
 | [🌈 Colour Splash](colour-splash/) | Tap to splash colour onto 12 pictures that come alive when they're finished, and fill a gallery wall that grows. For ages 2 to 3. |
+| [🎣 Little Fishing Pond](fishing-pond/) | Go fishing with Pip the penguin: tap the water, wait for a nibble, reel in 12 kinds of fish (and some silly surprises), and fill a fish tank that grows. For ages 2 to 3. |
 
 ## How to run a game
 
