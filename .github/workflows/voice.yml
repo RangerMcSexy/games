@@ -2,7 +2,8 @@
 # scripts/voice/generate.py), saves them to main and republishes the site.
 #
 # Run it from the Actions tab: "Make voice clips" → Run workflow, or by
-# changing voice/request.json on main (e.g. {"mode": "full", "voice": "kokoro:af_heart"}).
+# changing voice/request.json on main, e.g. {"mode": "full", "voice": "kokoro:af_heart"}
+# or {"mode": "audition", "voices": ["chatterbox:0.6:af_nicole"]}.
 #   audition  a few lines in many voices, at <site>/voice/audition/
 #   full      every line in the chosen voice (e.g. kokoro:af_heart)
 name: Make voice clips
@@ -21,6 +22,9 @@ on:
       voice:
         description: 'For "full": the voice, e.g. kokoro:af_heart or chatterbox:0.6'
         default: kokoro:af_heart
+      voices:
+        description: 'For "audition": comma-separated voices to (re)make (default: all)'
+        default: ''
 
 permissions:
   contents: write
@@ -43,9 +47,11 @@ jobs:
           if [ "${{ github.event_name }}" = push ]; then
             echo "mode=$(jq -r '.mode // "audition"' voice/request.json)" >> "$GITHUB_OUTPUT"
             echo "voice=$(jq -r '.voice // "kokoro:af_heart"' voice/request.json)" >> "$GITHUB_OUTPUT"
+            echo "voices=$(jq -r '.voices // [] | join(",")' voice/request.json)" >> "$GITHUB_OUTPUT"
           else
             echo "mode=${{ inputs.mode }}" >> "$GITHUB_OUTPUT"
             echo "voice=${{ inputs.voice }}" >> "$GITHUB_OUTPUT"
+            echo "voices=${{ inputs.voices }}" >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/setup-python@v5
         with:
@@ -55,24 +61,27 @@ jobs:
 
       # Each voice engine gets its own Python environment (their
       # dependencies clash). CPU-only PyTorch keeps the download small.
+      # Kokoro always runs: it also reads the recordings Chatterbox copies.
       - name: Kokoro
-        if: steps.req.outputs.mode == 'audition' || startsWith(steps.req.outputs.voice, 'kokoro:')
         run: |
           python -m venv /tmp/kokoro
           /tmp/kokoro/bin/pip install --extra-index-url https://download.pytorch.org/whl/cpu "kokoro==0.9.4" soundfile
           if [ "${{ steps.req.outputs.mode }}" = audition ]; then
-            /tmp/kokoro/bin/python scripts/voice/generate.py audition --engine kokoro
+            /tmp/kokoro/bin/python scripts/voice/generate.py refs --voices "${{ steps.req.outputs.voices }}"
+            /tmp/kokoro/bin/python scripts/voice/generate.py audition --engine kokoro --voices "${{ steps.req.outputs.voices }}"
           else
-            /tmp/kokoro/bin/python scripts/voice/generate.py full --voice "${{ steps.req.outputs.voice }}"
+            /tmp/kokoro/bin/python scripts/voice/generate.py refs --voices "${{ steps.req.outputs.voice }}"
+            case "${{ steps.req.outputs.voice }}" in kokoro:*)
+              /tmp/kokoro/bin/python scripts/voice/generate.py full --voice "${{ steps.req.outputs.voice }}";;
+            esac
           fi
       - name: Chatterbox
-        if: steps.req.outputs.mode == 'audition' || startsWith(steps.req.outputs.voice, 'chatterbox:')
-        continue-on-error: ${{ steps.req.outputs.mode == 'audition' }}
+        if: (steps.req.outputs.mode == 'audition' && (steps.req.outputs.voices == '' || contains(steps.req.outputs.voices, 'chatterbox:'))) || (steps.req.outputs.mode == 'full' && startsWith(steps.req.outputs.voice, 'chatterbox:'))
         run: |
           python -m venv /tmp/chatterbox
           /tmp/chatterbox/bin/pip install --extra-index-url https://download.pytorch.org/whl/cpu "chatterbox-tts==0.1.7" soundfile
           if [ "${{ steps.req.outputs.mode }}" = audition ]; then
-            /tmp/chatterbox/bin/python scripts/voice/generate.py audition --engine chatterbox
+            /tmp/chatterbox/bin/python scripts/voice/generate.py audition --engine chatterbox --voices "${{ steps.req.outputs.voices }}"
           else
             /tmp/chatterbox/bin/python scripts/voice/generate.py full --voice "${{ steps.req.outputs.voice }}"
           fi
