@@ -11,6 +11,7 @@
     <meta name="description" content="Little games for little ones." />
     <title>Games</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%88%3C/text%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="book.css" />
     <style>
       @font-face {
         font-family: 'Baloo 2';
@@ -390,6 +391,31 @@
           </span>
           <span>Ducky Bath</span>
         </a>
+        <a class="game book-tile" href="#stickers" style="--d: -2.8s">
+          <span class="tile">
+            <!-- An open sticker book with stickers in it. -->
+            <svg viewBox="-50 -50 100 100" aria-hidden="true">
+              <g stroke="#5a4272" stroke-width="3.5" stroke-linejoin="round">
+                <path d="M-46,-26 Q-22,-38 0,-28 Q22,-38 46,-26 L46,36 Q22,26 0,36 Q-22,26 -46,36 Z" fill="#ff8fc4" />
+                <path d="M-41,-31 Q-20,-40 0,-30 L0,29 Q-20,20 -41,28 Z" fill="#fff" />
+                <path d="M41,-31 Q20,-40 0,-30 L0,29 Q20,20 41,28 Z" fill="#fff" />
+              </g>
+              <g stroke="#fff" stroke-width="7" stroke-linejoin="round" paint-order="stroke">
+                <path d="M-21,-24 L-17,-14 L-6,-13 L-14,-6 L-12,5 L-21,-1 L-30,5 L-28,-6 L-36,-13 L-25,-14 Z" fill="#ffd84a" />
+                <path d="M21,4 C13,-2 9,-8 12,-13 C15,-18 20,-16 21,-12 C22,-16 27,-18 30,-13 C33,-8 29,-2 21,4 Z" fill="#ff6b81" />
+                <circle cx="-20" cy="15" r="6.5" fill="#7fd3ff" />
+                <circle cx="22" cy="18" r="5.5" fill="#9be07a" />
+              </g>
+              <g fill="none" stroke="#5a4272" stroke-width="2.2" stroke-linejoin="round">
+                <path d="M-21,-24 L-17,-14 L-6,-13 L-14,-6 L-12,5 L-21,-1 L-30,5 L-28,-6 L-36,-13 L-25,-14 Z" />
+                <path d="M21,4 C13,-2 9,-8 12,-13 C15,-18 20,-16 21,-12 C22,-16 27,-18 30,-13 C33,-8 29,-2 21,4 Z" />
+                <circle cx="-20" cy="15" r="6.5" />
+                <circle cx="22" cy="18" r="5.5" />
+              </g>
+            </svg>
+          </span>
+          <span>Stickers</span>
+        </a>
       </nav>
     </main>
 
@@ -398,6 +424,7 @@
       // device asks for it (the same card the games use); change it later in
       // any game's grown-up settings.
       import { askName, storedName } from './ask-name.js';
+      import { ctx, openBook, sfx, stuckCount, total, waiting } from './book.js';
 
       const title = document.getElementById('title');
       const colours = ['#ff7a8a', '#ffb347', '#f5c742', '#7fcf6a', '#6ec3ff', '#b58cff', '#ff8fc8'];
@@ -450,26 +477,8 @@
       document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
       // A happy pop, then off to the game.
-      let audio;
-      function pop() {
-        try {
-          audio ??= new (window.AudioContext || window.webkitAudioContext)();
-          const t = audio.currentTime;
-          const o = audio.createOscillator();
-          const g = audio.createGain();
-          o.frequency.setValueAtTime(520, t);
-          o.frequency.exponentialRampToValueAtTime(1020, t + 0.14);
-          g.gain.setValueAtTime(0.0001, t);
-          g.gain.exponentialRampToValueAtTime(0.4, t + 0.005);
-          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
-          o.connect(g).connect(audio.destination);
-          o.start(t);
-          o.stop(t + 0.2);
-        } catch {
-          /* no sound, no matter */
-        }
-      }
-      for (const a of document.querySelectorAll('.game')) {
+      const pop = () => sfx.pop();
+      for (const a of document.querySelectorAll('.game:not(.book-tile)')) {
         a.addEventListener('click', (e) => {
           e.preventDefault();
           if (document.querySelector('.game.go')) return;
@@ -478,8 +487,76 @@
           setTimeout(() => (location.href = a.getAttribute('href')), 220);
         });
       }
-      // Coming back with the browser's back button: un-press the tile.
-      addEventListener('pageshow', () => document.querySelector('.game.go')?.classList.remove('go'));
+      // Coming back with the browser's back button: un-press the tile, and
+      // check for stickers earned in the game.
+      addEventListener('pageshow', (e) => {
+        document.querySelector('.game.go')?.classList.remove('go');
+        if (e.persisted) showStickers();
+      });
+
+      // The sticker book: its tile shows how many stickers are in it, and
+      // wobbles with a star when new ones are waiting to be stuck in.
+      const bookTile = document.querySelector('.book-tile');
+      function showStickers() {
+        bookTile.querySelector('.tile').replaceChildren(bookTile.querySelector('.tile svg'));
+        const n = stuckCount();
+        const fresh = waiting().length;
+        bookTile.classList.toggle('has-new', fresh > 0);
+        if (n) {
+          const b = document.createElement('span');
+          b.className = 'badge';
+          b.innerHTML = `${n}<small>/${total}</small>`;
+          bookTile.querySelector('.tile').append(b);
+        }
+        if (fresh) {
+          const star = document.createElement('span');
+          star.className = 'new-star';
+          star.textContent = '★';
+          bookTile.querySelector('.tile').append(star);
+        }
+      }
+      showStickers();
+
+      // Each game's picture, for the top of its page in the book.
+      const icons = {};
+      for (const a of document.querySelectorAll('.game:not(.book-tile)')) {
+        const tile = a.querySelector('.tile');
+        icons[a.getAttribute('href').replace('/', '')] = {
+          svg: tile.querySelector('svg').outerHTML,
+          bg: tile.style.getPropertyValue('--bg'),
+          edge: tile.style.getPropertyValue('--edge'),
+        };
+      }
+      // The book is a step in the browser's history, so Back shuts it.
+      let shutBook = null;
+      function showBook() {
+        if (shutBook) return;
+        ctx();
+        shutBook = openBook({
+          icons,
+          onClose: () => {
+            shutBook = null;
+            showStickers();
+            if (history.state?.book) history.back();
+          },
+        });
+      }
+      bookTile.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (shutBook) return;
+        pop();
+        history.pushState({ book: true }, '', '#stickers');
+        showBook();
+      });
+      addEventListener('popstate', () => {
+        if (history.state?.book) showBook();
+        else shutBook?.();
+      });
+      if (location.hash === '#stickers') {
+        history.replaceState(null, '', location.pathname + location.search);
+        history.pushState({ book: true }, '', '#stickers');
+        showBook();
+      }
 
       // Save the games on this device so they work offline next time.
       if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

@@ -35,6 +35,14 @@ Played this way, the games share a few things:
 - **Progress:** the home page shows a badge on each game: butterflies grown,
   treats baked, pictures painted, kinds of fish found, pond friends met,
   presents found, rubber ducks found.
+- **The sticker book:** the Stickers button on the home page opens a book
+  with a page for each game and four stickers on each page. A game gives
+  its first sticker for the first thing collected, then more at 3, 6, and
+  10 (or all 12). A new sticker makes the button wobble with a star; open
+  the book and tap the sticker to stick it in. Tap a sticker to hear its
+  name, or the game's picture at the top of a page to go and play it.
+  Stickers stay in the book even if a game is started again. The stickers
+  are listed in `home/stickers.ts` and drawn with the games' own art.
 
 After the first visit the games are saved on the device, so they also work
 **offline** (in the car, on a plane).
