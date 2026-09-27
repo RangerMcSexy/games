@@ -39,6 +39,8 @@ import type { Host } from './screens';
 import { Swimmer, catchArt } from './swim';
 import { Aborted, HINT_MS, Scene, burst, el, flyClone, hint, pick, rand, replay } from './ui';
 import { say, sayAll } from './voice';
+import { stickerMoment } from '../../shared/sticker-moment';
+import { STICKER_ART } from './stickers';
 
 type State = 'idle' | 'casting' | 'waiting' | 'bite' | 'reeling' | 'reveal';
 type Catch = { kind: 'fish'; fish: Fish; swimmer: Swimmer } | { kind: 'silly'; silly: Silly };
@@ -697,6 +699,8 @@ export async function pondScreen(host: Host): Promise<'aquarium'> {
     replay(tankBtn, 'gulp');
     burst(tb.left + tb.width / 2, tb.top + tb.height / 2, { kind: 'sparkle', count: 8, spread: 0.5 });
     if (c.kind === 'fish') respawn(c.swimmer);
+    // A sticker for the sticker book, now and then.
+    await stickerMoment('fishing-pond', { sc, art: STICKER_ART, chime: () => sound.chime(), say: () => say('sticker') });
     biter = null;
     // That catch made the fish tank fancier: say so (fishing carries on).
     if (unseenUnlocks().length > newBefore) {

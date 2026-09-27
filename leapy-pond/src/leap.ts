@@ -11,6 +11,8 @@ import { COLOURS, FRIENDS, addFly, finishTrip, nextFriend, save, unseenFriends, 
 import type { Host } from './screens';
 import { HINT_MS, Scene, burst, burstAt, center, el, pick, rand, replay, shuffle } from './ui';
 import { say, sayAll } from './voice';
+import { stickerMoment } from '../../shared/sticker-moment';
+import { STICKER_ART } from './stickers';
 
 type Move = 'free' | 'colour' | 'count' | 'goal';
 
@@ -429,6 +431,8 @@ export async function leapScreen(host: Host): Promise<'pond' | 'again'> {
     box.classList.add('closing');
     await sc.wait(350);
     box.remove();
+    // A sticker for the sticker book, now and then.
+    await stickerMoment('leapy-pond', { sc, art: STICKER_ART, chime: () => sound.chime(), say: () => say('sticker') });
   }
 
   // Off we go.

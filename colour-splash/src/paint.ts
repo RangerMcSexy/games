@@ -9,6 +9,8 @@ import { paintFill, pictureSVG, regionsOf, type Picture } from './pictures';
 import type { Host } from './screens';
 import { Scene, burst, center, el, hint, pick, replay } from './ui';
 import { say } from './voice';
+import { stickerMoment } from '../../shared/sticker-moment';
+import { STICKER_ART } from './stickers';
 
 export type PaintEnd = 'gallery' | 'next';
 
@@ -229,6 +231,8 @@ export async function paint(host: Host, pic: Picture): Promise<PaintEnd> {
   replay(box, 'shine');
   guide.cheer();
   await sc.until(say('done'), 3500);
+  // A sticker for the sticker book, now and then.
+  await stickerMoment('colour-splash', { sc, art: STICKER_ART, chime: () => sound.chime(), say: () => say('sticker') });
 
   svg.classList.add('alive');
   sound.picture(pic.id);
