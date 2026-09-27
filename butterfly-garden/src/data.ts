@@ -118,7 +118,7 @@ function load(): SaveData {
     if (!raw) return fresh;
     const parsed = JSON.parse(raw) as Partial<SaveData>;
     return {
-      butterflies: Array.isArray(parsed.butterflies) ? parsed.butterflies : [],
+      butterflies: Array.isArray(parsed.butterflies) ? parsed.butterflies.filter(validButterfly) : [],
       music: parsed.music ?? true,
       sound: parsed.sound ?? true,
       name: typeof parsed.name === 'string' ? parsed.name : '',
@@ -127,6 +127,18 @@ function load(): SaveData {
   } catch {
     return fresh;
   }
+}
+
+/** Drops anything in an old or damaged save the book couldn't show. */
+function validButterfly(b: Butterfly) {
+  return (
+    !!b &&
+    typeof b.id === 'string' &&
+    SHAPES.includes(b.shape) &&
+    PATTERNS.includes(b.pattern) &&
+    Array.isArray(b.foods) &&
+    b.foods.every((f) => f in FOODS)
+  );
 }
 
 export const save: SaveData = load();

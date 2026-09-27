@@ -1,5 +1,5 @@
-# Builds every game (type check included) on each pull request, so a broken
-# game is caught before it reaches main and the published site.
+# Tests and builds every game on each pull request, so a broken game is
+# caught before it reaches main and the published site.
 name: Check games
 
 on:
@@ -21,4 +21,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: npm ci
+      # Saves, stickers and voice lines (a few seconds).
+      - run: npm test
       - run: npm run build
+      # Then play every game in a real browser.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser

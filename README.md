@@ -104,3 +104,24 @@ a browser, AirDrop or email it, or put it on any web host.
 > Recording your own voice (grown-up settings: hold the gear for 3 seconds)
 > needs the game to be opened from a web address, i.e. `npm run dev` or a
 > hosted copy. Safari won't allow the microphone on a file opened directly.
+
+## Tests
+
+From this folder:
+
+```bash
+npm install              # first time only
+npm test                 # saves, stickers and voice lines (a few seconds)
+npm run build
+npm run test:browser     # plays every game in Chromium (about a minute)
+```
+
+`npm test` checks that each game keeps what was collected (and copes with a
+damaged or old save), that the sticker book can count it, that stickers are
+earned at the right moments, and that every line a game says by name is in
+its `src/voice.ts`. The browser tests open each game, skip the name card,
+press play, wait for the helping hand and open the grown-up settings, then
+open the sticker book on the home page. Both run on every pull request.
+
+The first time, `npm run test:browser` may ask for Chromium: run
+`npx playwright install chromium`.

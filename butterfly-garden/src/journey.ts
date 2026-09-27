@@ -435,7 +435,7 @@ async function cocoonScene(host: JourneyHost, shape: Shape, foods: FoodId[], gol
     await sc.until(say('gardenNew'), 4000);
   }
   // A sticker for the sticker book, now and then.
-  await stickerMoment('butterfly-garden', { sc, art: STICKER_ART, chime: () => sound.chime(), say: () => say('sticker') });
+  await stickerMoment('butterfly-garden', { sc, art: STICKER_ART, chime: () => sound.chime(), say: () => say('bookSticker') });
 
   const choice = await sc.tapAny([toGarden, again], 9000);
   sound.pop();
