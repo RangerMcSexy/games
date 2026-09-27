@@ -1,0 +1,448 @@
+/* The sticker book: one page for each game, four stickers on a page. */
+.book {
+  --spot: min(calc((100vw - 32px - 12vmin) / 2), 27vh, 300px);
+  --arrow: clamp(56px, 11vmin, 96px);
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--safe-top) + var(--arrow) * 0.7) 16px calc(var(--safe-bottom) + var(--arrow) * 1.4);
+  background: radial-gradient(circle at 50% 40%, #fff6e3, #ffe2b8);
+  animation: b-open 0.3s ease-out;
+}
+.book.closing {
+  animation: b-close 0.25s ease-in forwards;
+}
+/* Wide screens: four stickers in a row, the arrows at the sides. */
+@media (min-aspect-ratio: 1/1) {
+  .book {
+    --spot: min(17vw, 42vh, 300px);
+    padding: calc(var(--safe-top) + 6px) calc(var(--arrow) + 32px) calc(var(--safe-bottom) + 34px);
+  }
+}
+.b-holder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+.b-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2vmin;
+  padding: 5.5vmin 3vmin 3.4vmin;
+  border-radius: 5vmin;
+  background: var(--bg);
+  border: 0.9vmin solid #fff;
+  box-shadow:
+    0 1.4vmin 0 var(--edge),
+    0 2.4vmin 4vmin rgba(90, 66, 114, 0.22);
+}
+.b-page.in-next {
+  animation: b-in-next 0.28s ease-out;
+}
+.b-page.in-prev {
+  animation: b-in-prev 0.28s ease-out;
+}
+.b-page.out-next {
+  animation: b-out-next 0.2s ease-in forwards;
+}
+.b-page.out-prev {
+  animation: b-out-prev 0.2s ease-in forwards;
+}
+/* The book's binding rings along the top. */
+.b-rings {
+  position: absolute;
+  top: -3vmin;
+  left: 10%;
+  right: 10%;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.b-rings span {
+  width: clamp(14px, 4.4vmin, 34px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: clamp(3px, 1.1vmin, 8px) solid #b9a6cf;
+}
+.b-head {
+  display: flex;
+  align-items: center;
+  gap: 2.4vmin;
+  max-width: 100%;
+}
+.b-title {
+  font-size: clamp(22px, 5.6vmin, 50px);
+  line-height: 1.05;
+  -webkit-text-stroke: 0.14em #fff;
+  paint-order: stroke fill;
+}
+/* The game's picture, with a play button on it: off to play that game. */
+.b-go {
+  position: relative;
+  flex: none;
+  width: clamp(54px, 11vmin, 96px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 26%;
+  background: #fff;
+  box-shadow: 0 0.8vmin 0 var(--edge);
+}
+.b-go:active {
+  transform: scale(0.9);
+}
+.b-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.b-icon {
+  width: 76%;
+  height: 76%;
+}
+.b-play {
+  position: absolute;
+  right: -18%;
+  bottom: -14%;
+  width: 52%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #5cc85a;
+  border: 3px solid #fff;
+  box-shadow: 0 0.5vmin 0 #3f9e3e;
+}
+.b-play svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.b-spots {
+  display: grid;
+  grid-template-columns: repeat(2, var(--spot));
+  gap: 3vmin;
+}
+@media (min-aspect-ratio: 1/1) {
+  .b-spots {
+    grid-template-columns: repeat(4, var(--spot));
+  }
+}
+.b-spot {
+  all: unset;
+  position: relative;
+  width: var(--spot);
+  height: var(--spot);
+  display: grid;
+  place-items: center;
+  border-radius: 18%;
+  background: rgba(255, 255, 255, 0.4);
+  outline: 0.6vmin dashed rgba(90, 66, 114, 0.22);
+  outline-offset: -1.6vmin;
+  cursor: pointer;
+}
+.b-art {
+  width: 78%;
+  height: 78%;
+  display: grid;
+  place-items: center;
+  transform: rotate(var(--r));
+}
+.b-art svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+/* Not found yet: just its shape, faintly. */
+.b-spot:not(.got) .b-art {
+  filter: brightness(0) opacity(0.1);
+}
+/* A sticker: a thick white edge and a little shadow. */
+.b-spot.got .b-art,
+.b-new .b-art {
+  filter: drop-shadow(0.5vmin 0 0 #fff) drop-shadow(-0.5vmin 0 0 #fff) drop-shadow(0 0.5vmin 0 #fff) drop-shadow(0 -0.5vmin 0 #fff) drop-shadow(0 0.6vmin 0.6vmin rgba(90, 66, 114, 0.3));
+}
+.b-spot.got {
+  background: transparent;
+  outline-color: transparent;
+}
+.b-spot.waiting {
+  outline-color: #ffb400;
+  animation: b-glow 1s ease-in-out infinite;
+}
+.b-spot.shake {
+  animation: b-shake 0.4s;
+}
+.b-spot.stuck .b-art {
+  animation: b-stuck 0.45s ease-out;
+}
+.b-art.wiggle {
+  animation: b-wiggle 0.5s;
+}
+.b-btn {
+  all: unset;
+  position: absolute;
+  width: var(--arrow);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 0.6vmin solid #fff;
+  box-shadow: 0 0.8vmin 0 rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+}
+.b-btn svg {
+  width: 56%;
+  height: 56%;
+}
+.b-btn:active {
+  transform: scale(0.9);
+}
+.b-close {
+  top: var(--safe-top);
+  left: 16px;
+  width: calc(var(--arrow) * 0.8);
+  background: #ff8fc4;
+}
+.b-arrow {
+  background: #ffae3c;
+  bottom: calc(var(--safe-bottom) + 6px);
+}
+.b-prev {
+  left: 16px;
+}
+.b-prev svg {
+  transform: scaleX(-1);
+}
+.b-next {
+  right: 16px;
+}
+.b-arrow.off {
+  opacity: 0.3;
+  pointer-events: none;
+}
+@media (min-aspect-ratio: 1/1) {
+  .b-arrow {
+    bottom: auto;
+    top: calc(50% - var(--arrow) / 2);
+  }
+}
+.book.busy .b-btn,
+.book.busy .b-dots,
+.book.busy .b-go {
+  pointer-events: none;
+}
+.book.busy .b-arrow,
+.book.busy .b-dots {
+  opacity: 0.3;
+}
+.b-dots {
+  position: absolute;
+  bottom: calc(var(--safe-bottom) + 6px + var(--arrow) / 2 - 1.5vmin);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1.6vmin;
+}
+@media (min-aspect-ratio: 1/1) {
+  .b-dots {
+    bottom: calc(var(--safe-bottom) + 4px);
+  }
+}
+.b-dot {
+  width: 3vmin;
+  height: 3vmin;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0.4vmin 0 rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+.b-dot.on {
+  background: #ffae3c;
+  transform: scale(1.25);
+}
+/* A new sticker waiting to be stuck in. */
+.b-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  background: rgba(90, 66, 114, 0.35);
+  animation: b-open 0.3s ease-out;
+}
+.b-shade.fade {
+  background: transparent;
+  transition: background 0.3s;
+}
+.b-new {
+  all: unset;
+  width: min(60vmin, 360px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  transform: rotate(var(--r));
+  animation:
+    b-pop-in 0.5s cubic-bezier(0.3, 1.6, 0.6, 1),
+    b-bob 1.6s ease-in-out 0.5s infinite;
+  cursor: pointer;
+}
+.b-new .b-art {
+  width: 100%;
+  height: 100%;
+  transform: none;
+}
+.b-spark {
+  position: fixed;
+  z-index: 30;
+  font-size: clamp(16px, 4vmin, 30px);
+  line-height: 1;
+  pointer-events: none;
+  translate: -50% -50%;
+  animation: b-spark 0.8s ease-out forwards;
+}
+/* The book's tile on the home page. */
+.book-tile .tile {
+  --bg: #ffe9c7;
+  --edge: #f0b870;
+}
+.book-tile.has-new .tile {
+  animation: b-wobble 1.4s ease-in-out infinite;
+}
+.book-tile .new-star {
+  position: absolute;
+  top: -10%;
+  left: -8%;
+  width: 40%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ff6b8a;
+  border: 0.5vmin solid #fff;
+  color: #fff;
+  font-size: clamp(16px, 4.4vmin, 36px);
+  animation: b-glow 1s ease-in-out infinite;
+}
+@keyframes b-open {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+@keyframes b-close {
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+@keyframes b-in-next {
+  from {
+    opacity: 0;
+    transform: translateX(12vw) rotate(3deg);
+  }
+}
+@keyframes b-in-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-12vw) rotate(-3deg);
+  }
+}
+@keyframes b-out-next {
+  to {
+    opacity: 0;
+    transform: translateX(-12vw) rotate(-3deg);
+  }
+}
+@keyframes b-out-prev {
+  to {
+    opacity: 0;
+    transform: translateX(12vw) rotate(3deg);
+  }
+}
+@keyframes b-glow {
+  50% {
+    scale: 1.06;
+  }
+}
+@keyframes b-shake {
+  20%,
+  60% {
+    transform: translateX(-1.2vmin);
+  }
+  40%,
+  80% {
+    transform: translateX(1.2vmin);
+  }
+}
+@keyframes b-stuck {
+  0% {
+    transform: rotate(var(--r)) scale(1.2);
+  }
+  40% {
+    transform: rotate(var(--r)) scale(0.9, 1.08);
+  }
+  70% {
+    transform: rotate(var(--r)) scale(1.05, 0.96);
+  }
+}
+@keyframes b-wiggle {
+  25% {
+    transform: rotate(calc(var(--r) - 10deg)) scale(1.1);
+  }
+  50% {
+    transform: rotate(calc(var(--r) + 10deg)) scale(1.1);
+  }
+  75% {
+    transform: rotate(calc(var(--r) - 5deg));
+  }
+}
+@keyframes b-pop-in {
+  from {
+    transform: rotate(var(--r)) scale(0.2);
+    opacity: 0;
+  }
+}
+@keyframes b-bob {
+  50% {
+    transform: rotate(calc(var(--r) * -1)) scale(1.05);
+  }
+}
+@keyframes b-spark {
+  from {
+    transform: translate(0, 0) scale(0.4);
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--dx), var(--dy)) scale(1.1);
+    opacity: 0;
+  }
+}
+@keyframes b-wobble {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0);
+  }
+  70% {
+    transform: rotate(-7deg) scale(1.05);
+  }
+  80% {
+    transform: rotate(6deg) scale(1.05);
+  }
+  90% {
+    transform: rotate(-3deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .b-new,
+  .b-spot.waiting,
+  .book-tile.has-new .tile,
+  .book-tile .new-star {
+    animation: none;
+  }
+}

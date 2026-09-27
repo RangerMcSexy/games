@@ -19,6 +19,11 @@ for (const game of GAMES) {
   }
 }
 
+// The sticker book on the home page: its own lines, and the stickers' names
+// and page titles.
+for (const m of readFileSync(join(root, 'home', 'book.js'), 'utf8').matchAll(/\{ id: '[^']+', text: '([^']*)'/g)) texts.add(m[1]);
+for (const m of readFileSync(join(root, 'home', 'stickers.ts'), 'utf8').matchAll(/(?:name|hello): '([^']*)'/g)) texts.add(m[1]);
+
 const lines = [...texts].sort();
 writeFileSync(join(root, 'voice', 'lines.json'), `${JSON.stringify(lines, null, 2)}\n`);
 console.log(`${lines.length} lines written to voice/lines.json`);
