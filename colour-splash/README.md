@@ -99,8 +99,9 @@ full-screen like an app.
 ## Tech notes
 
 - Vite + TypeScript, no framework, no runtime dependencies. It has the same
-  structure as Little Bakery. `ui.ts`, `voice.ts`, `settings.ts` and the audio
-  engine started as copies of that game's, so each game stays standalone.
+  structure as Little Bakery. `ui.ts`, `voice.ts`,
+  `settings.ts` and the audio engine are shared by all the games (in
+  `../shared/`); each game still builds into its own single, offline file.
 - The pictures are data (`src/pictures.ts`): layers of SVG paths in a 400×400
   box. **Regions** are the paintable shapes, and **details** sit on top with
   `pointer-events: none`. Layers can be grouped (`g`) so parts can move when
