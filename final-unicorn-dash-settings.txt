@@ -1,0 +1,225 @@
+Grown-up settings
+Child's name
+
+Used on the title screen and in cheers like “Well done, Sam!”. Leave it empty for no name.
+
+Your voice
+
+Record any line in your own voice. Tap ● to record, tap again to stop. Lines you don’t record use the built-in voice. Lines that are the same in other games, like “Yay!”, only need recording once. Recordings stay on this device only.
+
+0 of 69 lines recorded
+
+“Unicorn Dash!”
+Title screen
+▶
+“Let's go!”
+Pressing play
+▶
+“Tap to jump!”
+Sparkle stops in front of something
+▶
+“Jump!”
+Sparkle jumps
+▶
+“Wheee!”
+Sparkle jumps
+▶
+“Up, up, up!”
+Sparkle jumps
+▶
+“Jump over the log!”
+A log in the way
+▶
+“Jump over the rock!”
+A rock in the way
+▶
+“Jump over the bush!”
+A bush in the way
+▶
+“Catch the stars!”
+Stars in the sky
+▶
+“You got every star!”
+Catching a whole row of stars
+▶
+“Splish splash!”
+Running through a puddle
+▶
+“Over the puddle!”
+Jumping a puddle
+▶
+“Pop the red balloon!”
+Pick a colour
+▶
+“Pop the orange balloon!”
+Pick a colour
+▶
+“Pop the yellow balloon!”
+Pick a colour
+▶
+“Pop the blue balloon!”
+Pick a colour
+▶
+“Pop the purple balloon!”
+Pick a colour
+▶
+“Pop the pink balloon!”
+Pick a colour
+▶
+“Red!”
+Naming the colour
+▶
+“Orange!”
+Naming the colour
+▶
+“Yellow!”
+Naming the colour
+▶
+“Blue!”
+Naming the colour
+▶
+“Purple!”
+Naming the colour
+▶
+“Pink!”
+Naming the colour
+▶
+“That one's red!”
+Tapping another colour
+▶
+“That one's orange!”
+Tapping another colour
+▶
+“That one's yellow!”
+Tapping another colour
+▶
+“That one's blue!”
+Tapping another colour
+▶
+“That one's purple!”
+Tapping another colour
+▶
+“That one's pink!”
+Tapping another colour
+▶
+“Pop!”
+A balloon pops
+▶
+“Fences! Let's count!”
+A row of little fences
+▶
+“One!”
+Counting jumps
+▶
+“Two!”
+Counting jumps
+▶
+“Three!”
+Counting jumps
+▶
+“Four!”
+Counting jumps
+▶
+“Five!”
+Counting jumps
+▶
+“Nearly there!”
+Nearly at the end
+▶
+“A present! What's inside?”
+A present at the end
+▶
+“Another present!”
+A present at the end, after finding them all
+▶
+“Something new!”
+Opening a present
+▶
+“A rainbow mane!”
+Presents
+▶
+“A flower crown!”
+Presents
+▶
+“Sparkly wings!”
+Presents
+▶
+“A pretty bow!”
+Presents
+▶
+“A party hat!”
+Presents
+▶
+“Star glasses!”
+Presents
+▶
+“Sparkly boots!”
+Presents
+▶
+“A golden horn!”
+Presents
+▶
+“A super cape!”
+Presents
+▶
+“A heart necklace!”
+Presents
+▶
+“A sky blue mane!”
+Presents
+▶
+“A royal crown!”
+Presents
+▶
+“Sparkle looks lovely!”
+Wearing something
+▶
+“Let's dress up!”
+After finding something new
+▶
+“You found every present!”
+All 12 presents found
+▶
+“Yay!”
+Cheering
+▶
+“Wow!”
+Cheering
+▶
+“Well done!”
+Cheering
+▶
+“You did it!”
+Cheering
+▶
+“Neigh!”
+Tapping Sparkle
+▶
+“Hi! I'm Sparkle!”
+Tapping Sparkle on the title
+▶
+“Hello, bunny!”
+Tapping a bunny
+▶
+“A butterfly! Flutter flutter!”
+Tapping a butterfly
+▶
+“Dress up Sparkle!”
+Opening dressing up
+▶
+“Nothing here yet. Let's dash!”
+Dressing up with nothing found yet
+▶
+“Look! Something new!”
+Something new to wear
+▶
+“A sticker for your book!”
+Earning a sticker for the sticker book
+▶
+Presents
+
+0 of 12 presents found, 0 dashes, 2 stars caught.
+
+Start again
+
+Tip: add the game to your home screen to play full screen.

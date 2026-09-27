@@ -1,0 +1,219 @@
+Grown-up settings
+Child's name
+
+Used on the title screen and in cheers like “Well done, Sam!”. Leave it empty for no name.
+
+Your voice
+
+Record any line in your own voice. Tap ● to record, tap again to stop. Lines you don’t record use the built-in voice. Lines that are the same in other games, like “Yay!”, only need recording once. Recordings stay on this device only.
+
+0 of 67 lines recorded
+
+“Ducky Bath!”
+Title screen
+▶
+“Bath time!”
+Pressing play
+▶
+“Hello! I'm Ducky!”
+Tapping Ducky on the title
+▶
+“Quack quack!”
+Tapping Ducky
+▶
+“Turn on the tap!”
+Filling the bath
+▶
+“More water!”
+Filling the bath
+▶
+“The bath is full!”
+The bath is full
+▶
+“Bubble time! Squeeze the bottle!”
+Making bubbles
+▶
+“Pop the bubbles!”
+Bubbles to pop
+▶
+“Pop!”
+A bubble pops
+▶
+“Squeak the red duck!”
+Pick a colour
+▶
+“Squeak the orange duck!”
+Pick a colour
+▶
+“Squeak the blue duck!”
+Pick a colour
+▶
+“Squeak the purple duck!”
+Pick a colour
+▶
+“Squeak the pink duck!”
+Pick a colour
+▶
+“Red!”
+Naming the colour
+▶
+“Orange!”
+Naming the colour
+▶
+“Blue!”
+Naming the colour
+▶
+“Purple!”
+Naming the colour
+▶
+“Pink!”
+Naming the colour
+▶
+“That one's red!”
+Tapping another colour
+▶
+“That one's orange!”
+Tapping another colour
+▶
+“That one's blue!”
+Tapping another colour
+▶
+“That one's purple!”
+Tapping another colour
+▶
+“That one's pink!”
+Tapping another colour
+▶
+“Let's count the ducks!”
+Little ducks to count
+▶
+“One!”
+Counting
+▶
+“Two!”
+Counting
+▶
+“Three!”
+Counting
+▶
+“Four!”
+Counting
+▶
+“Five!”
+Counting
+▶
+“Oh no! Ducky's all muddy!”
+Mud on Ducky
+▶
+“Scrub scrub!”
+Scrubbing the mud off
+▶
+“Squeaky clean!”
+All the mud gone
+▶
+“Where's Baby Duck?”
+Baby Duck hides in the bubbles
+▶
+“Not in there!”
+Tapping the wrong bubbles
+▶
+“Peekaboo!”
+Finding Baby Duck
+▶
+“Splash the water!”
+Splashing
+▶
+“Splish splash!”
+Splashing
+▶
+“Wheee!”
+Splashing
+▶
+“All clean! Pull the plug!”
+The end of the bath
+▶
+“Glug glug glug!”
+The water going down the plughole
+▶
+“A big bubble! What's inside?”
+A bubble floats up at the end
+▶
+“Another big bubble!”
+A bubble at the end, after finding every duck
+▶
+“A new duck!”
+Popping the big bubble
+▶
+“Rainbow Duck!”
+Ducks
+▶
+“Princess Duck!”
+Ducks
+▶
+“Pirate Duck!”
+Ducks
+▶
+“Firefighter Duck!”
+Ducks
+▶
+“Chef Duck!”
+Ducks
+▶
+“Froggy Duck!”
+Ducks
+▶
+“Super Duck!”
+Ducks
+▶
+“Space Duck!”
+Ducks
+▶
+“Unicorn Duck!”
+Ducks
+▶
+“Wizard Duck!”
+Ducks
+▶
+“Dino Duck!”
+Ducks
+▶
+“Golden Duck!”
+Ducks
+▶
+“You found every duck!”
+All 12 ducks found
+▶
+“Let's see your ducks!”
+After finding a new duck
+▶
+“Yay!”
+Cheering
+▶
+“Wow!”
+Cheering
+▶
+“Well done!”
+Cheering
+▶
+“You did it!”
+Cheering
+▶
+“Here are your ducks!”
+Opening the duck shelf
+▶
+“No ducks yet. Let's have a bath!”
+The duck shelf with no ducks found yet
+▶
+“Look! A new duck!”
+A new duck on the shelf
+▶
+“A sticker for your book!”
+Earning a sticker for the sticker book
+▶
+Ducks
+
+0 of 12 ducks found, 0 baths.
+
+Start again
+
+Tip: add the game to your home screen to play full screen.

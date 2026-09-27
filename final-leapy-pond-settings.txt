@@ -1,0 +1,198 @@
+Grown-up settings
+Child's name
+
+Used on the title screen and in cheers like “Well done, Sam!”. Leave it empty for no name.
+
+Your voice
+
+Record any line in your own voice. Tap ● to record, tap again to stop. Lines you don’t record use the built-in voice. Lines that are the same in other games, like “Yay!”, only need recording once. Recordings stay on this device only.
+
+0 of 60 lines recorded
+
+“Leapy Pond!”
+Title screen
+▶
+“Let's hop!”
+Pressing play
+▶
+“Tap a lily pad!”
+Waiting for a hop
+▶
+“Hop!”
+Hoppy jumps
+▶
+“Wheee!”
+Hoppy jumps
+▶
+“Boing!”
+Hoppy jumps
+▶
+“Slurp! A yummy fly!”
+Hoppy catches a fly
+▶
+“Splish splash!”
+Tapping the water
+▶
+“Fishy!”
+A fish jumps
+▶
+“Find the red flower!”
+Pick a colour
+▶
+“Find the orange flower!”
+Pick a colour
+▶
+“Find the yellow flower!”
+Pick a colour
+▶
+“Find the blue flower!”
+Pick a colour
+▶
+“Find the purple flower!”
+Pick a colour
+▶
+“Find the pink flower!”
+Pick a colour
+▶
+“Red!”
+Naming the colour
+▶
+“Orange!”
+Naming the colour
+▶
+“Yellow!”
+Naming the colour
+▶
+“Blue!”
+Naming the colour
+▶
+“Purple!”
+Naming the colour
+▶
+“Pink!”
+Naming the colour
+▶
+“That one's red!”
+Tapping another colour
+▶
+“That one's orange!”
+Tapping another colour
+▶
+“That one's yellow!”
+Tapping another colour
+▶
+“That one's blue!”
+Tapping another colour
+▶
+“That one's purple!”
+Tapping another colour
+▶
+“That one's pink!”
+Tapping another colour
+▶
+“Stepping stones! Let's count!”
+A row of little hops
+▶
+“One!”
+Counting hops
+▶
+“Two!”
+Counting hops
+▶
+“Three!”
+Counting hops
+▶
+“Four!”
+Counting hops
+▶
+“Five!”
+Counting hops
+▶
+“Nearly there!”
+One hop to go
+▶
+“Who's that?”
+Someone waits at the end
+▶
+“A new friend!”
+Meeting someone new
+▶
+“A duckling! Quack quack!”
+Pond friends
+▶
+“Hello, turtle!”
+Pond friends
+▶
+“A dragonfly! Zoom zoom!”
+Pond friends
+▶
+“A snail! Slowly, slowly!”
+Pond friends
+▶
+“A goldfish! Blub blub!”
+Pond friends
+▶
+“A spotty ladybird!”
+Pond friends
+▶
+“Tadpoles! Wiggle wiggle!”
+Pond friends
+▶
+“A butterfly! Flutter flutter!”
+Pond friends
+▶
+“A bumblebee! Buzz buzz!”
+Pond friends
+▶
+“A beautiful swan!”
+Pond friends
+▶
+“An otter! Splish splosh!”
+Pond friends
+▶
+“A baby frog! Ribbit!”
+Pond friends
+▶
+“Let's take them home!”
+After meeting a friend
+▶
+“You found every friend!”
+All 12 friends met
+▶
+“Yay!”
+Cheering
+▶
+“Wow!”
+Cheering
+▶
+“Well done!”
+Cheering
+▶
+“You did it!”
+Cheering
+▶
+“Ribbit!”
+Tapping Hoppy
+▶
+“Hi! I'm Hoppy!”
+Tapping Hoppy on the title
+▶
+“Your pond friends!”
+Opening your pond
+▶
+“No friends yet. Let's hop!”
+Your pond with nobody in it yet
+▶
+“Look! Someone new!”
+A new friend in your pond
+▶
+“A sticker for your book!”
+Earning a sticker for the sticker book
+▶
+Pond friends
+
+0 of 12 friends met, 0 trips across the pond, 0 flies caught.
+
+Start a new pond
+
+Tip: add the game to your home screen to play full screen.

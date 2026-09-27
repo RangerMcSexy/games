@@ -1,0 +1,132 @@
+Grown-up settings
+Child's name
+
+Used on the title screen, the gallery sign and in cheers like “You did it, Sam!”. Leave it empty for no name.
+
+Your voice
+
+Record any line in your own voice. Tap ● to record, tap again to stop. Lines you don’t record use the built-in voice. Lines that are the same in other games, like “Yay!”, only need recording once. Recordings stay on this device only.
+
+0 of 38 lines recorded
+
+“Colour Splash!”
+Title screen
+▶
+“Let's paint!”
+Pressing play
+▶
+“Pick a picture!”
+Choosing a picture
+▶
+“More pictures!”
+Showing the next pictures
+▶
+“Sunshine!”
+Naming pictures
+▶
+“Fishy!”
+Naming pictures
+▶
+“Butterfly!”
+Naming pictures
+▶
+“House!”
+Naming pictures
+▶
+“Car! Beep beep!”
+Naming pictures
+▶
+“Flower!”
+Naming pictures
+▶
+“Kitty!”
+Naming pictures
+▶
+“Ice cream!”
+Naming pictures
+▶
+“Rainbow!”
+Naming pictures
+▶
+“Rocket!”
+Naming pictures
+▶
+“Duckie! Quack!”
+Naming pictures
+▶
+“Dino! Roar!”
+Naming pictures
+▶
+“Tap to paint!”
+Starting a picture
+▶
+“Pink!”
+Naming colours
+▶
+“Red!”
+Naming colours
+▶
+“Orange!”
+Naming colours
+▶
+“Yellow!”
+Naming colours
+▶
+“Green!”
+Naming colours
+▶
+“Blue!”
+Naming colours
+▶
+“Purple!”
+Naming colours
+▶
+“Brown!”
+Naming colours
+▶
+“Rainbow colours!”
+Naming colours
+▶
+“Wow!”
+Cheering while painting
+▶
+“So pretty!”
+Cheering while painting
+▶
+“Lovely colours!”
+Cheering while painting
+▶
+“Magic!”
+The magic star paints for you
+▶
+“You did it!”
+A picture is finished
+▶
+“Look! It's moving!”
+The picture comes alive
+▶
+“Your pictures!”
+Opening the gallery
+▶
+“No pictures yet. Let's paint!”
+Gallery with no pictures yet
+▶
+“Look! Something new!”
+A gallery surprise unlocked
+▶
+“Splat!”
+Tapping the gallery wall
+▶
+“Yay!”
+Cheering
+▶
+“A sticker for your book!”
+Earning a sticker for the sticker book
+▶
+Gallery
+
+0 pictures painted so far.
+
+Start a new gallery
+
+Tip: add the game to your home screen to play full screen.

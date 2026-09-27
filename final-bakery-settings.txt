@@ -1,0 +1,201 @@
+Grown-up settings
+Child's name
+
+Used on the title screen, the shop sign and in cheers like “Thank you, Sam!”. Leave it empty for no name.
+
+Your voice
+
+Record any line in your own voice. Tap ● to record, tap again to stop. Lines you don’t record use the built-in voice. Lines that are the same in other games, like “Yay!”, only need recording once. Recordings stay on this device only.
+
+0 of 61 lines recorded
+
+“Bakery!”
+Title screen
+▶
+“Let's bake!”
+Pressing play
+▶
+“Hello, Bear!”
+Bear comes in
+▶
+“Hello, Hippo!”
+Hippo comes in
+▶
+“Hello, Bunny!”
+Bunny comes in
+▶
+“Hello, Piggy!”
+Piggy comes in
+▶
+“Hello, Elephant!”
+Elephant comes in
+▶
+“Hello, Dino!”
+Dino comes in
+▶
+“Hello, Owl!”
+Owl comes in
+▶
+“Hello, Kitty!”
+Kitty comes in
+▶
+“I would like…”
+A customer says what they want
+▶
+“Please!”
+After the customer’s wish
+▶
+“What shall we bake?”
+Choosing cake, cupcake or cookie
+▶
+“Cake!”
+Naming things
+▶
+“Cupcake!”
+Naming things
+▶
+“Cookie!”
+Naming things
+▶
+“Crack the eggs!”
+Three eggs to tap
+▶
+“Whoops! Come back, egg!”
+Silly: an egg rolls away
+▶
+“Shake in the sugar!”
+The sugar shaker (three taps)
+▶
+“Mmm, sweet!”
+After the sugar
+▶
+“Tap the flour!”
+Pouring the flour
+▶
+“Achoo! Bless you!”
+Silly: the mouse sneezes
+▶
+“Pick a colour!”
+Choosing a colour
+▶
+“Pink!”
+Naming colours
+▶
+“Yellow!”
+Naming colours
+▶
+“Blue!”
+Naming colours
+▶
+“Green!”
+Naming colours
+▶
+“Purple!”
+Naming colours
+▶
+“Chocolate!”
+Naming colours
+▶
+“Stir, stir, stir!”
+Stirring the bowl
+▶
+“Mmm! Tasty!”
+Silly: the mouse tastes the batter
+▶
+“Pick a shape!”
+Choosing a shape
+▶
+“Circle!”
+Naming shapes
+▶
+“Heart!”
+Naming shapes
+▶
+“Star!”
+Naming shapes
+▶
+“Close the oven!”
+Putting it in the oven
+▶
+“Tick, tock…”
+Waiting for the oven
+▶
+“Ding! Open the oven!”
+The oven is done
+▶
+“Whoa! So big!”
+Silly: it puffs up too much
+▶
+“Pick the icing!”
+Choosing icing
+▶
+“Shake the sprinkles!”
+Sprinkles
+▶
+“What goes on top?”
+Choosing a topping
+▶
+“A cherry!”
+Cherry on top
+▶
+“A strawberry!”
+Strawberry on top
+▶
+“Candles! Let's count!”
+Candles on top
+▶
+“Blow out the candles!”
+After three candles
+▶
+“Tap to give it!”
+Serving the customer
+▶
+“Mmm! Yummy!”
+A customer eats
+▶
+“Just what I wanted!”
+It matched the wish
+▶
+“Thank you!”
+The customer says thanks
+▶
+“Bye-bye!”
+The customer leaves
+▶
+“Your bakery shop!”
+Opening the shop window
+▶
+“The shelves are empty. Let's bake!”
+Shop with no treats yet
+▶
+“Look! Something new!”
+A shop surprise unlocked
+▶
+“Night night, bakery!”
+Shop switched to night
+▶
+“Good morning, bakery!”
+Shop switched to day
+▶
+“Yay!”
+Cheering
+▶
+“One!”
+Counting
+▶
+“Two!”
+Counting
+▶
+“Three!”
+Counting
+▶
+“A sticker for your book!”
+Earning a sticker for the sticker book
+▶
+Shop window
+
+0 treats baked so far.
+
+Start a new shop window
+
+Tip: add the game to your home screen to play full screen.
