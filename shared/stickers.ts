@@ -122,9 +122,9 @@ export const BOOK: BookPage[] = [
     count: 'letters',
     stickers: [
       { id: 'pip-postie', name: 'Pip the postie!', at: 1 },
-      { id: 'parcel', name: 'A parcel!', at: 3 },
-      { id: 'postbox', name: 'A post box!', at: 6 },
-      { id: 'letter-blocks', name: 'Letter blocks!', at: 12 },
+      { id: 'parcel', name: 'A parcel!', at: 4 },
+      { id: 'postbox', name: 'A post box!', at: 12 },
+      { id: 'letter-blocks', name: 'Letter blocks!', at: 26 },
     ],
   },
 ];

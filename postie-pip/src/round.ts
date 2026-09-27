@@ -11,6 +11,9 @@
 // - draw a letter by tapping its dots,
 // - and at the end, a parcel for the child: the letter friend just learned.
 //
+// A new letter comes along every round or so, until the whole alphabet has
+// moved into the street.
+//
 // Nothing can go wrong: a wrong door opens a crack, its friend peeps out and
 // says their own letter, and then the hand points the way.
 import { ICONS, LETTER_BOX, STROKES, friendSVG, letterSVG } from './art';
@@ -230,7 +233,8 @@ export async function roundScreen(host: Host): Promise<'again' | 'street'> {
       inks[s].style.strokeDashoffset = String(len);
       const start = guides[s].getPointAtLength(0);
       mk('circle', { cx: start.x, cy: start.y, r: 4.5, class: 'start' });
-      const k = Math.max(2, Math.round(len / 34));
+      // (The dot on an i or a j is a single tap.)
+      const k = len < 8 ? 1 : Math.max(2, Math.round(len / 34));
       for (let j = 1; j <= k; j++) {
         const at = (len * j) / k;
         const p = guides[s].getPointAtLength(at);

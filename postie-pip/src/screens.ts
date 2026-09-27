@@ -113,7 +113,8 @@ export async function streetScreen(host: Host): Promise<'play'> {
   const fresh = new Set(unseenLetters());
   backdrop(sc.root);
   const wall = el('div', 'streets', sc.root);
-  const houses = FRIENDS.map((f) => {
+  // In alphabet order: the street is an alphabet to tap along.
+  const houses = [...FRIENDS].sort((a, b) => a.letter.localeCompare(b.letter)).map((f) => {
     const got = save.letters.includes(f.letter);
     const h = new House(wall, got ? f.letter : null);
     if (fresh.has(f.letter)) h.el.classList.add('new');
@@ -129,21 +130,22 @@ export async function streetScreen(host: Host): Promise<'play'> {
     return h;
   });
 
-  // Rows of houses along little streets: two rows of six, or four of three
-  // on a tall screen.
+  // Rows of houses along little streets, as many to a row as makes the
+  // houses biggest on this screen.
   const arrange = () => {
-    const W = sc.root.clientWidth || innerWidth;
-    const H = sc.root.clientHeight || innerHeight;
-    const cols = H > W ? 3 : 6;
-    const rows = 12 / cols;
     wall.innerHTML = '';
-    for (let r = 0; r < rows; r++) {
-      const row = el('div', 'street-row', wall);
-      houses.slice(r * cols, (r + 1) * cols).forEach((h) => row.append(h.el));
-    }
     const box = wall.getBoundingClientRect();
-    const size = Math.min((box.width / cols) * 0.86, (box.height / rows / 1.25) * 0.86, 200);
-    wall.style.setProperty('--house', `${Math.floor(size)}px`);
+    const fit = (cols: number) => {
+      const rows = Math.ceil(houses.length / cols);
+      return Math.min((box.width / cols) * 0.86, (box.height / rows / 1.25) * 0.8, 200);
+    };
+    let cols = 3;
+    for (let c = 4; c <= 13; c++) if (fit(c) > fit(cols)) cols = c;
+    for (let i = 0; i < houses.length; i += cols) {
+      const row = el('div', 'street-row', wall);
+      houses.slice(i, i + cols).forEach((h) => row.append(h.el));
+    }
+    wall.style.setProperty('--house', `${Math.floor(fit(cols))}px`);
   };
   arrange();
   sc.on(window, 'resize', arrange);

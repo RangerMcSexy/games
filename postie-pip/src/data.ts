@@ -1,4 +1,4 @@
-// Game data: the twelve letter friends who live on the street, and the
+// Game data: the 26 letter friends who live on the street, and the
 // saved game, including how sure the child is of each letter.
 
 import { storeName, storedName } from '../../shared/ask-name';
@@ -16,8 +16,9 @@ export interface Friend {
 }
 
 /**
- * Met in this order, a new one every round or so. Easy, different-looking
- * letters come first; b, d and p (easy to mix up) are kept well apart.
+ * The whole alphabet, met in this order, a new one every round or so.
+ * Common, different-looking letters come first and rare ones (q, x) last;
+ * letters that are easy to mix up are kept well apart.
  */
 export const FRIENDS: Friend[] = [
   { letter: 's', animal: 'snake', name: 'Snake', wall: '#d4f3c4', roof: '#5fbf6a', door: '#ffd84a' },
@@ -32,13 +33,27 @@ export const FRIENDS: Friend[] = [
   { letter: 'f', animal: 'fox', name: 'Fox', wall: '#ffe9d4', roof: '#d9703a', door: '#4ea8f5' },
   { letter: 'e', animal: 'elephant', name: 'Elephant', wall: '#e4ebf6', roof: '#7d8fb3', door: '#ffd84a' },
   { letter: 'b', animal: 'bear', name: 'Bear', wall: '#f3e4d3', roof: '#a8703f', door: '#7fd35b' },
+  { letter: 'r', animal: 'rabbit', name: 'Rabbit', wall: '#ffe4ef', roof: '#e85d8a', door: '#7fd35b' },
+  { letter: 'n', animal: 'narwhal', name: 'Narwhal', wall: '#dff1fb', roof: '#3f8fd1', door: '#ffd84a' },
+  { letter: 'g', animal: 'goat', name: 'Goat', wall: '#f1f6d8', roof: '#8cb33f', door: '#ff94c8' },
+  { letter: 'i', animal: 'iguana', name: 'Iguana', wall: '#e2f7d9', roof: '#4fae5a', door: '#ffa24a' },
+  { letter: 'l', animal: 'lion', name: 'Lion', wall: '#fff0cc', roof: '#e89a2c', door: '#5eaaff' },
+  { letter: 'k', animal: 'koala', name: 'Koala', wall: '#e8ecf2', roof: '#8a98ad', door: '#ff6b6b' },
+  { letter: 'u', animal: 'unicorn', name: 'Unicorn', wall: '#fbe6ff', roof: '#c77ce8', door: '#ffd84a' },
+  { letter: 'j', animal: 'jellyfish', name: 'Jellyfish', wall: '#ffe6f4', roof: '#f26bb5', door: '#4fc4bb' },
+  { letter: 'w', animal: 'walrus', name: 'Walrus', wall: '#efe3da', roof: '#9c6b52', door: '#5eaaff' },
+  { letter: 'z', animal: 'zebra', name: 'Zebra', wall: '#eeeef4', roof: '#5b5f7a', door: '#ff94c8' },
+  { letter: 'y', animal: 'yak', name: 'Yak', wall: '#f6eadf', roof: '#b3753e', door: '#6fcf6a' },
+  { letter: 'v', animal: 'vulture', name: 'Vulture', wall: '#ffe8e0', roof: '#d0603f', door: '#b184f5' },
+  { letter: 'q', animal: 'quail', name: 'Quail', wall: '#f7ecd9', roof: '#c28a3c', door: '#4ea8f5' },
+  { letter: 'x', animal: 'xrayfish', name: 'X-ray Fish', wall: '#dcf3f7', roof: '#36a9bf', door: '#ffa24a' },
 ];
 
 export const friendOf = (letter: string) => FRIENDS.find((f) => f.letter === letter);
 
-/** Letters that look alike, never on doors side by side. */
-const LOOKALIKES = ['b', 'd', 'p'];
-export const lookAlike = (a: string, b: string) => a !== b && LOOKALIKES.includes(a) && LOOKALIKES.includes(b);
+/** Letters that look alike (turned round or upside down), never on doors side by side. */
+const LOOKALIKES = [['b', 'd', 'p', 'q'], ['g', 'q'], ['n', 'u'], ['m', 'w'], ['i', 'j']];
+export const lookAlike = (a: string, b: string) => a !== b && LOOKALIKES.some((g) => g.includes(a) && g.includes(b));
 
 /** How sure the child is of a letter: 0 (new) to 5 (knows it well). */
 export const MAX_SCORE = 5;

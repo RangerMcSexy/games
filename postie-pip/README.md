@@ -42,20 +42,25 @@ question is asked again and a hand points at the right door.
   well.
 - **Letter, word and picture together.** Every door has a friend behind it
   who starts with that letter, and says so every time.
-- **Easily mixed-up letters are kept apart.** b, d and p are never on doors
-  side by side, and are learned far apart.
+- **Easily mixed-up letters are kept apart.** b, d, p and q; g and q; n and
+  u; m and w; i and j are never on doors side by side, and are learned far
+  apart.
 - **Each letter has its own house colour**, always the same, but the parcel
   shows only the letter, so it's the letter that's matched.
 
 The grown-up settings (hold the gear) show which letters are known well and
 which are still being practised.
 
-## The 12 letters
+## All 26 letters
 
 In the order they're met: **s** snake, **a** ant, **t** tiger, **m** mouse,
 **p** pig, **o** octopus, **c** cat, **h** hen, **d** dog, **f** fox,
-**e** elephant, **b** bear. They're written in lower case, the way children
-first learn them, with a single-storey "a".
+**e** elephant, **b** bear, **r** rabbit, **n** narwhal, **g** goat,
+**i** iguana, **l** lion, **k** koala, **u** unicorn, **j** jellyfish,
+**w** walrus, **z** zebra, **y** yak, **v** vulture, **q** quail and
+**x** x-ray fish. Common letters come first, rare ones (q, x) last. They're
+written in lower case, the way children first learn them, with a
+single-storey "a" and "g".
 
 Letters are said by their names ("S is for snake!"). If you'd rather use
 letter sounds ("sss is for snake!"), record those lines in your own voice
@@ -63,9 +68,10 @@ in the grown-up settings.
 
 ## Your street
 
-The house button on the title screen shows the whole street: a house for
-each letter learned (tap one and its friend comes out), and empty houses
-with a question mark waiting for someone to move in.
+The house button on the title screen shows the whole street, in alphabet
+order from a to z: a house for each letter learned (tap one and its friend
+comes out), and empty houses with a question mark waiting for someone to
+move in.
 
 ## Run it
 

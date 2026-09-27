@@ -11,7 +11,7 @@ Little browser games for little ones (about ages 2 to 4).
 | [🐸 Leapy Pond](leapy-pond/) | Hop across a big pond with Hoppy the frog: catch flies, find flowers by colour, count stepping stones, and meet 12 pond friends who come to live in your pond. For ages 2 to 4. |
 | [🦄 Unicorn Dash](unicorn-dash/) | Dash across a sunny meadow with Sparkle the unicorn: tap to jump logs and fences, catch stars, pop balloons by colour, count jumps, and open a present at the end of every dash to find 12 things to dress her up in. For ages 2 to 4. |
 | [🦆 Ducky Bath](ducky-bath/) | Bath time with Ducky: turn on the tap, squeeze in the bubbles, squeak ducks by colour, count the little ducks, scrub off the mud and find Baby Duck hiding in the foam. Pull the plug at the end, and a big bubble floats up with one of 12 rubber ducks to line up on the shelf. For ages 2 to 4. |
-| [📮 Postie Pip](postie-pip/) | Deliver the post with Pip the penguin: match the letter on each parcel to the letter on a door, and the friend who lives there comes out for it ("S is for snake!"). Learn 12 letters one at a time, draw them by tapping dots, and fill a street with letter friends. For ages 2½ to 4. |
+| [📮 Postie Pip](postie-pip/) | Deliver the post with Pip the penguin: match the letter on each parcel to the letter on a door, and the friend who lives there comes out for it ("S is for snake!"). Learn the whole alphabet one letter at a time, draw each one by tapping dots, and fill a street with 26 letter friends. For ages 2½ to 4. |
 
 ## Play them all (recommended)
 

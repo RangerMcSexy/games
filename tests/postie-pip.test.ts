@@ -67,15 +67,15 @@ describe('Postie Pip', () => {
     expect(again.save.scores).toEqual({ s: 1, m: again.MAX_SCORE });
   });
 
-  it('has a letter drawn, a house and a friend for all twelve, in the order they come', async () => {
+  it('has the whole alphabet, each letter drawn with a friend, in the order they come', async () => {
     const d = await open();
     const { STROKES } = await import('../postie-pip/src/art.ts');
-    expect(d.FRIENDS).toHaveLength(12);
+    expect(d.FRIENDS.map((f) => f.letter).sort().join('')).toBe('abcdefghijklmnopqrstuvwxyz');
     for (const f of d.FRIENDS) {
       expect(STROKES[f.letter], f.letter).toBeDefined();
       expect(f.animal[0], f.animal).toBe(f.letter);
     }
-    // b, d and p, easy to mix up, never come one after another.
+    // Letters easy to mix up (b, d, p, q; n and u...) never come one after another.
     const order = d.FRIENDS.map((f) => f.letter);
     for (let i = 1; i < order.length; i++) expect(d.lookAlike(order[i - 1], order[i])).toBe(false);
   });
