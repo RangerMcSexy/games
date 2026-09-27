@@ -390,18 +390,6 @@ function cupcakeSVG(t: TreatLook, o: TreatOpts, rnd: () => number): string {
       }
       out += `<g class="sprinkles">${sprinkleBits(pts, rnd, 1, 1, 0, 0)}</g>`;
     }
-    // A little shaped cookie stuck in the icing shows the shape choice.
-    const sc = bakedTop(t.batter);
-    out += `<g transform="translate(40,${wrapTop - 46}) rotate(16)">
-      <path d="${shapePath(t.shape, 17, 17, 0, 3)}" fill="${mix(sc, INK, 0.3)}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-      <path d="${shapePath(t.shape, 17, 17)}" fill="${sc}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-      <path d="${shapePath(t.shape, 11, 11)}" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="3 4" opacity=".8"/>
-    </g>`;
-  } else if (baked && t.shape) {
-    // Before icing, the shape is pressed into the top of the muffin.
-    out += `<path d="${shapePath(t.shape, 16, 9, 0, wrapTop - domeH * 0.55)}" fill="none" stroke="${mix(domeC, INK, 0.35)}" stroke-width="3" stroke-linejoin="round"/>`;
-  } else if (!baked) {
-    out += `<path d="${shapePath(t.shape, 16, 8, 0, wrapTop - domeH * 0.4)}" fill="none" stroke="#fff" stroke-width="3" opacity=".7"/>`;
   }
   if (baked && t.icing) out += topperSVG(t, 0, peak + 6, 18);
   return out;

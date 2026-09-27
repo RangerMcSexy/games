@@ -30,11 +30,13 @@ import {
   SHAPES,
   TOPPERS,
   addTreat,
+  hasShape,
   matchesWish,
   save,
   uid,
   type AnimalId,
   type ColorId,
+  type ShapeId,
   type Treat,
   type Wish,
 } from './data';
@@ -52,7 +54,7 @@ export interface BakeHost {
 
 export type BakeEnd = 'shop' | 'again';
 
-const STEPS: SpriteName[] = ['egg', 'candy', 'glass-of-milk', 'spoon', 'fire', 'sparkles'];
+const STEPS: SpriteName[] = ['egg', 'candy', 'artist-palette', 'spoon', 'fire', 'sparkles'];
 
 /** A big number that pops up while counting. */
 function countPop(target: Element, n: number) {
@@ -132,7 +134,8 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
   // --- The customer comes in -----------------------------------------------
   const last = save.treats[save.treats.length - 1]?.customer;
   const animal: AnimalId = pick(ANIMALS.filter((a) => a !== last));
-  const wish: Wish = { kind: pick(KINDS), shape: pick(SHAPES), color: pick(COLORS) };
+  const wishKind = pick(KINDS);
+  const wish: Wish = { kind: wishKind, shape: hasShape(wishKind) ? pick(SHAPES) : 'round', color: pick(COLORS) };
   const customer = el('div', `customer an-${animal}`, view, animalSVG(animal));
   customer.addEventListener('pointerdown', (e) => {
     e.preventDefault();
@@ -154,7 +157,7 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
   bubble.innerHTML = `<div class="bubble-body">${treatSVG(wishLook, { plate: true })}</div><i class="bubble-dot d1"></i><i class="bubble-dot d2"></i>`;
   bubble.classList.add('show');
   sound.bloop(4);
-  await sc.until(sayAll(['wish', wish.color, wish.shape, wish.kind]), 7000);
+  await sc.until(sayAll(hasShape(wish.kind) ? ['wish', wish.color, wish.shape, wish.kind] : ['wish', wish.color, wish.kind]), 7000);
 
   // --- What shall we bake? -------------------------------------------------
   void say('whatBake');
@@ -304,13 +307,16 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
   }
   spoon.remove();
 
-  // --- 5. Shape, then into the oven -----------------------------------------
+  // --- 5. Shape (a cake tin or cookie cutter), then into the oven ----------
+  // Cupcakes go straight into their round paper case.
   setStep(4);
-  void say('pickShape');
-  const shapePick = await choose(SHAPES, (s) => shapeSVG(s, batter), 'shape-choice', wish.shape);
-  const shape = shapePick.item;
-  void say(shape);
-  await clearChoices();
+  let shape: ShapeId = 'round';
+  if (hasShape(kind)) {
+    void say('pickShape');
+    shape = (await choose(SHAPES, (s) => shapeSVG(s, batter), 'shape-choice', wish.kind === kind ? wish.shape : undefined)).item;
+    void say(shape);
+    await clearChoices();
+  }
 
   const look: TreatLook = { kind, shape, batter, seed: uid() };
   const tinBox = el('div', 'treat-box tin-box', bench, treatSVG(look, { stage: 'raw', tin: true, rise: 0.15 }));
