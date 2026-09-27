@@ -1007,7 +1007,7 @@ svg {
 .rim-layer {
   z-index: 2;
 }
-.water {
+.water-layer {
   z-index: 3;
 }
 .float-layer {
@@ -1138,27 +1138,29 @@ svg {
   animation: streamFlow 0.25s linear infinite;
 }
 
-.water {
-  position: absolute;
-  left: 5.4%;
-  right: 5.4%;
-  overflow: hidden;
-  pointer-events: none;
-  border-top: 3px solid #fff;
-  background: linear-gradient(180deg, #c6ecff 0, rgba(124, 200, 240, 0.86) 10px, rgba(94, 178, 230, 0.93) 60%);
+/* Light dancing on the water. */
+.w-glints {
+  animation: glints 7s ease-in-out infinite alternate;
 }
-.water-glint {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 6px;
-  height: 120px;
-  background-image:
-    radial-gradient(ellipse 34px 4px at 20% 12%, rgba(255, 255, 255, 0.75), transparent),
-    radial-gradient(ellipse 22px 3px at 70% 40%, rgba(255, 255, 255, 0.6), transparent),
-    radial-gradient(ellipse 28px 3.5px at 45% 75%, rgba(255, 255, 255, 0.55), transparent);
-  background-size: 260px 120px;
-  animation: glint 9s linear infinite;
+.water-layer {
+  transition: opacity 0.3s;
+}
+
+/* On a tall phone the ducks found sit on a shelf on the wall above the bath. */
+.duck-plank {
+  display: none;
+  height: clamp(10px, 2.2vmin, 16px);
+  border-radius: 6px;
+  background: #e0a96d;
+  border: 3px solid var(--plum);
+  box-shadow: 0 4px 0 rgba(74, 59, 107, 0.18);
+  pointer-events: none;
+}
+.duck-plank.on {
+  display: block;
+}
+.rim-duck.off {
+  display: none;
 }
 
 .floater {
@@ -1824,6 +1826,14 @@ svg {
     opacity: 1;
   }
 }
+@keyframes glints {
+  from {
+    transform: translateX(-18px);
+  }
+  to {
+    transform: translateX(18px);
+  }
+}
 @keyframes swirl {
   from {
     transform: scaleY(0.35) rotate(0);
@@ -1838,8 +1848,14 @@ svg {
 
 @media (orientation: portrait) {
   /* Tall screens have room on the wall for a window. */
+  /* Unless the shelf of ducks is up there. */
+  .bath-scene:has(.duck-plank.on) .window {
+    display: none;
+  }
   .bath-scene .window {
     display: block;
+    top: calc(var(--safe-top) + var(--bar) + 1.5vh);
+    width: clamp(64px, 21vw, 130px);
   }
   .title-scene {
     padding-top: calc(var(--safe-top) + var(--bar) + 2vh);
@@ -1859,7 +1875,7 @@ svg {
   .logo-name,
   .play-btn,
   .reveal-rays,
-  .water-glint,
+  .w-glints,
   .bb-inside,
   .tap.live svg,
   .bottle.live svg,

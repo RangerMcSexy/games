@@ -3,7 +3,7 @@
 import { ICONS, bubbleSVG, duckSVG } from './art';
 import { sound } from './audio';
 import { ITEMS, markItemsSeen, playerName, save, unseenItems } from './data';
-import { FULL, Tub, roomBg } from './tub';
+import { Tub, roomBg } from './tub';
 import { Scene, burst, burstAt, center, el, rand, replay } from './ui';
 import { say } from './voice';
 
@@ -31,14 +31,13 @@ export async function titleScreen(host: Host): Promise<'play' | 'shelf'> {
   const tub = new Tub(
     sc,
     bg,
-    (W, H) => {
-      const portrait = H > W;
+    (W, H, t) => {
       const btn = Math.min(180, Math.max(100, Math.min(W, H) * 0.22));
-      const w = portrait ? Math.min(W * 1.45, H * 0.62) : Math.min(W * 0.8, H * 1.05);
-      const below = portrait ? btn + 34 : H * 0.02;
-      return { w, left: (W - w) / 2, top: H - below - 0.52 * w };
+      const w = t.tall ? Math.min(W * 0.98, H * 0.55) : Math.min(W * 0.8, H * 1.05);
+      const below = t.tall ? btn + 34 : H * 0.02;
+      return { w, left: (W - w) / 2, top: H - below - (t.th / t.tw) * w };
     },
-    FULL,
+    { full: true, shelf: false },
   );
   tub.setRim(save.items.slice(-5));
   const ducky = tub.duck('ducky', 'hero', { x: tub.mid, d: 0.45, w: 210 });

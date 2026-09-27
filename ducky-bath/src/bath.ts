@@ -6,11 +6,11 @@
 //
 // Nothing can go wrong: a wrong duck or a wrong pile of bubbles just
 // wobbles, and a hand points the way after a few seconds.
-import { ICONS, bigBubbleSVG, bubbleSVG, colourLook, duckSVG, mudSVG, spongeSVG } from './art';
+import { ICONS, bigBubbleSVG, bubbleSVG, colourLook, duckSVG, mudSVG, spongeSVG, type TubShape } from './art';
 import { sound } from './audio';
 import { COLOURS, ITEMS, finishBath, nextItem, save, unseenItems, type Item } from './data';
 import { type Host } from './screens';
-import { EMPTY, FULL, Tub, type Floater } from './tub';
+import { Tub, type Floater } from './tub';
 import { HINT_MS, Scene, burst, burstAt, center, el, hint, pick, rand, replay, shuffle } from './ui';
 import { say, sayAll } from './voice';
 
@@ -33,39 +33,39 @@ export const rimIds = () => save.items.slice(-6);
 /** Room around the bath: the top bar above, the dots below. */
 const BOTTOM = 58;
 
-export function fitBath(W: number, H: number) {
+export function fitBath(W: number, H: number, t: TubShape) {
   const bar = document.querySelector('.top-bar')?.getBoundingClientRect().bottom ?? 70;
   const home = document.querySelector('.home-btn')?.getBoundingClientRect().right ?? 80;
-  const portrait = H > W;
-  // On a tall phone the bath is wider than the screen, its ends off the sides.
-  const maxW = W * (portrait ? 1.5 : 1);
-  // From the top of the tap to the bath's feet is about 690 units.
-  const SPAN = 0.69;
-  let w = Math.min(maxW, (H - BOTTOM - bar - 8) / SPAN);
+  // Above the bath: the tap, and on a tall phone the shelf of ducks found.
+  const span = t.th + (t.tall ? 250 : 150);
+  const maxW = W * (t.tall ? 0.98 : 1);
+  let w = Math.min(maxW, ((H - BOTTOM - bar - 8) / span) * t.tw);
   // If the tap keeps clear of the home button it can go up beside the top bar.
-  const w2 = Math.min(maxW, (H - BOTTOM - 8) / SPAN);
-  if (w2 > w && (W - w2) / 2 + 100 * (w2 / 1000) > home + 8) w = w2;
-  const u = w / 1000;
+  const w2 = Math.min(maxW, ((H - BOTTOM - 8) / span) * t.tw);
+  if (!t.tall && w2 > w && (W - w2) / 2 + 100 * (w2 / t.tw) > home + 8) w = w2;
+  const u = w / t.tw;
   // Stand it on the floor, a little up from the bottom on tall screens.
-  const spare = Math.max(0, H - BOTTOM - bar - 8 - SPAN * w);
-  return { w, left: (W - w) / 2, top: H - BOTTOM - 520 * u - spare * 0.3 };
+  const spare = Math.max(0, H - BOTTOM - bar - 8 - span * u);
+  return { w, left: (W - w) / 2, top: H - BOTTOM - t.th * u - spare * 0.35 };
 }
 
 export async function bathScreen(host: Host): Promise<'again' | 'shelf'> {
   const sc = new Scene(host.stage, 'bath-scene');
   host.setScene(sc);
 
-  const tub = new Tub(sc, sc.root, fitBath, EMPTY);
+  const tub = new Tub(sc, sc.root, fitBath);
   tub.setRim(rimIds());
   // Ducky waits at the back of the empty bath, where he can still be seen.
   const ducky = tub.duck('ducky', 'hero', { x: tub.mid, d: 0, w: 190 });
   const trail = el('div', 'trail', sc.root);
   // Something to point at when it's time to splash: the middle of the water.
   const waterMark = el('div', 'water-mark', tub.float);
-  const markWater = () => (waterMark.style.left = `${tub.mid / 10}%`);
+  const markWater = () => {
+    waterMark.style.left = tub.px(tub.mid);
+    waterMark.style.top = tub.py((tub.full + tub.shape.fy) / 2);
+  };
   markWater();
   sc.on(window, 'resize', markWater);
-  waterMark.style.top = `${((FULL + 60) / 520) * 100}%`;
 
   // Words: the game's own lines always get said; the odd happy word only
   // when nothing else is being said.
@@ -89,8 +89,8 @@ export async function bathScreen(host: Host): Promise<'again' | 'shelf'> {
 
   const ripple = (x: number, y: number, big: boolean) => {
     const r = el('div', `ripple${big ? ' big' : ''}`, tub.float);
-    r.style.left = `${x / 10}%`;
-    r.style.top = `${(y / 520) * 100}%`;
+    r.style.left = tub.px(x);
+    r.style.top = tub.py(y);
     setTimeout(() => r.remove(), 900);
   };
   const splashAt = (x: number, y: number, big: boolean) => {
@@ -173,7 +173,9 @@ export async function bathScreen(host: Host): Promise<'again' | 'shelf'> {
     }, delay);
 
   /** Ducky paddles to the back, out of the way of the little ducks, and back again. */
-  const park = () => tub.swim(ducky, tub.mid, 0, 900);
+  // (On a wide bath, off to the left by the tap, clear of the ducks on the
+  // rim; on a tall one a little right of the middle, clear of the plug chain.)
+  const park = () => tub.swim(ducky, tub.shape.tall ? tub.mid + 50 : 200, 0, 900);
   const unpark = () => tub.swim(ducky, tub.mid, 0.5, 900);
 
   // --- Filling the bath -------------------------------------------------------------------
@@ -189,11 +191,11 @@ export async function bathScreen(host: Host): Promise<'again' | 'shelf'> {
       sound.pour(1.4);
       tub.pour(true);
       const drops = window.setInterval(() => {
-        const p = tub.toClient(tub.spoutX, Math.min(tub.level, EMPTY) + 8);
+        const p = tub.toClient(tub.spoutX, Math.min(tub.level, tub.shape.fy - 110) + 8);
         burst(p.x, p.y, { kind: 'drop', count: 4, spread: 0.35, colors: WATER });
       }, 240);
       try {
-        await tub.setLevel(EMPTY - ((EMPTY - FULL) * (i + 1)) / 3, 1400);
+        await tub.setLevel(tub.empty - ((tub.empty - tub.full) * (i + 1)) / 3, 1400);
       } finally {
         clearInterval(drops);
         tub.pour(false);
@@ -250,8 +252,9 @@ export async function bathScreen(host: Host): Promise<'again' | 'shelf'> {
       const b = el('div', 'bubble live', tub.air, bubbleSVG());
       const x = tub.span(i / (n - 1)) + rand(-25, 25);
       const y = i % 2 ? rand(-10, 40) : rand(70, 120);
-      b.style.left = `${x / 10}%`;
-      b.style.top = `${(y / 520) * 100}%`;
+      b.style.left = tub.px(x);
+      b.style.top = tub.py(y);
+      b.style.width = tub.px(tub.shape.tall ? 140 : 110);
       b.style.animationDelay = `${i * 0.15}s, ${-rand(0, 2)}s`;
       return b;
     });
@@ -505,14 +508,15 @@ export async function bathScreen(host: Host): Promise<'again' | 'shelf'> {
     sound.glug();
     void talk('glug');
     const swirl = el('div', 'swirl', tub.float);
-    swirl.style.left = `${(tub.spoutX + 95) / 10}%`;
-    swirl.style.top = `${((tub.level + 40) / 520) * 100}%`;
-    await tub.setLevel(EMPTY, 2800);
+    swirl.style.left = tub.px(tub.spoutX + 100);
+    swirl.style.top = tub.py(tub.level + 60);
+    await tub.setLevel(tub.empty, 2800);
     swirl.remove();
     tub.plug.classList.remove('pulled');
 
     // Up from the plughole floats a big bubble, with a duck inside.
     const bubble = el('div', 'big-bubble live', tub.air, bigBubbleSVG(duckSVG(item.id)));
+    bubble.style.width = tub.px(tub.shape.tall ? 330 : 270);
     await sc.wait(1600);
     await speak(isNew ? 'present' : 'another', 4000);
     await sc.tap(bubble);
