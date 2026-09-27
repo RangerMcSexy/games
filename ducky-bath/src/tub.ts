@@ -2,19 +2,37 @@
 // plug, bubble bottle and sponge, the water (which can fill and drain), and
 // everything floating on it. Used by the title screen and by bath time.
 //
-// Everything in the bath is placed in the bath's own units (see TUB_W and
-// TUB_H in art.ts): 1000 across, with the back rim at the top and the front
-// rim at y = 232. Floating things sit on the water at a depth `d` from the
-// back (0) to the front (1), so a lower water level carries them down too.
-import { DUCK_WATER, FOAM_WATER, TUB_H, TUB_W, bottleSVG, duckSVG, foamSVG, plugSVG, spongeSVG, tapSVG, tubBackSVG, tubFrontSVG, windowSVG } from './art';
+// The bath is seen a little from above, so the water is a big rounded pool.
+// Everything in it is placed in the bath's own units (see TubShape in
+// art.ts). Floating things sit on the water at a depth `d` from the back (0)
+// to the front (1); when the water is low they sit on the bottom.
+import {
+  DUCK_WATER,
+  FOAM_WATER,
+  TALL_TUB,
+  WIDE_TUB,
+  bottleSVG,
+  duckSVG,
+  foamSVG,
+  plugSVG,
+  spongeSVG,
+  tapSVG,
+  tubBackSVG,
+  tubFrontSVG,
+  tubParts,
+  windowSVG,
+  type TubShape,
+} from './art';
 import { Scene, el } from './ui';
 
-/** Water levels: where the water meets the back of the bath. */
-export const FULL = 120;
-export const EMPTY = 275;
+/** The water line at the back of the bath when it's full. */
+const FULL = 96;
+/** The top of the rim, where the tap, plug and ducks stand. */
+const RIM_Y = 34;
 /** Where the water comes out of the tap. */
-const SPOUT_Y = -40;
-const FLOOR_Y = 430;
+const SPOUT_Y = RIM_Y - 94;
+/** The shelf on the wall above the bath, on a tall phone. */
+const SHELF_Y = -178;
 
 export interface Floater {
   el: HTMLElement;
@@ -41,14 +59,6 @@ export function roomBg(parent: HTMLElement) {
   return room;
 }
 
-/** Put `e` at (x, y) in bath units, `w` wide, with its own point (ax, ay) there. */
-function anchorAt(e: HTMLElement, x: number, y: number, w: number, ax = 0.5, ay = 1) {
-  e.style.left = `${(x / TUB_W) * 100}%`;
-  e.style.top = `${(y / TUB_H) * 100}%`;
-  e.style.width = `${(w / TUB_W) * 100}%`;
-  e.style.translate = `${-ax * 100}% ${-ay * 100}%`;
-}
-
 export class Tub {
   readonly room: HTMLElement;
   readonly box: HTMLElement;
@@ -61,19 +71,24 @@ export class Tub {
   readonly float: HTMLElement;
   readonly props: HTMLElement;
   readonly air: HTMLElement;
+  private back: HTMLElement;
+  private front: HTMLElement;
   private rim: HTMLElement;
   private stream: HTMLElement;
   private water: HTMLElement;
+  private waterBody?: SVGRectElement;
+  private waterTop?: SVGGElement;
+  private plank: HTMLElement;
+  private showShelf: boolean;
+  /** The bath's shape (wide, or tall for phones held upright). */
+  shape: TubShape = WIDE_TUB;
   /** One bath unit in pixels. */
   u = 1;
-  /** The part of the bath on the screen (on a tall phone its ends are off the sides). */
-  x0 = 0;
-  x1 = TUB_W;
   /** Where the tap pours. */
   spoutX = 237;
-  private a = 245;
-  private b = 790;
-  level: number;
+  private a = 250;
+  private b = 770;
+  level = FULL;
   floaters: Floater[] = [];
   private levelTween?: { from: number; to: number; t0: number; ms: number; done?: () => void };
   private rimDucks: HTMLElement[] = [];
@@ -81,27 +96,29 @@ export class Tub {
   constructor(
     private sc: Scene,
     parent: HTMLElement,
-    private fit: (W: number, H: number) => { w: number; left: number; top: number },
-    level = EMPTY,
+    private fit: (W: number, H: number, t: TubShape) => { w: number; left: number; top: number },
+    opts: { full?: boolean; shelf?: boolean } = {},
   ) {
-    this.level = level;
+    this.showShelf = opts.shelf ?? true;
     this.room = roomBg(parent);
     const box = (this.box = el('div', 'tub', parent));
-    el('div', 'tub-layer back-layer', box, tubBackSVG());
+    this.back = el('div', 'tub-layer back-layer', box);
     this.rim = el('div', 'tub-layer rim-layer', box);
+    this.plank = el('div', 'duck-plank', this.rim);
     this.stream = el('div', 'stream', this.rim);
     this.plug = el('div', 'plug', this.rim, plugSVG());
     this.plugRing = el('div', 'plug-ring', this.plug);
     this.tap = el('div', 'tap', this.rim, tapSVG());
-    this.water = el('div', 'water', box);
-    el('div', 'water-glint', this.water);
+    this.water = el('div', 'tub-layer water-layer', box);
     this.float = el('div', 'tub-layer float-layer', box);
-    el('div', 'tub-layer front-layer', box, tubFrontSVG());
+    this.front = el('div', 'tub-layer front-layer', box);
     this.props = el('div', 'tub-layer props-layer', box);
     this.sponge = el('div', 'sponge', this.props, spongeSVG());
     this.bottle = el('div', 'bottle', this.props, bottleSVG());
     this.air = el('div', 'tub-layer air-layer', box);
 
+    this.pickShape();
+    this.level = opts.full ? this.full : this.empty;
     this.layout();
     sc.on(window, 'resize', () => this.layout());
     let raf = 0;
@@ -113,40 +130,126 @@ export class Tub {
     sc.addCleanup(() => cancelAnimationFrame(raf));
   }
 
-  layout() {
+  /** Water levels: where the water meets the back of the bath. */
+  get full() {
+    return FULL;
+  }
+  get empty() {
+    return this.shape.fy + 6;
+  }
+
+  private size() {
     const parent = this.box.parentElement!;
-    const W = parent.clientWidth || innerWidth;
-    const H = parent.clientHeight || innerHeight;
-    const { w, left, top } = this.fit(W, H);
-    this.u = w / TUB_W;
-    Object.assign(this.box.style, { left: `${left}px`, top: `${top}px`, width: `${w}px`, height: `${(w * TUB_H) / TUB_W}px` });
+    return { W: parent.clientWidth || innerWidth, H: parent.clientHeight || innerHeight };
+  }
+
+  /** Wide, or tall on a phone held upright. Redraws the bath if it changed. */
+  private pickShape() {
+    const { W, H } = this.size();
+    const next = H > W * 1.15 ? TALL_TUB : WIDE_TUB;
+    if (next === this.shape && this.back.childElementCount) return;
+    const before = this.shape;
+    this.shape = next;
+    this.back.innerHTML = tubBackSVG(next);
+    this.front.innerHTML = tubFrontSVG(next);
+    this.buildWater();
+    this.box.classList.toggle('tall', next.tall);
+    if (before === next) return;
+    // Turned round: keep the water as full as it was, and everything afloat
+    // in the bath.
+    const lvl = (to: number) => next.fy + 6 - ((before.fy + 6 - to) / (before.fy + 6 - FULL)) * (next.fy + 6 - FULL);
+    this.level = lvl(this.level);
+    if (this.levelTween) {
+      this.levelTween.from = lvl(this.levelTween.from);
+      this.levelTween.to = lvl(this.levelTween.to);
+    }
+    const across = (x: number) => ((x - 44) / (before.tw - 88)) * (next.tw - 88) + 44;
+    for (const f of this.floaters) {
+      f.x = across(f.x);
+      if (f.swim) {
+        f.swim.x0 = across(f.swim.x0);
+        f.swim.x1 = across(f.swim.x1);
+      }
+    }
+  }
+
+  private buildWater() {
+    const t = this.shape;
+    const { inner, r } = tubParts(t);
+    const id = `wt${Math.random().toString(36).slice(2, 8)}`;
+    const glints = [
+      [0.22, 40, 34],
+      [0.62, 86, 26],
+      [0.4, 150, 40],
+      [0.82, 190, 22],
+      [0.12, 240, 28],
+      [0.55, 280, 30],
+    ];
+    this.water.innerHTML = `<svg viewBox="0 0 ${t.tw} ${t.th}" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <clipPath id="${id}c"><rect x="${inner.x + 2}" y="${inner.y + 2}" width="${inner.w - 4}" height="${inner.h - 4}" rx="${r - 2}"/></clipPath>
+        <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd3f7"/><stop offset="1" stop-color="#5eb6ea"/></linearGradient>
+      </defs>
+      <g clip-path="url(#${id}c)">
+        <rect class="w-body" x="0" y="${t.th}" width="${t.tw}" height="${t.th}" fill="url(#${id}g)" opacity=".92"/>
+        <g class="w-top">
+          <rect x="0" y="0" width="${t.tw}" height="10" fill="#c9edff"/>
+          <rect x="0" y="-2" width="${t.tw}" height="4" fill="#fff"/>
+          <g class="w-glints" fill="#fff">${glints.map(([x, y, rx]) => `<ellipse cx="${t.tw * x}" cy="${y}" rx="${rx}" ry="${rx / 7}" opacity=".6"/>`).join('')}</g>
+        </g>
+      </g>
+    </svg>`;
+    this.waterBody = this.water.querySelector('.w-body') as SVGRectElement;
+    this.waterTop = this.water.querySelector('.w-top') as SVGGElement;
+  }
+
+  /** Place `e` at (x, y) in bath units, `w` wide, with its own point (ax, ay) there. */
+  private anchorAt(e: HTMLElement, x: number, y: number, w: number, ax = 0.5, ay = 1) {
+    e.style.left = this.px(x);
+    e.style.top = this.py(y);
+    e.style.width = this.px(w);
+    e.style.translate = `${-ax * 100}% ${-ay * 100}%`;
+  }
+
+  /** Bath units across, and down, as a share of the bath (for CSS). */
+  px(x: number) {
+    return `${(x / this.shape.tw) * 100}%`;
+  }
+  py(y: number) {
+    return `${(y / this.shape.th) * 100}%`;
+  }
+
+  layout() {
+    this.pickShape();
+    const t = this.shape;
+    const { W, H } = this.size();
+    const { w, left, top } = this.fit(W, H, t);
+    this.u = w / t.tw;
+    Object.assign(this.box.style, { left: `${left}px`, top: `${top}px`, width: `${w}px`, height: `${(w * t.th) / t.tw}px` });
     // The floor starts behind the bath, a little above its feet.
-    this.room.style.setProperty('--floor', `${Math.round(top + 395 * this.u)}px`);
-    // Keep the tap, the plug, the sponge, the bottle and the ducks on the rim
-    // on the screen.
-    this.x0 = Math.max(40, -left / this.u + 20);
-    this.x1 = Math.min(TUB_W - 40, (W - left) / this.u - 20);
-    this.spoutX = Math.max(237, this.x0 + 140);
-    this.stream.style.left = `${((this.spoutX - 11) / TUB_W) * 100}%`;
-    this.stream.style.width = `${(22 / TUB_W) * 100}%`;
-    anchorAt(this.tap, this.spoutX - 57, 54, 160, 0.5, 1);
-    anchorAt(this.plug, this.spoutX + 95, 24, 60, 0.5, 0);
-    // The sponge sits on the left end of the rim when that's on the screen.
-    const sponge = this.x0 < 60;
-    this.sponge.classList.toggle('off', !sponge);
-    anchorAt(this.sponge, 125, 242, 116);
-    const bottle = Math.min(885, this.x1 - 52);
-    anchorAt(this.bottle, bottle, 244, 88);
-    // Room for the little ducks: between the sponge and the bottle.
-    this.a = sponge ? Math.max(this.x0 + 120, 245) : this.x0 + 100;
-    this.b = Math.min(this.x1 - 120, bottle - 95);
+    this.room.style.setProperty('--floor', `${Math.round(top + t.th * 0.8 * this.u)}px`);
+
+    this.spoutX = t.tall ? 170 : 237;
+    this.stream.style.left = this.px(this.spoutX - 11);
+    this.stream.style.width = this.px(22);
+    this.anchorAt(this.tap, this.spoutX - 57, RIM_Y + 2, 160, 0.5, 1);
+    this.anchorAt(this.plug, this.spoutX + 100, RIM_Y - 18, 60, 0.5, 0);
+    // The sponge sits on the front rim; on a tall phone there's no room.
+    this.sponge.classList.toggle('off', t.tall);
+    this.anchorAt(this.sponge, 125, t.fy + 18, 116);
+    if (t.tall) this.anchorAt(this.bottle, t.tw - 92, RIM_Y + 4, 80);
+    else this.anchorAt(this.bottle, t.tw - 118, t.fy + 20, 88);
+    // Room for the little ducks: clear of the sponge and the bottle.
+    this.a = t.tall ? 140 : 250;
+    this.b = t.tall ? t.tw - 140 : t.tw - 230;
+    this.anchorAt(this.plank, t.tw / 2, SHELF_Y, t.tw - 60, 0.5, 0);
     this.placeRim();
     this.step(performance.now());
   }
 
-  /** The middle of the bath on the screen. */
+  /** The middle of the bath. */
   get mid() {
-    return (this.x0 + this.x1) / 2;
+    return this.shape.tw / 2;
   }
 
   /** Across the water, clear of the sponge and the bottle: 0 is the left, 1 the right. */
@@ -166,14 +269,22 @@ export class Tub {
     return { x: (x - r.left) / this.u, y: (y - r.top) / this.u };
   }
 
-  /** Where the water surface is at depth `d`. */
+  /** Where something at depth `d` sits: on the water, or on the bottom if it's low. */
   surface(d: number, level = this.level) {
-    return level + 25 + d * 95;
+    const back = Math.min(level, this.shape.fy - 130) + 34;
+    return back + (this.shape.fy - 34 - back) * d;
   }
 
   /** Is this point (in bath units) on the water you can see? */
   onWater(x: number, y: number) {
-    return x > 70 && x < 930 && y > this.level - 30 && y < 236 && this.level < EMPTY - 20;
+    const { inner } = tubParts(this.shape);
+    return (
+      this.level < this.shape.fy - 40 &&
+      x > inner.x + 10 &&
+      x < inner.x + inner.w - 10 &&
+      y > Math.max(this.level - 20, inner.y) &&
+      y < this.shape.fy + 14
+    );
   }
 
   // --- Water --------------------------------------------------------------------
@@ -183,7 +294,7 @@ export class Tub {
       this.levelTween = { from: this.level, to, t0: performance.now(), ms, done };
       return () => {
         if (this.levelTween?.done === done) {
-          this.level = to;
+          this.level = this.levelTween.to;
           this.levelTween = undefined;
         }
       };
@@ -200,7 +311,6 @@ export class Tub {
     const e = el('div', `floater ${cls}`, this.float);
     const art = el('div', 'fl-art', e, html);
     const f: Floater = { el: e, art, x: o.x, d: o.d, w: o.w, anchor: o.anchor ?? DUCK_WATER, bob: o.bob ?? 3, lift: o.lift ?? 0, phase: Math.random() * 6.28 };
-    e.style.width = `${(o.w / TUB_W) * 100}%`;
     art.style.transformOrigin = `50% ${f.anchor * 100}%`;
     this.floaters.push(f);
     this.place(f, performance.now());
@@ -230,15 +340,15 @@ export class Tub {
       f.swim = { x0: f.x, d0: f.d, x1: x, d1: d, t0: performance.now(), ms, done };
       return () => {
         if (f.swim?.done === done) {
-          f.x = x;
-          f.d = d;
+          f.x = f.swim.x1;
+          f.d = f.swim.d1;
           f.swim = undefined;
         }
       };
     });
   }
 
-  // --- Ducks sitting along the back rim -----------------------------------------------------
+  // --- The ducks found: along the back rim, or on a shelf above a tall bath -------------
 
   setRim(ids: string[], fresh?: string) {
     this.rimDucks.forEach((d) => d.remove());
@@ -252,14 +362,19 @@ export class Tub {
   }
 
   private placeRim() {
+    const t = this.shape;
     const n = this.rimDucks.length;
-    const from = this.spoutX + 190;
-    const to = this.x1 - 60;
-    // Smaller when there are lots of them on a narrow screen.
-    const w = Math.min(84, n > 1 ? ((to - from) / (n - 1)) * 1.15 : 84);
+    const shelf = t.tall;
+    this.rimDucks.forEach((d) => d.classList.toggle('off', shelf && !this.showShelf));
+    // The shelf goes up once there's a duck to put on it.
+    this.plank.classList.toggle('on', shelf && this.showShelf && n > 0);
+    if (!n) return;
+    const from = shelf ? 90 : this.spoutX + 200;
+    const to = shelf ? t.tw - 90 : t.tw - 70;
+    const w = shelf ? Math.min(100, ((to - from) / Math.max(1, n - 1)) * 0.95) : Math.min(84, n > 1 ? ((to - from) / (n - 1)) * 1.15 : 84);
     this.rimDucks.forEach((d, i) => {
-      const x = n === 1 ? to - 80 : from + ((to - from) * i) / (n - 1);
-      anchorAt(d, x, 40, w, 0.5, DUCK_WATER);
+      const x = n === 1 ? (shelf ? t.tw / 2 : to - 80) : from + ((to - from) * i) / (n - 1);
+      this.anchorAt(d, x, shelf ? SHELF_Y + 4 : RIM_Y + 4, w, 0.5, DUCK_WATER);
     });
   }
 
@@ -281,10 +396,12 @@ export class Tub {
       }
     }
     const u = this.u;
-    this.water.style.top = `${(this.level * u).toFixed(1)}px`;
-    this.water.style.height = `${(Math.max(0, FLOOR_Y - this.level) * u).toFixed(1)}px`;
+    const L = this.level;
+    this.waterBody?.setAttribute('y', L.toFixed(1));
+    this.waterTop?.setAttribute('transform', `translate(0 ${L.toFixed(1)})`);
+    this.water.style.opacity = L >= this.empty - 1 ? '0' : '1';
     this.stream.style.top = `${(SPOUT_Y * u).toFixed(1)}px`;
-    this.stream.style.height = `${((Math.min(this.level, EMPTY) + 30 - SPOUT_Y) * u).toFixed(1)}px`;
+    this.stream.style.height = `${((Math.min(L, this.shape.fy - 110) + 24 - SPOUT_Y) * u).toFixed(1)}px`;
     for (const f of this.floaters) this.place(f, now);
   }
 
@@ -301,10 +418,12 @@ export class Tub {
       }
     }
     // Afloat, things bob and rock; on the bottom of an empty bath they sit still.
-    const wet = Math.max(0, Math.min(1, (EMPTY - this.level) / 40));
+    const y0 = this.surface(f.d);
+    const wet = Math.max(0, Math.min(1, (y0 - this.level) / 40));
     const t = now / 1000;
-    const y = this.surface(f.d) - f.lift + Math.sin(t * 1.8 + f.phase) * f.bob * wet;
+    const y = y0 - f.lift + Math.sin(t * 1.8 + f.phase) * f.bob * wet;
     const rock = Math.sin(t * 1.3 + f.phase) * 3 * wet;
+    f.el.style.width = `${(f.w * this.u).toFixed(1)}px`;
     f.el.style.transform = `translate3d(${(f.x * this.u).toFixed(1)}px, ${(y * this.u).toFixed(1)}px, 0) translate(-50%, ${(-f.anchor * 100).toFixed(2)}%) rotate(${rock.toFixed(2)}deg)`;
     f.el.style.zIndex = String(10 + Math.round(f.d * 100));
   }

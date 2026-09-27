@@ -192,45 +192,96 @@ export function mudSVG(): string {
 }
 
 // ---------------------------------------------------------------------------
-// The bath. Everything is placed in the bath's own units: 1000 across and
-// 520 down, the top of the back rim at y = 34 and the front rim at y = 232.
+// The bath, seen a little from above: a rim around a big rounded opening full
+// of water, and the bath's pink side below it, on gold feet. It comes in two
+// shapes: wide, and a narrower, deeper one for tall phones. Everything is in
+// the bath's own units: `tw` across and `th` down, with the opening from just
+// under the top of the rim down to `fy`, where the front rim starts.
 
-export const TUB_W = 1000;
-export const TUB_H = 520;
+export interface TubShape {
+  tw: number;
+  th: number;
+  /** The bottom of the opening: the inside edge of the front rim. */
+  fy: number;
+  /** Tall-phone layout (the ducks found sit on a shelf above the bath). */
+  tall: boolean;
+}
 
-export function tubBackSVG(): string {
+export const WIDE_TUB: TubShape = { tw: 1000, th: 520, fy: 330, tall: false };
+export const TALL_TUB: TubShape = { tw: 640, th: 610, fy: 420, tall: true };
+
+const RIM = 28;
+const OPEN_TOP = 46;
+
+/** The opening, the rim around it and the line between the back and front halves. */
+export function tubParts(t: TubShape) {
+  const inner = { x: 44, y: OPEN_TOP, w: t.tw - 88, h: t.fy - OPEN_TOP };
+  const r = Math.min(inner.h * 0.42, 150);
+  const outer = { x: inner.x - RIM, y: inner.y - RIM, w: inner.w + RIM * 2, h: inner.h + RIM * 2 };
+  return { inner, r, outer, ro: r + RIM, mid: inner.y + inner.h / 2, bottom: outer.y + outer.h };
+}
+
+/** A rounded rectangle as a path. */
+function rr(b: { x: number; y: number; w: number; h: number }, r: number) {
+  const { x, y, w, h } = b;
+  return `M${x + r},${y} H${x + w - r} A${r},${r} 0 0 1 ${x + w},${y + r} V${y + h - r} A${r},${r} 0 0 1 ${x + w - r},${y + h} H${x + r} A${r},${r} 0 0 1 ${x},${y + h - r} V${y + r} A${r},${r} 0 0 1 ${x + r},${y} Z`;
+}
+
+export function tubBackSVG(t: TubShape): string {
+  const { inner, r, outer, ro } = tubParts(t);
   const g = `tb${++uid}`;
-  return `<svg viewBox="0 0 ${TUB_W} ${TUB_H}" aria-hidden="true">
-    <defs><linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6ebf7"/><stop offset="1" stop-color="#f2faff"/></linearGradient></defs>
-    <path d="M56,58 L944,58 L950,430 L50,430 Z" fill="url(#${g})"/>
-    <path d="M56,58 L112,70 L112,430 L50,430 Z" fill="#c9e2f0"/>
-    <path d="M944,58 L888,70 L888,430 L950,430 Z" fill="#c9e2f0"/>
-    <rect x="36" y="34" width="928" height="34" rx="17" fill="#fff" stroke="${INK}" stroke-width="6"/>
-    <path d="M60,44 L400,44" stroke="#dcecf6" stroke-width="5" stroke-linecap="round"/>
+  return `<svg viewBox="0 0 ${t.tw} ${t.th}" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe6f4"/><stop offset=".35" stop-color="#e9f5fc"/><stop offset="1" stop-color="#f7fcff"/></linearGradient>
+      <clipPath id="${g}c"><path d="${rr(inner, r)}"/></clipPath>
+    </defs>
+    <path d="${rr(outer, ro)}" fill="#fff" stroke="${INK}" stroke-width="6"/>
+    <path d="${rr(inner, r)}" fill="url(#${g})" stroke="${INK}" stroke-width="5"/>
+    <g clip-path="url(#${g}c)">
+      <rect x="0" y="${inner.y}" width="${t.tw}" height="34" fill="#bcdcee" opacity=".55"/>
+      <ellipse cx="${t.tw / 2}" cy="${inner.y + inner.h * 0.72}" rx="${inner.w * 0.34}" ry="${inner.h * 0.16}" fill="#fff" opacity=".5"/>
+    </g>
+    <path d="M${outer.x + ro},${outer.y + 9} H${t.tw * 0.45}" stroke="#e6f1f8" stroke-width="7" stroke-linecap="round"/>
   </svg>`;
 }
 
-export function tubFrontSVG(colour = '#ff9fc0', dots = '#ffffff'): string {
+export function tubFrontSVG(t: TubShape, colour = '#ff9fc0'): string {
+  const { inner, r, outer, ro, mid, bottom } = tubParts(t);
+  const g = `tf${++uid}`;
+  const L = outer.x;
+  const R = outer.x + outer.w;
+  const base = t.th - 36;
   const foot = (x: number) =>
-    `<path d="M${x - 24},462 C${x - 38},492 ${x - 26},514 ${x},514 C${x + 24},514 ${x + 32},494 ${x + 22},462 Z" fill="#ffd23f" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
-     <path d="M${x - 14},500 L${x - 14},512 M${x},502 L${x},514 M${x + 12},500 L${x + 12},512" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`;
-  const spots = [
-    [150, 330, 22],
-    [230, 400, 14],
-    [300, 320, 10],
-    [720, 340, 12],
-    [800, 410, 20],
-    [870, 320, 13],
-    [500, 440, 9],
-    [560, 330, 7],
+    `<path d="M${x - 24},${base - 8} C${x - 36},${base + 18} ${x - 24},${t.th - 2} ${x},${t.th - 2} C${x + 24},${t.th - 2} ${x + 32},${base + 20} ${x + 22},${base - 8} Z" fill="#ffd23f" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
+     <path d="M${x - 13},${t.th - 16} V${t.th - 5} M${x},${t.th - 14} V${t.th - 3} M${x + 12},${t.th - 16} V${t.th - 5}" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`;
+  // The side of the bath: down from the rim, curving in to the bottom.
+  const side = `M${L},${bottom - ro} C${L},${base + 2} ${L + 40},${base} ${L + 150},${base} H${R - 150} C${R - 40},${base} ${R},${base + 2} ${R},${bottom - ro} A${ro},${ro} 0 0 1 ${R - ro},${bottom} H${L + ro} A${ro},${ro} 0 0 1 ${L},${bottom - ro} Z`;
+  const dots = [
+    [0.12, 0.45, 20],
+    [0.24, 0.72, 12],
+    [0.33, 0.4, 9],
+    [0.5, 0.78, 8],
+    [0.6, 0.42, 7],
+    [0.72, 0.62, 12],
+    [0.84, 0.4, 18],
+    [0.9, 0.72, 10],
   ];
-  return `<svg viewBox="0 0 ${TUB_W} ${TUB_H}" aria-hidden="true">
-    ${foot(175)}${foot(825)}
-    <path d="M40,256 L960,256 C962,380 920,462 830,472 L170,472 C80,462 38,380 40,256 Z" fill="${colour}" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
-    ${spots.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${dots}" opacity=".32"/>`).join('')}
-    <path d="M86,300 C90,360 110,410 150,440" stroke="#fff" stroke-width="12" opacity=".4" fill="none" stroke-linecap="round"/>
-    <rect x="18" y="230" width="964" height="38" rx="19" fill="#fff" stroke="${INK}" stroke-width="6"/>
-    <path d="M44,241 L520,241" stroke="#eaf3f9" stroke-width="6" stroke-linecap="round"/>
+  const ph = base - bottom;
+  return `<svg viewBox="0 0 ${t.tw} ${t.th}" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${colour}"/><stop offset="1" stop-color="#ff86b2"/></linearGradient>
+      <clipPath id="${g}f"><rect x="0" y="${mid}" width="${t.tw}" height="${t.th}"/></clipPath>
+    </defs>
+    ${foot(L + 130)}${foot(R - 130)}
+    <path d="${side}" fill="url(#${g})" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
+    ${dots.map(([x, y, s]) => `<circle cx="${L + outer.w * x}" cy="${bottom + ph * y}" r="${s}" fill="#fff" opacity=".35"/>`).join('')}
+    <path d="M${L + 40},${bottom + 16} C${L + 46},${bottom + ph * 0.6} ${L + 70},${base - 14} ${L + 110},${base - 8}" stroke="#fff" stroke-width="10" opacity=".4" fill="none" stroke-linecap="round"/>
+    <g clip-path="url(#${g}f)">
+      <path d="${rr(outer, ro)} ${rr(inner, r)}" fill="#fff" fill-rule="evenodd"/>
+      <path d="${rr(outer, ro)}" fill="none" stroke="${INK}" stroke-width="6"/>
+      <path d="${rr(inner, r)}" fill="none" stroke="${INK}" stroke-width="5"/>
+      <path d="M${L + ro},${bottom - 9} H${R - ro}" stroke="#eef5fa" stroke-width="6" stroke-linecap="round"/>
+    </g>
   </svg>`;
 }
 

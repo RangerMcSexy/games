@@ -44,7 +44,8 @@ Rainbow Duck, Princess Duck, Pirate Duck, Firefighter Duck, Chef Duck,
 Froggy Duck, Super Duck, Space Duck, Unicorn Duck, Wizard Duck, Dino Duck and
 Golden Duck. There's a new one at the end of every bath until they've all
 been found. After that, old friends come round again. The six found most
-recently sit along the back of the bath.
+recently sit along the back of the bath (on a phone held upright, on a
+shelf above it).
 
 ### The duck shelf
 
@@ -97,11 +98,13 @@ rounded font included.
   standalone.
 - All the art is SVG drawn in code (`src/art.ts`): the rubber ducks side on,
   the clawfoot bath, the tap, plug, bottle and sponge, foam and bubbles.
-- `src/tub.ts` is the bathroom and the bath. Everything in the bath is
-  placed in the bath's own units (1000 across), and things floating on the
-  water have a depth from the back of the bath to the front, so the water
-  level carries them up and down. On a tall phone the bath is wider than the
-  screen, and the tap, plug, sponge and bottle move in to stay on it.
+- `src/tub.ts` is the bathroom and the bath, seen a little from above so
+  the water is a big rounded pool. Everything in the bath is placed in the
+  bath's own units, and things floating on the water have a depth from the
+  back of the bath to the front. The bath comes in two shapes: wide, and a
+  narrower, deeper one for phones held upright, where the ducks found sit on
+  a shelf on the wall instead of along the rim. Turning the device swaps
+  between them mid-bath.
 - `src/bath.ts` runs a bath, one move after another.
 - All sound is generated with the Web Audio API (`src/audio.ts`): squeaks,
   quacks, running water, plops, glugs and a bubbly music-box waltz.
