@@ -42,6 +42,8 @@ import { guide } from './guide';
 import { Scene, burst, burstAt, center, el, flip, flyClone, hint, pick, rand, replay, shuffle, HINT_MS } from './ui';
 import { say, sayAll } from './voice';
 import type { SpriteName } from './sprites';
+import { stickerMoment } from '../../shared/sticker-moment';
+import { STICKER_ART } from './stickers';
 
 export interface BakeHost {
   stage: HTMLElement;
@@ -517,6 +519,8 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
   sound.sparkle();
   burstAt(treatBox, { kind: 'sparkle', count: 16 });
   await sc.wait(700);
+  // A sticker for the sticker book, now and then.
+  await stickerMoment('bakery', { sc, art: STICKER_ART, chime: () => sound.chime(), say: () => say('sticker') });
 
   const ends = el('div', 'end-buttons', work);
   const shopBtn = el('button', 'big-btn orange', ends, ICONS.shop);

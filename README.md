@@ -38,11 +38,13 @@ Played this way, the games share a few things:
 - **The sticker book:** the Stickers button on the home page opens a book
   with a page for each game and four stickers on each page. A game gives
   its first sticker for the first thing collected, then more at 3, 6, and
-  10 (or all 12). A new sticker makes the button wobble with a star; open
-  the book and tap the sticker to stick it in. Tap a sticker to hear its
-  name, or the game's picture at the top of a page to go and play it.
-  Stickers stay in the book even if a game is started again. The stickers
-  are listed in `home/stickers.ts` and drawn with the games' own art.
+  10 (or all 12). When one is earned the game shows it straight away ("A
+  sticker for your book!") and it flies into a little book. Back on the
+  home page the Stickers button wobbles with a star; open the book and tap
+  the sticker to stick it in. Tap a sticker to hear its name, or the game's
+  picture at the top of a page to go and play it. Stickers stay in the book
+  even if a game is started again. The stickers are listed in
+  `shared/stickers.ts`, and each game draws its own in `src/stickers.ts`.
 
 After the first visit the games are saved on the device, so they also work
 **offline** (in the car, on a plane).

@@ -13,6 +13,8 @@ import { type Host } from './screens';
 import { Tub, type Floater } from './tub';
 import { HINT_MS, Scene, burst, burstAt, center, el, hint, pick, rand, replay, shuffle } from './ui';
 import { say, sayAll } from './voice';
+import { stickerMoment } from '../../shared/sticker-moment';
+import { STICKER_ART } from './stickers';
 
 type Move = 'fill' | 'bubbles' | 'colour' | 'count' | 'scrub' | 'hide' | 'splash' | 'goal';
 
@@ -532,6 +534,8 @@ export async function bathScreen(host: Host): Promise<'again' | 'shelf'> {
     sound.squeak();
     if (fresh) burstAt(fresh, { kind: 'sparkle', count: 16, spread: 0.9 });
     await sc.wait(900);
+    // A sticker for the sticker book, now and then.
+    await stickerMoment('ducky-bath', { sc, art: STICKER_ART, chime: () => sound.chime(), say: () => say('sticker') });
   }
 
   async function reveal(it: Item) {

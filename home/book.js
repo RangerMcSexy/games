@@ -31,7 +31,14 @@ function loadStuck() {
 let stuck = loadStuck();
 function persist() {
   try {
-    localStorage.setItem(KEY, JSON.stringify({ stuck: [...stuck] }));
+    // Keep what else is in there (the games note which stickers they've shown).
+    let old = {};
+    try {
+      old = JSON.parse(localStorage.getItem(KEY) || 'null') ?? {};
+    } catch {
+      old = {};
+    }
+    localStorage.setItem(KEY, JSON.stringify({ ...old, stuck: [...stuck] }));
   } catch {
     // Private mode: the stickers still get stuck in for this visit.
   }

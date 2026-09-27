@@ -73,6 +73,7 @@ export const LINES: Line[] = [
   { id: 'n1', text: 'One!', when: 'Counting' },
   { id: 'n2', text: 'Two!', when: 'Counting' },
   { id: 'n3', text: 'Three!', when: 'Counting' },
+  { id: 'sticker', text: 'A sticker for your book!', when: 'Earning a sticker for the sticker book' },
 ];
 
 const byId = new Map(LINES.map((l) => [l.id, l]));

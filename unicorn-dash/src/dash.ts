@@ -30,6 +30,8 @@ import { COLOURS, ITEMS, addStar, finishDash, nextItem, save, unseenItems, type 
 import { Meadow, type Host } from './screens';
 import { HINT_MS, Scene, burst, burstAt, center, el, flyClone, hint, pick, rand, replay, shuffle } from './ui';
 import { say, sayAll } from './voice';
+import { stickerMoment } from '../../shared/sticker-moment';
+import { STICKER_ART } from './stickers';
 
 type Move = 'stars' | 'jump' | 'puddle' | 'colour' | 'count' | 'goal';
 
@@ -658,6 +660,8 @@ export async function dashScreen(host: Host): Promise<'again' | 'dress'> {
     box.classList.add('closing');
     await sc.wait(350);
     box.remove();
+    // A sticker for the sticker book, now and then.
+    await stickerMoment('unicorn-dash', { sc, art: STICKER_ART, chime: () => sound.chime(), say: () => say('sticker') });
   }
 
   // Off we go.

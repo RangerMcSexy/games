@@ -38,6 +38,8 @@ import {
 import { guide } from './guide';
 import { Aborted, Scene, burst, burstAt, center, el, flip, flyClone, rand, replay, shuffle } from './ui';
 import { hasRecording, say, sayText } from './voice';
+import { stickerMoment } from '../../shared/sticker-moment';
+import { STICKER_ART } from './stickers';
 
 export type JourneyEnd = 'garden' | 'again';
 
@@ -432,6 +434,8 @@ async function cocoonScene(host: JourneyHost, shape: Shape, foods: FoodId[], gol
     toGarden.classList.add('nudge');
     await sc.until(say('gardenNew'), 4000);
   }
+  // A sticker for the sticker book, now and then.
+  await stickerMoment('butterfly-garden', { sc, art: STICKER_ART, chime: () => sound.chime(), say: () => say('sticker') });
 
   const choice = await sc.tapAny([toGarden, again], 9000);
   sound.pop();
