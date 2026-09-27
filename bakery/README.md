@@ -117,9 +117,10 @@ full-screen like an app.
 ## Tech notes
 
 - Vite + TypeScript, no framework, no runtime dependencies. It has the same
-  structure as Butterfly Garden. `ui.ts`, `voice.ts`,
-  `settings.ts` and the audio engine are shared by all the games (in
-  `../shared/`); each game still builds into its own single, offline file.
+  structure as Butterfly Garden. The code and
+  look every game has in common (`ui.ts`, `voice.ts`, `settings.ts`, the audio
+  engine, the start-up and top bar in `shell.ts`, and `base.css`) live in
+  `../shared/`; each game still builds into its own single, offline file.
 - Everything in the scenes is SVG drawn in code (`src/art.ts`). The treats are
   built in layers (tin, body, icing and drips, sprinkles, topper). Cake and
   cookie shapes are stacked outlines, which makes a heart or star look 3D.

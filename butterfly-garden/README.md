@@ -93,4 +93,6 @@ full-screen like an app.
   (`../shared/audio.ts`).
 - Voice lines live in `src/voice.ts`; how they're spoken is in
   `../shared/voice.ts`. Recordings are kept in IndexedDB.
+- The start-up and top bar (`../shared/shell.ts`) and the common look
+  (`../shared/base.css`) are shared by all the games.
 - Progress is saved in `localStorage`.

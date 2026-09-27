@@ -1,4 +1,5 @@
 import './font.css';
+import '../../shared/base.css';
 import './style.css';
 import { appIcon, startGame } from '../../shared/shell';
 import { DUCK_BOX, ICONS, duckSVG } from './art';
