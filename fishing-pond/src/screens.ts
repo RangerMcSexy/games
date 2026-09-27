@@ -3,7 +3,7 @@ import { ICONS, boatSVG, castleSVG, chestSVG, cloudSVG, coralSVG, fishSVG, frogS
 import { sound } from './audio';
 import { FISH, SILLY, fishById, markUnlocksSeen, playerName, save, speciesCount, unlocked, unseenUnlocks, type Fish, type UnlockId } from './data';
 import { Swimmer } from './swim';
-import { Scene, burst, burstAt, el, pick, rand, replay } from './ui';
+import { Scene, burst, burstAt, el, pick, rand, replay } from '../../shared/ui';
 import { say } from './voice';
 
 export interface Host {

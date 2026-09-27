@@ -1,7 +1,7 @@
 // Butterflies that wander gently around a container and react to taps.
 import { butterflySVG } from './art';
 import type { Butterfly } from './data';
-import { el, rand, replay } from './ui';
+import { el, rand, replay } from '../../shared/ui';
 
 interface Flyer {
   b: Butterfly;

@@ -2,7 +2,7 @@
 // driven by the scene's animation loop through `step`.
 import { fishSVG, sillySVG } from './art';
 import type { Fish } from './data';
-import { el, replay } from './ui';
+import { el, replay } from '../../shared/ui';
 
 /** Fish art is 144×104; the mouth is near the right-hand edge. */
 export const FISH_ASPECT = 104 / 144;

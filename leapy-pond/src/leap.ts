@@ -9,7 +9,7 @@ import { fishShadowSVG, flowerSVG, flySVG, friendSVG, friendSilhouetteSVG, frogS
 import { sound } from './audio';
 import { COLOURS, FRIENDS, addFly, finishTrip, nextFriend, save, unseenFriends, type Colour, type Friend } from './data';
 import type { Host } from './screens';
-import { HINT_MS, Scene, burst, burstAt, center, el, pick, rand, replay, shuffle } from './ui';
+import { HINT_MS, Scene, burst, burstAt, center, el, pick, rand, replay, shuffle } from '../../shared/ui';
 import { say, sayAll } from './voice';
 import { stickerMoment } from '../../shared/sticker-moment';
 import { STICKER_ART } from './stickers';

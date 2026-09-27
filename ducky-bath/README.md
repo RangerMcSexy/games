@@ -93,9 +93,9 @@ rounded font included.
 ## Tech notes
 
 - Vite + TypeScript, no framework, no runtime dependencies. It has the same
-  structure as the other games. `ui.ts`, `voice.ts`, `settings.ts` and the
-  audio engine started as copies of Unicorn Dash's, so each game stays
-  standalone.
+  structure as the other games. `ui.ts`, `voice.ts`,
+  `settings.ts` and the audio engine are shared by all the games (in
+  `../shared/`); each game still builds into its own single, offline file.
 - All the art is SVG drawn in code (`src/art.ts`): the rubber ducks side on,
   the clawfoot bath, the tap, plug, bottle and sponge, foam and bubbles.
 - `src/tub.ts` is the bathroom and the bath, seen a little from above so

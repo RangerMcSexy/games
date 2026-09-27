@@ -495,9 +495,6 @@ export const ICONS = {
   trash: `<svg viewBox="-50 -50 100 100"><path d="M-22,-18 L22,-18 L18,30 L-18,30 Z" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/><path d="M-30,-18 L30,-18 M-8,-28 L8,-28" stroke="currentColor" stroke-width="6" stroke-linecap="round"/></svg>`,
 };
 
-export function sparkleSVG(color = '#fff6a8'): string {
-  return `<svg viewBox="-20 -20 40 40"><path d="${starPath(18, 0.32, 4)}" fill="${color}"/></svg>`;
-}
 
 export function starSVG(): string {
   return `<svg viewBox="-50 -50 100 100"><path d="${starPath(44, 0.48)}" fill="#ffe66d" stroke="#f4b400" stroke-width="5" stroke-linejoin="round"/>

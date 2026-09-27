@@ -20,9 +20,6 @@ export function starPath(r: number, inner = 0.45, points = 5): string {
   return `${d}Z`;
 }
 
-export function sparkleSVG(color = '#fff6a8'): string {
-  return `<svg viewBox="-20 -20 40 40"><path d="${starPath(18, 0.32, 4)}" fill="${color}"/></svg>`;
-}
 
 const eye = (x: number, y: number, r = 8.5) =>
   `<g class="f-eye"><circle cx="${x}" cy="${y}" r="${r}" fill="#fff" ${S} stroke-width="3"/><circle cx="${x + r * 0.22}" cy="${y}" r="${r * 0.6}" fill="#1f2340"/><circle cx="${x + r * 0.45}" cy="${y - r * 0.28}" r="${r * 0.22}" fill="#fff"/></g>`;

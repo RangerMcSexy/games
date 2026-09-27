@@ -29,7 +29,7 @@ import {
   type UnlockId,
 } from './data';
 import { guide } from './guide';
-import { Scene, burstAt, el, pick, rand, replay } from './ui';
+import { Scene, burstAt, el, pick, rand, replay } from '../../shared/ui';
 import { say, sayAll } from './voice';
 
 export interface Host {

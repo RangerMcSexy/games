@@ -89,9 +89,9 @@ rounded font included.
 ## Tech notes
 
 - Vite + TypeScript, no framework, no runtime dependencies. It has the same
-  structure as the other games. `ui.ts`, `voice.ts`, `settings.ts` and the
-  audio engine started as copies of Leapy Pond's, so each game stays
-  standalone.
+  structure as the other games. `ui.ts`, `voice.ts`,
+  `settings.ts` and the audio engine are shared by all the games (in
+  `../shared/`); each game still builds into its own single, offline file.
 - All the art is SVG drawn in code (`src/art.ts`): Sparkle side on, with legs
   that gallop and everything she can wear, and the meadow, the things in the
   way, the balloons and the presents.

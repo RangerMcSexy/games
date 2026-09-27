@@ -46,7 +46,7 @@ import {
 } from './data';
 import { Flock } from './flock';
 import { guide } from './guide';
-import { Scene, burst, burstAt, center, el, rand, replay } from './ui';
+import { Scene, burst, burstAt, center, el, rand, replay } from '../../shared/ui';
 import { say, sayText } from './voice';
 
 export interface Host {

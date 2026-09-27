@@ -2,7 +2,7 @@
 // tap, sneezes when the flour goes poof, and giggles when tickled.
 import { mouseSVG } from './art';
 import { sound } from './audio';
-import { burst, el, rand, replay } from './ui';
+import { burst, el, rand, replay } from '../../shared/ui';
 
 class Guide {
   private root!: HTMLElement;

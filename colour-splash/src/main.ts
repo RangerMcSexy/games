@@ -10,7 +10,7 @@ import { paint } from './paint';
 import { naturalFills, pictureById, pictureSVG, type Picture } from './pictures';
 import { galleryScreen, pickerScreen, titleScreen } from './screens';
 import { initSettings } from './settings';
-import { Aborted, Scene, el, hint, initFx } from './ui';
+import { Aborted, Scene, el, hint, initFx } from '../../shared/ui';
 import { loadRecordings, say, stopSpeaking } from './voice';
 
 const app = document.getElementById('app')!;

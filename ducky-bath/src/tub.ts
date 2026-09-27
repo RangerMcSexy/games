@@ -23,7 +23,7 @@ import {
   windowSVG,
   type TubShape,
 } from './art';
-import { Scene, el } from './ui';
+import { Scene, el } from '../../shared/ui';
 
 /** The water line at the back of the bath when it's full. */
 const FULL = 96;

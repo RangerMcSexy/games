@@ -2,7 +2,7 @@
 // night), a shelf of jars and a wooden counter to bake on.
 import { INK } from './art';
 import { sound } from './audio';
-import { el } from './ui';
+import { el } from '../../shared/ui';
 
 let root: HTMLElement;
 

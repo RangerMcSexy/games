@@ -36,7 +36,7 @@ import {
   type Shape,
 } from './data';
 import { guide } from './guide';
-import { Aborted, Scene, burst, burstAt, center, el, flip, flyClone, rand, replay, shuffle } from './ui';
+import { Aborted, Scene, burst, burstAt, center, el, flip, flyClone, rand, replay, shuffle } from '../../shared/ui';
 import { hasRecording, say, sayText } from './voice';
 import { stickerMoment } from '../../shared/sticker-moment';
 import { STICKER_ART } from './stickers';
@@ -76,7 +76,7 @@ async function eggScene(host: JourneyHost): Promise<Shape> {
   });
 
   void say('pickEgg');
-  const idx = await sc.tapAny(eggs);
+  const idx = await sc.tapAny(eggs, 5000);
   const shape = SHAPES[idx];
   const chosen = eggs[idx];
   sound.pop();
@@ -302,7 +302,7 @@ async function cocoonScene(host: JourneyHost, shape: Shape, foods: FoodId[], gol
     b.setAttribute('aria-label', `${p} sticker`);
     return b;
   });
-  const pi = await sc.tapAny(stickers);
+  const pi = await sc.tapAny(stickers, 5000);
   const pattern: Pattern = PATTERNS[pi];
   sound.pop();
   const target = center(chrys);

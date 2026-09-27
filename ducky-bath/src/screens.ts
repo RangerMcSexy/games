@@ -4,7 +4,7 @@ import { ICONS, bubbleSVG, duckSVG } from './art';
 import { sound } from './audio';
 import { ITEMS, markItemsSeen, playerName, save, unseenItems } from './data';
 import { Tub, roomBg } from './tub';
-import { Scene, burst, burstAt, center, el, rand, replay } from './ui';
+import { Scene, burst, burstAt, center, el, rand, replay } from '../../shared/ui';
 import { say } from './voice';
 
 export interface Host {

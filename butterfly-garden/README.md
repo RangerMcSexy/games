@@ -89,6 +89,8 @@ full-screen like an app.
   licence). `npm run sprites` copies just those into `src/sprites.ts`, so the
   build is still a single offline file.
 - All sound is generated with the Web Audio API (`src/audio.ts`), including
-  the music-box lullaby.
-- Voice lines live in `src/voice.ts`. Recordings are kept in IndexedDB.
+  the music-box lullaby. The engine underneath is shared by all the games
+  (`../shared/audio.ts`).
+- Voice lines live in `src/voice.ts`; how they're spoken is in
+  `../shared/voice.ts`. Recordings are kept in IndexedDB.
 - Progress is saved in `localStorage`.

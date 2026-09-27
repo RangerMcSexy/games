@@ -990,6 +990,3 @@ export const ICONS = {
   check: `<svg viewBox="-50 -50 100 100"><path d="M-24,2 L-6,20 L26,-18" stroke="#fff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 };
 
-export function sparkleSVG(color = '#fff6a8'): string {
-  return `<svg viewBox="-20 -20 40 40"><path d="${starPath(18, 0.32, 4)}" fill="${color}"/></svg>`;
-}

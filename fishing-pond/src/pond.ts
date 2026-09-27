@@ -37,7 +37,7 @@ import {
 } from './data';
 import type { Host } from './screens';
 import { Swimmer, catchArt } from './swim';
-import { Aborted, HINT_MS, Scene, burst, el, flyClone, hint, pick, rand, replay } from './ui';
+import { Aborted, HINT_MS, Scene, burst, el, flyClone, hint, pick, rand, replay } from '../../shared/ui';
 import { say, sayAll } from './voice';
 import { stickerMoment } from '../../shared/sticker-moment';
 import { STICKER_ART } from './stickers';

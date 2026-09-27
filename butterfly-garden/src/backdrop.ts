@@ -1,6 +1,6 @@
 // The living sky behind every screen: day, night and dawn, with drifting clouds.
 import { sound } from './audio';
-import { el, rand } from './ui';
+import { el, rand } from '../../shared/ui';
 
 let root: HTMLElement;
 

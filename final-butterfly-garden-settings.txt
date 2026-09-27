@@ -1,0 +1,120 @@
+Grown-up settings
+Child's name
+
+Used on the title screen and in cheers like “Great job, Sam!”. Leave it empty for no name.
+
+Your voice
+
+Record any line in your own voice. Tap ● to record, tap again to stop. Lines you don’t record use the built-in voice. Lines that are the same in other games, like “Yay!”, only need recording once. Recordings stay on this device only.
+
+0 of 34 lines recorded
+
+“Butterfly Garden!”
+Title screen
+▶
+“Let's grow a butterfly!”
+Pressing play
+▶
+“Pick an egg!”
+Choosing an egg
+▶
+“Tap, tap, tap the egg!”
+Egg is ready to hatch
+▶
+“Achoo! Bless you, egg!”
+Silly: the egg sneezes
+▶
+“Hello, little caterpillar!”
+Caterpillar hatches
+▶
+“The caterpillar is hungry! Tap some yummy food!”
+Feeding starts
+▶
+“Ooh, sparkly!”
+Eating the rare golden leaf
+▶
+“I'm so full! Time for a nap.”
+Done eating
+▶
+“Excuse me!”
+Silly: the caterpillar burps
+▶
+“Tap to wrap it up!”
+Making the chrysalis
+▶
+“Pick a sticker!”
+Decorating the chrysalis
+▶
+“Shh. Night night! Tap the stars.”
+Night time
+▶
+“A shooting star! Make a wish!”
+Silly: shooting star at night
+▶
+“Good morning! Something is wiggling! Tap, tap, tap!”
+Morning, ready to hatch
+▶
+“Wow! A beautiful butterfly!”
+Butterfly appears
+▶
+“Great job!”
+After the butterfly appears
+▶
+“A new one for your book!”
+A new kind of butterfly
+▶
+“You filled your whole butterfly book! Hooray!”
+Book complete
+▶
+“Your butterfly garden!”
+Opening the garden
+▶
+“Your garden is empty. Let's grow a butterfly!”
+Garden with no butterflies
+▶
+“Look! Something new in the garden!”
+A garden surprise unlocked
+▶
+“Mmm, yummy nectar!”
+Feeding a butterfly a flower
+▶
+“Drag a flower to feed the butterflies!”
+Garden tip
+▶
+“Night night, garden!”
+Garden switched to night
+▶
+“Good morning, garden!”
+Garden switched to day
+▶
+“Your butterfly book!”
+Opening the book
+▶
+“Yay!”
+Dot the ladybug cheering
+▶
+“One!”
+Counting
+▶
+“Two!”
+Counting
+▶
+“Three!”
+Counting
+▶
+“Four!”
+Counting
+▶
+“Five!”
+Counting
+▶
+“A sticker for your book!”
+Earning a sticker for the sticker book
+▶
+Butterfly collection
+
+0 butterflies grown so far.
+
+Start a new butterfly book
+
+Tip: add the game to your home screen to play full screen.

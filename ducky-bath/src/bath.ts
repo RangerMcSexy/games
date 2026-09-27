@@ -11,7 +11,7 @@ import { sound } from './audio';
 import { COLOURS, ITEMS, finishBath, nextItem, save, unseenItems, type Item } from './data';
 import { type Host } from './screens';
 import { Tub, type Floater } from './tub';
-import { HINT_MS, Scene, burst, burstAt, center, el, hint, pick, rand, replay, shuffle } from './ui';
+import { HINT_MS, Scene, burst, burstAt, center, el, hint, pick, rand, replay, shuffle } from '../../shared/ui';
 import { say, sayAll } from './voice';
 import { stickerMoment } from '../../shared/sticker-moment';
 import { STICKER_ART } from './stickers';

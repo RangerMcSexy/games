@@ -4,7 +4,7 @@ import { sound } from './audio';
 import { PAINT, PAINTS, markUnlocksSeen, playerName, save, unlocked, unseenUnlocks, type Painting, type UnlockId } from './data';
 import { guide } from './guide';
 import { PICTURES, naturalFills, pictureById, pictureSVG, type Picture } from './pictures';
-import { HINT_MS, Scene, burst, burstAt, el, pick, rand, replay } from './ui';
+import { HINT_MS, Scene, burst, burstAt, el, pick, rand, replay } from '../../shared/ui';
 import { say } from './voice';
 import { tiltable } from './tilt';
 
