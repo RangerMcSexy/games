@@ -79,7 +79,7 @@ export async function titleScreen(host: Host): Promise<'play' | 'garden'> {
   const mine = recent(6);
   const flock = new Flock(flyZone, mine.length >= 3 ? mine : [...mine, ...DEMO].slice(0, 3), {
     size: Math.min(innerWidth, innerHeight) * 0.18,
-    area: { top: 0.02, bottom: 0.7 },
+    area: { top: 0.16, bottom: 0.7 },
     onTap: () => sound.giggle(),
   }).start();
   sc.addCleanup(() => flock.stop());

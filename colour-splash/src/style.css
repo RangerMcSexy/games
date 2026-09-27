@@ -1492,7 +1492,8 @@ svg {
 .u-easel {
   left: 2vw;
   bottom: 1vh;
-  width: clamp(90px, 22vmin, 210px);
+  /* Narrow enough on a phone to keep clear of the buttons in the middle. */
+  width: clamp(64px, min(22vmin, 50vw - 150px), 210px);
   aspect-ratio: 200 / 260;
   pointer-events: auto;
   cursor: pointer;
