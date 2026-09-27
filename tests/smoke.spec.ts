@@ -68,3 +68,53 @@ test('the home page links to every game and shows a newly earned sticker', async
 
   expect(errors).toEqual([]);
 });
+
+test('the helping hand never gives the answer away before a try', async ({ page }) => {
+  const errors = watchErrors(page);
+  // A few letters learned and a few rounds played: three doors to choose from.
+  await page.addInitScript(() => {
+    localStorage.setItem('games.name', '');
+    localStorage.setItem('postie-pip.v1', JSON.stringify({ letters: ['s', 'a', 't'], scores: { s: 1, a: 1, t: 1 }, rounds: 3 }));
+  });
+  await page.goto('/postie-pip/');
+  await page.locator('.play-btn').click({ force: true });
+  const parcel = page.locator('.parcel.bob[data-for]');
+  await expect(parcel).toBeAttached({ timeout: 20_000 });
+  const want = await parcel.getAttribute('data-for');
+  const houses = page.locator('.house.live');
+  await expect(houses).toHaveCount(3);
+
+  /** Which house the hand is over right now. */
+  const handOver = () =>
+    page.evaluate(() => {
+      const hand = document.querySelector('.hint-hand.show');
+      if (!hand) return null;
+      const r = hand.getBoundingClientRect();
+      const x = r.left + r.width / 2;
+      const house = [...document.querySelectorAll<HTMLElement>('.house')].find((h) => {
+        const b = h.getBoundingClientRect();
+        return x > b.left && x < b.right;
+      });
+      return house?.dataset.letter ?? null;
+    });
+
+  // Nobody taps: the hand goes from door to door.
+  const visited = new Set<string>();
+  for (let i = 0; i < 24 && visited.size < 2; i++) {
+    await page.waitForTimeout(500);
+    const at = await handOver();
+    if (at) visited.add(at);
+  }
+  expect(visited.size).toBeGreaterThan(1);
+
+  // Both wrong doors tried: only the right one is left, and the hand points at it.
+  const letters = await houses.evaluateAll((hs) => hs.map((h) => (h as HTMLElement).dataset.letter!));
+  for (const l of letters.filter((l) => l !== want)) {
+    const wrong = page.locator(`.house[data-letter="${l}"]`);
+    await wrong.dispatchEvent('pointerdown');
+    await expect(wrong).toHaveClass(/ruled-out/, { timeout: 10_000 });
+  }
+  await expect.poll(handOver, { timeout: 10_000 }).toBe(want);
+
+  expect(errors).toEqual([]);
+});

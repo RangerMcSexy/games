@@ -19,9 +19,10 @@ different order every time:
   bubbles!"
 - **Squeak a duck by colour:** little ducks plop into the water. "Squeak
   the red duck!" The right one squeaks and hops. A wrong one wobbles ("That
-  one's blue!") and the question is asked again, and after a wrong pick the
-  hand points at the right duck. Two ducks at first, three after a couple of
-  baths.
+  one's blue!"), fades out, and the question is asked again. The hand never
+  gives the answer away: until she has had a go it only visits each duck in
+  turn, and it points at the right one once that's the only one left. Two
+  ducks at first, three after a couple of baths.
 - **Count the little ducks:** "Let's count the ducks!" Tap each one: "One!
   Two! Three!" It starts at three and grows to five over more baths.
 - **Scrub the mud:** "Oh no! Ducky's all muddy!" Tap each splodge and the
@@ -59,7 +60,8 @@ shelf above it).
 
 - Only taps, no dragging. Every tap does something.
 - Nothing can fail: wrong ducks wobble, wrong piles of foam puff away.
-- A hand points at what to tap if nothing's been tapped for a few seconds.
+- A hand points at what to tap if nothing's been tapped for a few seconds
+  (for a question, it visits every answer rather than giving it away).
 - Tapping fast can't break anything.
 
 ## Grown-up settings

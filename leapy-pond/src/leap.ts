@@ -335,22 +335,18 @@ export async function leapScreen(host: Host): Promise<'pond' | 'again'> {
     const right = pads[colours.indexOf(target)];
     pads.forEach((p) => p.el.classList.add('choice'));
     await sc.until(say(`find${cap(target.id)}`), 4000);
-    let misses = 0;
-    for (;;) {
-      // After a wrong pick or two, the hand helps straight away.
-      const i = await sc.tapAny(
-        pads.map((p) => p.el),
-        misses ? 1200 : HINT_MS + 1000,
-        right.el,
-      );
-      if (pads[i] === right) break;
-      misses++;
-      const wrong = pads[i];
-      sound.nope();
-      replay(wrong.el, 'nope');
-      await sc.until(sayAll([`that${cap(wrong.flower!.colour.id)}`, `find${cap(target.id)}`], 300), 6000);
-    }
-    pads.forEach((p) => p.el.classList.remove('choice'));
+    const misses = await sc.ask(
+      pads.map((p) => p.el),
+      pads.indexOf(right),
+      async (i) => {
+        const wrong = pads[i];
+        sound.nope();
+        replay(wrong.el, 'nope');
+        wrong.el.classList.remove('choice');
+        await sc.until(sayAll([`that${cap(wrong.flower!.colour.id)}`, `find${cap(target.id)}`], 300), 6000);
+      },
+    );
+    pads.forEach((p) => p.el.classList.remove('choice', 'ruled-out'));
     await hopTo(right.x, right.y);
     await landOn(right);
     sound.sparkle();

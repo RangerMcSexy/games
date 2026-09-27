@@ -17,9 +17,10 @@ first is always an easy one.
   voice names its colour.
 - **Find the colour:** "Find the red flower!" Each pad has a different
   flower. The right one gets a sparkle and a cheer. A wrong one wobbles
-  ("That one's blue!") and the question is asked again. After a wrong pick
-  the hand points at the right flower. Two flowers to choose from at first,
-  three after a couple of trips.
+  ("That one's blue!"), fades out, and the question is asked again. The hand
+  never gives the answer away: until she has had a go it only visits each
+  flower in turn, and it points at the right one once that's the only one
+  left. Two flowers to choose from at first, three after a couple of trips.
 - **Stepping stones:** "Let's count!" A row of stones to hop along one at a
   time, "One! Two! Three!". It starts at three stones and grows to five as she
   plays more.
@@ -48,7 +49,8 @@ end.
 
 - Only taps, no dragging. Every tap does something.
 - Nothing can fail: wrong answers wobble, the water only splashes.
-- A hand points at a pad if she hasn't tapped for a few seconds.
+- A hand points at a pad if she hasn't tapped for a few seconds (for a
+  question, it visits every answer rather than giving it away).
 
 ## Grown-up settings
 
