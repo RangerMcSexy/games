@@ -4,8 +4,6 @@ import { makeVoice, type Line } from '../../shared/voice';
 import { sound } from './audio';
 import { playerName, save } from './data';
 
-export { Recorder } from '../../shared/voice';
-
 export const LINES: Line[] = [
   { id: 'title', text: "{name}'s Colour Splash!", when: 'Title screen' },
   { id: 'letsPaint', text: "Let's paint, {name}!", when: 'Pressing play' },
@@ -47,10 +45,12 @@ export const LINES: Line[] = [
   { id: 'sticker', text: 'A sticker for your book!', when: 'Earning a sticker for the sticker book' },
 ];
 
-export const { loadRecordings, hasRecording, recordingCount, saveRecording, deleteRecording, stopSpeaking, sayText, say, sayAll, previewLine, lineText } = makeVoice({
+export const voice = makeVoice({
   lines: LINES,
   db: 'colour-splash-voice',
   sound,
   playerName,
   soundOn: () => save.sound,
 });
+
+export const { loadRecordings, hasRecording, stopSpeaking, sayText, say, sayAll } = voice;

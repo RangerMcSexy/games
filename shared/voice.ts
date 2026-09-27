@@ -358,6 +358,7 @@ export function makeVoice({ lines: LINES, db: OWN_DB, sound, playerName, soundOn
   const lineText = (l: Line) => fill(l.text);
 
   return {
+    lines: LINES,
     loadRecordings,
     hasRecording,
     recordingCount,
@@ -371,3 +372,5 @@ export function makeVoice({ lines: LINES, db: OWN_DB, sound, playerName, soundOn
     lineText,
   };
 }
+
+export type Voice = ReturnType<typeof makeVoice>;
