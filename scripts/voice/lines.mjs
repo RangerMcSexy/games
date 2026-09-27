@@ -2,7 +2,7 @@
 // list scripts/voice/generate.py turns into audio clips.
 //
 // Lines are keyed by what they say, with the child's name left out, exactly
-// as the games look them up (see `unnamed` in each game's src/voice.ts).
+// as the games look them up (see `unnamed` in shared/voice.ts).
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
