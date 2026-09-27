@@ -59,7 +59,19 @@ export abstract class SoundBase {
       this.startMusic();
     }
     // Safari says 'interrupted' (not 'suspended') after a call or an app switch.
-    if (this.context.state !== 'running' && !this.sleeping) this.context.resume().catch(() => {});
+    if (this.context.state !== 'running' && !this.sleeping) {
+      this.context.resume().catch(() => {});
+      // Older iPhones and iPads only really start once something has been
+      // played during a tap: a moment of silence will do.
+      try {
+        const src = this.context.createBufferSource();
+        src.buffer = this.context.createBuffer(1, 1, this.context.sampleRate);
+        src.connect(this.context.destination);
+        src.start(0);
+      } catch {
+        /* nothing to do */
+      }
+    }
   }
 
   /** Go quiet while the game is hidden (another app, or the screen is off). */
