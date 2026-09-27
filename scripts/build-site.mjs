@@ -11,7 +11,7 @@ import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const GAMES = ['butterfly-garden', 'bakery', 'colour-splash', 'fishing-pond', 'leapy-pond', 'unicorn-dash'];
+const GAMES = ['butterfly-garden', 'bakery', 'colour-splash', 'fishing-pond', 'leapy-pond', 'unicorn-dash', 'ducky-bath'];
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const site = join(root, 'site');
 

@@ -1,0 +1,1934 @@
+/* Ducky Bath: soft, chunky, toddler-friendly styling. */
+
+:root {
+  --ink: #3d4a6b;
+  --cream: #fffaf0;
+  --safe-top: max(12px, env(safe-area-inset-top));
+  --safe-bottom: max(10px, env(safe-area-inset-bottom));
+  font-family: 'Baloo 2', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  background: #cdeef0;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+button {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+  outline: 4px solid #fff;
+  outline-offset: 4px;
+}
+
+svg {
+  display: block;
+  overflow: visible;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.scene.in {
+  opacity: 1;
+}
+.scene.out {
+  opacity: 0;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Top bar & buttons */
+
+.top-bar {
+  position: absolute;
+  top: var(--safe-top);
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  display: flex;
+  gap: 10px;
+  z-index: 50;
+  pointer-events: none;
+}
+.top-bar .spacer {
+  flex: 1;
+}
+.top-bar button {
+  pointer-events: auto;
+}
+
+.round-btn {
+  display: grid;
+  place-items: center;
+  width: clamp(48px, 9vmin, 70px);
+  height: clamp(48px, 9vmin, 70px);
+  border-radius: 50%;
+  background: #c3a6ec;
+  color: #c3a6ec;
+  box-shadow:
+    0 5px 0 rgba(90, 66, 114, 0.25),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.12s,
+    opacity 0.3s,
+    visibility 0.3s;
+}
+.round-btn svg {
+  width: 58%;
+  height: 58%;
+}
+.round-btn:active {
+  transform: translateY(3px) scale(0.95);
+}
+.round-btn.off {
+  background: #a99bb8;
+}
+.home-btn {
+  background: #ffae5c;
+  color: #ffae5c;
+}
+.round-btn.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.big-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(84px, 18vmin, 150px);
+  height: clamp(84px, 18vmin, 150px);
+  border-radius: 50%;
+  --c: #7fd48f;
+  --d: #56b169;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.45), transparent 45%), var(--c);
+  color: var(--c);
+  border: 5px solid #fff;
+  box-shadow:
+    0 1vmin 0 var(--d),
+    0 1.6vmin 2.4vmin rgba(90, 66, 114, 0.25);
+  transition: transform 0.12s;
+}
+.big-btn svg {
+  width: 56%;
+  height: 56%;
+}
+.big-btn:active {
+  transform: translateY(0.8vmin) scale(0.96);
+}
+.big-btn.green {
+  --c: #7fd48f;
+  --d: #56b169;
+}
+.big-btn.orange {
+  --c: #ffb870;
+  --d: #e8914a;
+}
+.big-btn.purple {
+  --c: #c3a3f0;
+  --d: #9a7ad0;
+}
+.big-btn.blue {
+  --c: #89c2f5;
+  --d: #5e9bd6;
+}
+.big-btn.nudge {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.count-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 2em;
+  height: 2em;
+  padding: 0 0.4em;
+  display: grid;
+  place-items: center;
+  border-radius: 1em;
+  background: #ff8595;
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(16px, 2.8vmin, 24px);
+  line-height: 1;
+  border: 3px solid #fff;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Hint & effects */
+
+.hint-hand {
+  position: fixed;
+  z-index: 70;
+  pointer-events: none;
+  font-size: clamp(56px, 12vmin, 110px);
+  line-height: 1;
+  opacity: 0;
+  transform: translate(-30%, 0);
+  filter: drop-shadow(0 4px 4px rgba(90, 66, 114, 0.3));
+}
+.hint-hand.show {
+  animation: handTap 2.4s ease-in-out forwards;
+}
+
+.fx-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 80;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  line-height: 1;
+}
+.p-confetti {
+  border-radius: 3px;
+}
+.p-bits {
+  border-radius: 40% 60% 30% 70%;
+  border: 2px solid var(--ink);
+}
+.p-sparkle svg {
+  width: 100%;
+  height: 100%;
+}
+.fly-clone {
+  position: absolute;
+  z-index: 81;
+}
+.fly-clone svg {
+  width: 100%;
+  height: 100%;
+}
+
+
+/* Gear (grown-ups) */
+
+.gear-btn {
+  background: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.95);
+  box-shadow: none;
+  width: clamp(40px, 7vmin, 54px);
+  height: clamp(40px, 7vmin, 54px);
+  align-self: center;
+  position: relative;
+}
+.gear-btn .ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  --p: 0%;
+  background: conic-gradient(#ffffff var(--p), transparent 0);
+  -webkit-mask: radial-gradient(circle, transparent 60%, #000 62%);
+  mask: radial-gradient(circle, transparent 60%, #000 62%);
+}
+.gear-btn.holding .ring {
+  animation: ring 3s linear forwards;
+}
+
+/* Settings panel */
+
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  background: rgba(40, 25, 60, 0.5);
+  opacity: 0;
+  transition: opacity 0.25s;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+.settings-overlay.open {
+  opacity: 1;
+}
+.settings {
+  position: relative;
+  width: min(94vw, 640px);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+  border-radius: 22px;
+  box-shadow: 0 20px 60px rgba(40, 20, 60, 0.4);
+  overflow: hidden;
+}
+.settings-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 12px 22px;
+  border-bottom: 2px solid #f1e6d6;
+}
+.settings-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.settings-head .close-btn {
+  position: static;
+  width: 44px;
+  height: 44px;
+}
+.settings-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: 6px 22px 22px;
+}
+.set-sec {
+  padding: 14px 0;
+  border-bottom: 2px solid #f4ece0;
+}
+.set-sec h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+.set-help,
+.set-count,
+.set-foot {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #7a6a8a;
+}
+.set-count {
+  font-weight: 600;
+  color: var(--ink);
+}
+.set-warn {
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff1d6;
+  color: #7a5a2a;
+}
+.set-input {
+  width: 100%;
+  font: inherit;
+  font-size: 18px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid #e3d6f0;
+  background: #fff;
+  color: var(--ink);
+  user-select: text;
+  -webkit-user-select: text;
+}
+.line-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.line-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 10px 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 2px solid #efe6f6;
+}
+.line-row.has {
+  border-color: #b8e3b0;
+  background: #f5fcf2;
+}
+.line-text {
+  flex: 1;
+  min-width: 0;
+}
+.line-say {
+  font-size: 15px;
+  font-weight: 600;
+}
+.line-when {
+  font-size: 12px;
+  color: #9a8aa8;
+}
+.line-btns {
+  display: flex;
+  gap: 6px;
+}
+.lb {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  background: #f1eaf8;
+  color: var(--ink);
+}
+.lb[disabled] {
+  opacity: 0.35;
+}
+.lb.rec span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ff5d73;
+  transition: border-radius 0.2s;
+}
+.lb.rec.recording {
+  background: #ffdfe4;
+  animation: pulse 0.9s ease-in-out infinite;
+}
+.lb.rec.recording span {
+  border-radius: 3px;
+}
+.line-row:not(.has) .lb.del {
+  visibility: hidden;
+}
+.set-danger {
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #ffe3e7;
+  color: #b0324a;
+  font-weight: 700;
+  font-size: 15px;
+}
+.set-danger[disabled] {
+  opacity: 0.6;
+}
+.set-foot {
+  margin-top: 14px;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Shared keyframes */
+
+@property --p {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+@keyframes handTap {
+  0% {
+    opacity: 0;
+    transform: translate(-30%, 30%);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-30%, 0);
+  }
+  30% {
+    transform: translate(-30%, -18%) scale(0.92);
+  }
+  45% {
+    transform: translate(-30%, 0);
+  }
+  60% {
+    transform: translate(-30%, -18%) scale(0.92);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-30%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-30%, 0);
+  }
+}
+@keyframes guideIdle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-4%) rotate(-3deg);
+  }
+}
+@keyframes cheer {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  30% {
+    transform: translateY(-40%) rotate(-10deg) scale(1.1);
+  }
+  60% {
+    transform: translateY(-10%) rotate(200deg);
+  }
+  100% {
+    transform: translateY(0) rotate(360deg);
+  }
+}
+@keyframes hopSmall {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-20%);
+  }
+}
+@keyframes waveBug {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-14deg);
+  }
+  75% {
+    transform: rotate(14deg);
+  }
+}
+@keyframes tickle {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  20% {
+    transform: rotate(-12deg) scale(1.08, 0.94);
+  }
+  40% {
+    transform: rotate(12deg) scale(0.95, 1.06);
+  }
+  60% {
+    transform: rotate(-8deg);
+  }
+  80% {
+    transform: rotate(6deg);
+  }
+}
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  20% {
+    transform: rotate(-12deg) scale(1.05, 0.95);
+  }
+  45% {
+    transform: rotate(10deg) scale(0.96, 1.05);
+  }
+  70% {
+    transform: rotate(-5deg);
+  }
+}
+@keyframes ring {
+  to {
+    --p: 100%;
+  }
+}
+@keyframes letterBounce {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0);
+  }
+  80% {
+    transform: translateY(-0.12em) rotate(-4deg);
+  }
+  90% {
+    transform: translateY(0) rotate(2deg);
+  }
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-1.4vmin) rotate(-4deg);
+  }
+}
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* Like popIn, but leaves `transform` alone so centred things stay centred. */
+@keyframes appear {
+  0% {
+    scale: 0;
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+@keyframes pickBounce {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18) rotate(-4deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-8deg) scale(1.05);
+  }
+  45% {
+    transform: rotate(7deg);
+  }
+  70% {
+    transform: rotate(-4deg);
+  }
+}
+@keyframes jiggle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.04, 0.96);
+  }
+  60% {
+    transform: scale(0.98, 1.03);
+  }
+}
+@keyframes blinkEyes {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes tailWag {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+@keyframes picBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3%);
+  }
+}
+@keyframes chosen {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.14) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1.08);
+  }
+}
+@keyframes shineSweep {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+@keyframes twinkleBtn {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  50% {
+    transform: rotate(10deg) scale(1.06);
+  }
+}
+@keyframes newestIn {
+  0% {
+    transform: translateY(-120%) scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes splatIn {
+  0% {
+    scale: 0.2;
+  }
+  100% {
+    scale: 1;
+  }
+}
+@keyframes flagSway {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+@keyframes balloonBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-6%) rotate(3deg);
+  }
+}
+@keyframes bulbGlow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+/* How far along: a dot per move, a star for the new duck at the end. */
+.trail {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: var(--safe-bottom);
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.4vmin, 12px);
+  padding: 6px 14px 6px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+.trail .dot {
+  width: clamp(12px, 2.4vmin, 20px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  transition:
+    background 0.3s,
+    scale 0.3s;
+}
+.trail .dot.done {
+  background: #5eaaff;
+}
+.trail .dot.now {
+  background: #ffd84a;
+  scale: 1.35;
+}
+.trail .dot.goal {
+  width: auto;
+  aspect-ratio: auto;
+  background: none;
+  color: #fff;
+  font-size: clamp(18px, 3.6vmin, 30px);
+  line-height: 1;
+  -webkit-text-stroke: 0.1em #c3a3f0;
+  paint-order: stroke fill;
+}
+.trail .dot.goal.now,
+.trail .dot.goal.done {
+  color: #ffd84a;
+  -webkit-text-stroke-color: #fff;
+}
+.star-count {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: 4px;
+  color: #fff;
+  font-size: clamp(18px, 3.8vmin, 32px);
+  font-weight: 800;
+  line-height: 1;
+  -webkit-text-stroke: 0.14em #e0a01c;
+  paint-order: stroke fill;
+}
+.star-count svg {
+  width: clamp(26px, 5vmin, 42px);
+  height: auto;
+}
+.star-count.bump svg {
+  animation: pickBounce 0.35s ease-out;
+}
+
+.end-buttons {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(var(--safe-top) + var(--bar) + 2vh);
+  display: flex;
+  justify-content: center;
+  gap: 6vmin;
+  animation: appear 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+/* Opening a present */
+.reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  background: rgba(74, 59, 107, 0);
+  transition: background 0.4s;
+}
+.reveal.open {
+  background: rgba(74, 59, 107, 0.35);
+}
+.reveal.closing {
+  background: rgba(74, 59, 107, 0);
+}
+.reveal-card {
+  --fx: 0px;
+  --fy: 0px;
+  position: relative;
+  width: min(72vmin, 540px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  animation: revealIn 0.75s cubic-bezier(0.3, 1.3, 0.5, 1) both;
+  transition: opacity 0.15s;
+}
+.reveal.closing .reveal-card {
+  opacity: 0;
+}
+.reveal-card::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(#ffffff 40%, #f1e4ff);
+  border: 0.9vmin solid #fff;
+  box-shadow: 0 2vmin 4vmin rgba(74, 59, 107, 0.3);
+}
+.reveal-rays {
+  position: absolute;
+  inset: -6%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255, 240, 160, 0.55) 0 9deg, transparent 9deg 22.5deg);
+  -webkit-mask: radial-gradient(circle, #000 30%, transparent 70%);
+  mask: radial-gradient(circle, #000 30%, transparent 70%);
+  animation: spin 14s linear infinite;
+}
+.reveal-art {
+  position: relative;
+  width: 50%;
+  aspect-ratio: 1;
+  animation: revealBob 1.4s ease-in-out infinite;
+}
+.reveal-art svg {
+  width: 100%;
+  height: 100%;
+}
+.reveal-name {
+  position: absolute;
+  bottom: 9%;
+  padding: 0.05em 0.8em 0;
+  border-radius: 999px;
+  background: #fff;
+  font-size: clamp(22px, 6vmin, 50px);
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 0.6vmin 0 rgba(74, 59, 107, 0.2);
+  animation: appear 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) 0.4s both;
+}
+.reveal-new {
+  position: absolute;
+  top: 6%;
+  right: 8%;
+  font-size: clamp(50px, 13vmin, 110px);
+  line-height: 1;
+  color: #ffd23f;
+  -webkit-text-stroke: 0.06em #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0.5vmin 0.6vmin rgba(74, 59, 107, 0.3));
+  animation: starIn 0.8s cubic-bezier(0.3, 1.6, 0.5, 1) 0.5s both;
+}
+.reveal-new span {
+  display: block;
+  animation: twinkleBtn 1.4s ease-in-out infinite;
+}
+
+/* ======================================================================== */
+/* Ducky Bath                                                               */
+
+:root {
+  --bar: clamp(48px, 9vmin, 70px);
+  --big: clamp(84px, 18vmin, 150px);
+  --plum: #4a3b6b;
+}
+/* The play triangle looks centred when nudged right a little. */
+.big-btn > svg:first-child {
+  margin-left: 6%;
+}
+.shelf-btn > svg:first-child {
+  margin: -8% 0 0 0;
+  width: 64%;
+  height: 64%;
+}
+
+/* ------------------------------------------------------------------------ */
+/* The bathroom: tiles, a band of darker tiles, the floor and a window */
+
+.room {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.wall {
+  position: absolute;
+  inset: 0;
+  background-color: #cdeef0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.8) 3px, transparent 3px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.8) 3px, transparent 3px);
+  background-size: clamp(44px, 9vmin, 84px) clamp(44px, 9vmin, 84px);
+  background-position: 50% 0;
+}
+.wall::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--floor, 82%) - clamp(34px, 7vmin, 64px));
+  height: clamp(34px, 7vmin, 64px);
+  background: #9fdcd8;
+  border-top: clamp(5px, 1vmin, 9px) solid #fff;
+}
+.floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--floor, 82%);
+  bottom: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 clamp(60px, 12vmin, 120px), rgba(190, 128, 66, 0.28) clamp(60px, 12vmin, 120px) calc(clamp(60px, 12vmin, 120px) + 4px)) #f6d7a8;
+  border-top: 6px solid #e8b97a;
+}
+.window {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: calc(var(--safe-top) + var(--bar) + 4vh);
+  width: clamp(90px, 30vw, 170px);
+  translate: -50% 0;
+}
+.window svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.sponge.off {
+  display: none;
+}
+
+/* ------------------------------------------------------------------------ */
+/* The bath */
+
+.tub {
+  position: absolute;
+}
+.tub-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* Back to front: the inside of the bath, the tap and plug, the water,
+   whatever floats on it, the front of the bath, the things on the rim, and
+   bubbles in the air. */
+.back-layer {
+  z-index: 1;
+}
+.rim-layer {
+  z-index: 2;
+}
+.water {
+  z-index: 3;
+}
+.float-layer {
+  z-index: 4;
+}
+.front-layer {
+  z-index: 5;
+}
+.props-layer {
+  z-index: 6;
+}
+.air-layer {
+  z-index: 7;
+}
+.tub-layer > svg {
+  width: 100%;
+  height: 100%;
+}
+.tub-layer > * {
+  position: absolute;
+  pointer-events: auto;
+}
+.tub-layer > svg,
+.tub-layer > .stream,
+.tub-layer > .ripple,
+.tub-layer > .swirl,
+.tub-layer > .water-mark {
+  pointer-events: none;
+}
+.tap,
+.plug,
+.bottle,
+.sponge,
+.floater,
+.rim-duck {
+  cursor: pointer;
+}
+.tap svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 160 / 200;
+}
+.plug svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 60 / 300;
+}
+.bottle svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 100 / 160;
+}
+.sponge svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 120 / 84;
+}
+.duck-art {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 132 / 138;
+}
+.foam svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 140 / 76;
+}
+
+/* Something to do: a soft glow. */
+.tap.live svg,
+.bottle.live svg,
+.plug.live .plug-ring {
+  animation: glow 1.4s ease-in-out infinite;
+}
+.tap-knob {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.tap.turn .tap-knob {
+  animation: knobTurn 0.6s ease-in-out;
+}
+.plug {
+  transition: transform 0.6s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.plug.pulled {
+  transform: translateY(-36%);
+}
+.plug.jiggle {
+  animation: nope 0.4s ease-in-out;
+}
+/* The ring on the rim: a generous round tap area. */
+.plug-ring {
+  position: absolute;
+  left: 50%;
+  top: 5.3%;
+  width: 190%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+}
+.bottle {
+  transform-origin: 50% 100%;
+}
+.bottle.squeeze {
+  animation: squeeze 0.45s ease-out;
+}
+.sponge {
+  transform-origin: 50% 100%;
+  transition: opacity 0.3s;
+}
+.sponge.squish {
+  animation: squash 0.4s ease-out;
+}
+.sponge.out {
+  opacity: 0;
+}
+
+.stream {
+  opacity: 0;
+  border-radius: 0 0 40% 40%;
+  background:
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0 10px, transparent 10px 24px),
+    linear-gradient(90deg, rgba(150, 210, 245, 0.85), rgba(255, 255, 255, 0.95) 45%, rgba(124, 200, 240, 0.9));
+  transition: opacity 0.2s;
+}
+.stream.on {
+  opacity: 1;
+  animation: streamFlow 0.25s linear infinite;
+}
+
+.water {
+  position: absolute;
+  left: 5.4%;
+  right: 5.4%;
+  overflow: hidden;
+  pointer-events: none;
+  border-top: 3px solid #fff;
+  background: linear-gradient(180deg, #c6ecff 0, rgba(124, 200, 240, 0.86) 10px, rgba(94, 178, 230, 0.93) 60%);
+}
+.water-glint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 6px;
+  height: 120px;
+  background-image:
+    radial-gradient(ellipse 34px 4px at 20% 12%, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(ellipse 22px 3px at 70% 40%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(ellipse 28px 3.5px at 45% 75%, rgba(255, 255, 255, 0.55), transparent);
+  background-size: 260px 120px;
+  animation: glint 9s linear infinite;
+}
+
+.floater {
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+.fl-art {
+  position: relative;
+  transform-origin: 50% 97%;
+}
+.floater.hiding {
+  opacity: 0;
+  pointer-events: none;
+}
+.floater.away {
+  pointer-events: none;
+}
+.floater.away .fl-art {
+  animation: sinkAway 0.7s ease-in forwards;
+}
+.floater.puff {
+  pointer-events: none;
+}
+.floater.puff .fl-art {
+  animation: puff 0.55s ease-out forwards;
+}
+.fl-art.drop {
+  animation: dropIn 0.6s cubic-bezier(0.5, 0, 0.75, 0.5) both;
+}
+.fl-art.grow {
+  animation: foamGrow 0.55s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+.fl-art.bob {
+  animation: duckBob 0.6s ease-out;
+}
+.fl-art.nope {
+  animation: nope 0.5s ease-in-out;
+}
+.fl-art.peek {
+  animation: peek 0.7s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.fl-art.hop {
+  animation: duckHop 0.55s ease-out;
+}
+
+.rim-duck .fl-art {
+  transform-origin: 50% 97%;
+}
+.rim-duck.fresh .fl-art {
+  animation: rimIn 0.8s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+.rim-duck .fl-art.hop {
+  animation: duckHop 0.55s ease-out;
+}
+
+.ripple {
+  width: 16%;
+  aspect-ratio: 3;
+  translate: -50% -50%;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  z-index: 5;
+  animation: ripple 0.9s ease-out forwards;
+}
+.ripple.big {
+  width: 26%;
+  border-width: 4px;
+}
+.water-mark {
+  width: 2px;
+  height: 2px;
+}
+
+/* A number over each little duck as it's counted. */
+.count-num {
+  position: absolute;
+  left: 50%;
+  top: -12%;
+  translate: -50% -100%;
+  color: #fff;
+  font-size: clamp(26px, 6vmin, 60px);
+  font-weight: 800;
+  line-height: 1;
+  -webkit-text-stroke: 0.14em #ff8a3d;
+  paint-order: stroke fill;
+  pointer-events: none;
+  animation: appear 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+.mud {
+  position: absolute;
+  width: 24%;
+  translate: -50% -50%;
+  cursor: pointer;
+  animation: splatIn 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.mud svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.mud::after {
+  content: '';
+  position: absolute;
+  inset: -35%;
+  border-radius: 50%;
+}
+.mud.gone {
+  pointer-events: none;
+  animation: mudGone 0.6s ease-in forwards;
+}
+.scrub-sponge {
+  position: absolute;
+  z-index: 25;
+  translate: -50% -50%;
+  pointer-events: none;
+  animation: scrubbing 0.8s ease-in-out forwards;
+}
+.scrub-sponge svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 120 / 84;
+}
+
+.bubble {
+  width: 11%;
+  translate: -50% -50%;
+  z-index: 3;
+  animation:
+    bubbleUp 0.9s cubic-bezier(0.3, 1.3, 0.5, 1) both,
+    bubbleBob 2.6s ease-in-out infinite;
+}
+.bubble svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.bubble::after {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  border-radius: 50%;
+}
+.bubble.drift {
+  width: calc(7.5% * var(--s, 1));
+  animation: drift 7s ease-in forwards;
+}
+
+.big-bubble {
+  left: 50%;
+  top: -6%;
+  width: 26%;
+  aspect-ratio: 1;
+  translate: -50% 0;
+  z-index: 4;
+  animation:
+    bigRise 1.6s cubic-bezier(0.2, 0.8, 0.3, 1) both,
+    bubbleBob 2.6s ease-in-out 1.6s infinite;
+}
+.big-bubble > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.bb-inside {
+  position: absolute;
+  inset: 20%;
+  filter: brightness(0);
+  opacity: 0.22;
+  animation: revealBob 1.6s ease-in-out infinite;
+}
+
+.swirl {
+  width: 14%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  z-index: 6;
+  background: repeating-conic-gradient(rgba(255, 255, 255, 0.85) 0 18deg, transparent 18deg 60deg);
+  -webkit-mask: radial-gradient(circle, transparent 18%, #000 20%, #000 60%, transparent 70%);
+  mask: radial-gradient(circle, transparent 18%, #000 20%, #000 60%, transparent 70%);
+  animation: swirl 0.7s linear infinite;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Title */
+
+.title-scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--safe-top) + var(--bar) * 0.3) 16px calc(var(--safe-bottom) + 2vh);
+}
+.title-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+.logo {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(42px, 12vmin, 130px);
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+.logo-words {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.3em;
+}
+.logo-word {
+  white-space: nowrap;
+}
+.logo-letter {
+  display: inline-block;
+  -webkit-text-stroke: 0.14em #fff;
+  paint-order: stroke fill;
+  text-shadow: 0 0.09em 0 rgba(74, 59, 107, 0.22);
+  animation: letterHop 2.4s ease-in-out infinite;
+}
+.logo-name {
+  font-size: 0.5em;
+  color: #fff;
+  -webkit-text-stroke: 0.16em #5eaaff;
+  paint-order: stroke fill;
+  transform: rotate(-4deg);
+  margin-bottom: 0.08em;
+  animation: floaty 3s ease-in-out infinite;
+}
+.title-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6vmin;
+}
+.play-btn {
+  width: clamp(100px, 22vmin, 180px);
+  height: clamp(100px, 22vmin, 180px);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------------ */
+/* The duck shelf */
+
+.shelf-scene {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 2vh;
+  padding: calc(var(--safe-top) + var(--bar) + 2vh) max(16px, env(safe-area-inset-right)) calc(var(--safe-bottom) + 1vh) max(16px, env(safe-area-inset-left));
+}
+.shelf-scene .room {
+  --floor: 86%;
+  z-index: -1;
+}
+.shelves {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.shelf-row {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: calc(var(--duck, 90px) * 0.14);
+  padding: 0 calc(var(--duck, 90px) * 0.2);
+}
+.shelf-row::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--duck, 90px) * -0.1);
+  height: calc(var(--duck, 90px) * 0.14);
+  border-radius: 8px;
+  background: #e0a96d;
+  border: 3px solid var(--plum);
+  box-shadow: 0 calc(var(--duck, 90px) * 0.06) 0 rgba(74, 59, 107, 0.18);
+}
+.shelf-duck {
+  position: relative;
+  width: var(--duck, 90px);
+}
+.shelf-duck:not(.got) .duck-art {
+  filter: brightness(0);
+  opacity: 0.13;
+}
+.shelf-duck.new .fl-art {
+  animation: pulse 1.2s ease-in-out 3;
+}
+.shelf-duck .fl-art.hop {
+  animation: duckHop 0.55s ease-out;
+}
+.shelf-duck.shake {
+  animation: shake 0.4s ease-in-out;
+}
+.s-bottom {
+  display: flex;
+  justify-content: center;
+}
+.play-btn-small {
+  flex: none;
+  width: clamp(80px, 16vmin, 140px);
+  height: clamp(80px, 16vmin, 140px);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Keyframes */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes squash {
+  0% {
+    transform: scale(1.06, 0.9);
+  }
+  60% {
+    transform: scale(0.98, 1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes nope {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-9deg);
+  }
+  45% {
+    transform: rotate(8deg);
+  }
+  70% {
+    transform: rotate(-4deg);
+  }
+}
+@keyframes revealIn {
+  from {
+    transform: translate(var(--fx), var(--fy)) scale(0.12) rotate(-20deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(0, 0) scale(1) rotate(0);
+  }
+}
+@keyframes revealBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-4%) rotate(3deg);
+  }
+}
+@keyframes starIn {
+  from {
+    transform: scale(0) rotate(-180deg);
+  }
+  to {
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-12%);
+  }
+  75% {
+    transform: translateX(12%);
+  }
+}
+@keyframes letterHop {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  76% {
+    transform: translateY(0) scale(1.1, 0.88);
+  }
+  84% {
+    transform: translateY(-0.2em) scale(0.95, 1.08);
+  }
+  92% {
+    transform: translateY(0) scale(1.05, 0.95);
+  }
+}
+@keyframes duckHop {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  15% {
+    transform: translateY(0) scale(1.06, 0.9);
+  }
+  50% {
+    transform: translateY(-26%) rotate(-10deg);
+  }
+  85% {
+    transform: translateY(0) scale(0.96, 1.04);
+  }
+}
+@keyframes duckBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  30% {
+    transform: translateY(-10%) rotate(-6deg);
+  }
+  65% {
+    transform: translateY(3%) rotate(4deg);
+  }
+}
+@keyframes dropIn {
+  0% {
+    transform: translateY(-240%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(0) scale(1);
+  }
+  82% {
+    transform: translateY(6%) scale(1.08, 0.88);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes foamGrow {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes peek {
+  0% {
+    transform: translateY(40%) scale(0.6);
+  }
+  60% {
+    transform: translateY(-20%) scale(1.1);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes sinkAway {
+  to {
+    transform: translateY(60%) scale(0.6);
+    opacity: 0;
+  }
+}
+@keyframes puff {
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+@keyframes rimIn {
+  0% {
+    transform: translateY(-160%) scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes knobTurn {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  40% {
+    transform: rotate(-25deg) scale(1.1);
+  }
+  70% {
+    transform: rotate(10deg);
+  }
+}
+@keyframes squeeze {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.18, 0.8);
+  }
+  65% {
+    transform: scale(0.94, 1.08);
+  }
+}
+@keyframes glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 4px #fff6a8);
+  }
+}
+.plug.live .plug-ring {
+  animation-name: ringGlow;
+}
+@keyframes ringGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.7);
+  }
+}
+@keyframes streamFlow {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+  to {
+    background-position:
+      0 24px,
+      0 0;
+  }
+}
+@keyframes glint {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: 260px;
+  }
+}
+@keyframes ripple {
+  from {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+@keyframes mudGone {
+  30% {
+    transform: scale(1.1) rotate(10deg);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.2) rotate(-30deg);
+    opacity: 0;
+  }
+}
+@keyframes scrubbing {
+  0% {
+    transform: scale(0.4) rotate(0);
+    opacity: 0;
+  }
+  15% {
+    transform: scale(1) rotate(-12deg);
+    opacity: 1;
+  }
+  30% {
+    transform: translateX(-18%) rotate(10deg);
+  }
+  45% {
+    transform: translateX(18%) rotate(-10deg);
+  }
+  60% {
+    transform: translateX(-14%) rotate(8deg);
+  }
+  78% {
+    transform: translateX(0) rotate(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-40%) scale(0.6);
+    opacity: 0;
+  }
+}
+@keyframes bubbleUp {
+  from {
+    transform: translateY(160%) scale(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes bubbleBob {
+  0%,
+  100% {
+    margin-top: 0;
+  }
+  50% {
+    margin-top: -1.2%;
+  }
+}
+@keyframes drift {
+  0% {
+    transform: translate(0, 0) scale(0.3);
+    opacity: 0;
+  }
+  10% {
+    transform: translate(0, -20%) scale(1);
+    opacity: 1;
+  }
+  35% {
+    transform: translate(40%, -120%);
+  }
+  60% {
+    transform: translate(-30%, -240%);
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(20%, -380%);
+    opacity: 0;
+  }
+}
+@keyframes bigRise {
+  from {
+    transform: translateY(90%) scale(0.2);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes swirl {
+  from {
+    transform: scaleY(0.35) rotate(0);
+  }
+  to {
+    transform: scaleY(0.35) rotate(-360deg);
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Portrait & small screens */
+
+@media (orientation: portrait) {
+  /* Tall screens have room on the wall for a window. */
+  .bath-scene .window {
+    display: block;
+  }
+  .title-scene {
+    padding-top: calc(var(--safe-top) + var(--bar) + 2vh);
+  }
+}
+
+/* Short landscape screens (phones on their side). */
+@media (orientation: landscape) and (max-height: 500px) {
+  .logo {
+    font-size: 13vh;
+  }
+}
+
+/* Calmer screens for anyone who asks their device for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .logo-letter,
+  .logo-name,
+  .play-btn,
+  .reveal-rays,
+  .water-glint,
+  .bb-inside,
+  .tap.live svg,
+  .bottle.live svg,
+  .plug.live .plug-ring {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Layout polish, the same in every game                                    */
+
+/* The grown-up gear matches the round buttons beside it, just quieter. */
+.gear-btn {
+  width: clamp(48px, 9vmin, 70px);
+  height: clamp(48px, 9vmin, 70px);
+  background: rgba(255, 255, 255, 0.75);
+  color: #c3a6ec;
+  box-shadow:
+    0 5px 0 rgba(90, 66, 114, 0.15),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Play sits dead centre, under the title; its partner button to its right. */
+.title-buttons {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 5vmin;
+  width: 100%;
+}
+.title-buttons > .play-btn {
+  grid-column: 2;
+}
+.title-buttons > :not(.play-btn) {
+  grid-column: 3;
+  justify-self: start;
+}
+
+/* A new duck to see: the button bounces with a sparkly star. */
+.shelf-btn .new-star {
+  position: absolute;
+  top: -14px;
+  left: -12px;
+  font-size: clamp(30px, 5.5vmin, 46px);
+  line-height: 1;
+  color: #ffd43b;
+  -webkit-text-stroke: 2px #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 2px 2px rgba(90, 66, 114, 0.3));
+  opacity: 0;
+  scale: 0.3;
+  transition:
+    opacity 0.3s,
+    scale 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.shelf-btn.has-new .new-star {
+  opacity: 1;
+  scale: 1;
+  animation: starTwinkle 1.4s ease-in-out infinite;
+}
+.shelf-btn.has-new {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes starTwinkle {
+  0%,
+  100% {
+    rotate: -12deg;
+  }
+  50% {
+    rotate: 12deg;
+  }
+}
