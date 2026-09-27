@@ -18,6 +18,7 @@ import {
 import { BELL_TUNE, sound } from './audio';
 import { setTime } from './backdrop';
 import {
+  hasShape,
   markUnlocksSeen,
   playerName,
   save,
@@ -40,14 +41,14 @@ export interface Host {
 const LOGO_COLORS = ['#ff8595', '#ffae5c', '#f5c542', '#86d07a', '#6fb2f2', '#b38ff0', '#ff9fcc'];
 
 const DEMO: TreatLook[] = [
-  { kind: 'cupcake', shape: 'heart', batter: 'yellow', icing: 'pink', sprinkles: 3, topper: 'cherry', seed: 'demo1' },
+  { kind: 'cupcake', shape: 'round', batter: 'yellow', icing: 'pink', sprinkles: 3, topper: 'cherry', seed: 'demo1' },
   { kind: 'cake', shape: 'round', batter: 'choc', icing: 'blue', sprinkles: 2, topper: 'candles', candles: 3, lit: true, seed: 'demo2' },
   { kind: 'cookie', shape: 'star', batter: 'yellow', icing: 'purple', sprinkles: 3, topper: 'strawberry', seed: 'demo3' },
 ];
 
 const lookOf = (t: Treat): TreatLook => ({ ...t, seed: t.id, candles: t.topper === 'candles' ? 3 : 0, lit: false });
 
-const namesOf = (t: Pick<TreatLook, 'kind' | 'shape' | 'icing' | 'batter'>) => [t.icing ?? t.batter, t.shape, t.kind];
+const namesOf = (t: Pick<TreatLook, 'kind' | 'shape' | 'icing' | 'batter'>) => (hasShape(t.kind) ? [t.icing ?? t.batter, t.shape, t.kind] : [t.icing ?? t.batter, t.kind]);
 
 function escapeHtml(s: string) {
   return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);

@@ -15,7 +15,8 @@
 // moved into the street.
 //
 // Nothing can go wrong: a wrong door opens a crack, its friend peeps out and
-// says their own letter, and then the hand points the way.
+// says their own letter, and steps aside. The helping hand never gives the
+// answer away: it visits every door until only the right one is left.
 import { ICONS, LETTER_BOX, STROKES, friendSVG, letterSVG } from './art';
 import { sound } from './audio';
 import { FRIENDS, MAX_SCORE, finishRound, friendOf, lookAlike, nextNew, record, save, scoreOf, unseenLetters, type Friend } from './data';
@@ -162,25 +163,22 @@ export async function roundScreen(host: Host): Promise<'again' | 'street'> {
     const ask = picture ? `pic-${target}` : `find-${target}`;
     houses.forEach((h) => h.el.classList.add('live'));
     void talk(ask);
-    let misses = 0;
-    for (;;) {
-      const i = await sc.tapAny(
-        houses.map((h) => h.el),
-        misses ? 1200 : HINT_MS + 1500,
-        right.door,
-      );
-      const h = houses[i];
-      if (h === right) break;
-      // Not this one: the friend inside peeps out and says their letter.
-      misses++;
-      h.el.classList.remove('live');
-      sound.nope();
-      h.knock();
-      h.peek();
-      await speakFor(`is-${h.letter}`, 1600, 4000);
-      h.close();
-      await speak(ask, 4000);
-    }
+    const misses = await sc.ask(
+      houses.map((h) => h.el),
+      houses.indexOf(right),
+      async (i) => {
+        // Not this one: the friend inside peeps out and says their letter.
+        const h = houses[i];
+        h.el.classList.remove('live');
+        sound.nope();
+        h.knock();
+        h.peek();
+        await speakFor(`is-${h.letter}`, 1600, 4000);
+        h.close();
+        await speak(ask, 4000);
+      },
+      HINT_MS + 1500,
+    );
     record(target, misses === 0);
     houses.forEach((h) => h.el.classList.remove('live'));
     right.knock();

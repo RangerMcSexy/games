@@ -27,8 +27,12 @@ Each round is eight moves (the dots along the bottom):
   a new one when a new letter was met this round.
 
 **A wrong door is never wrong:** the door opens a crack and whoever lives
-there peeps out and says their own letter ("M is for mouse!"), then the
-question is asked again and a hand points at the right door.
+there peeps out and says their own letter ("M is for mouse!"), the door
+fades out, and the question is asked again.
+
+**The helping hand never gives the answer away.** If nothing is tapped, it
+visits each door in turn. It only points at the right door once that's the
+only one left.
 
 **Tap Pip** any time for a hello.
 

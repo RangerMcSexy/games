@@ -99,8 +99,12 @@ export class Scene {
     });
   }
 
-  /** Resolves when one of the targets is tapped; shows the hint hand if idle (at `hintAt`, or a random target). */
-  tapAny(targets: Element[], hintAfter = HINT_MS, hintAt?: Element): Promise<number> {
+  /**
+   * Resolves when one of the targets is tapped; shows the hint hand if idle
+   * (at `hintAt`, or a random target). If `hintAt` is a function, the hand
+   * goes wherever it says, asking again every moment or so.
+   */
+  tapAny(targets: Element[], hintAfter = HINT_MS, hintAt?: Element | (() => Element)): Promise<number> {
     return this.guard<number>((resolve) => {
       const offs: (() => void)[] = [];
       targets.forEach((t, i) => {
@@ -111,7 +115,12 @@ export class Scene {
         t.addEventListener('pointerdown', fn);
         offs.push(() => t.removeEventListener('pointerdown', fn));
       });
-      const stopHint = hintAfter > 0 ? hint.schedule(() => hintAt ?? targets[Math.floor(Math.random() * targets.length)], hintAfter) : () => {};
+      const stopHint =
+        hintAfter <= 0
+          ? () => {}
+          : typeof hintAt === 'function'
+            ? hint.schedule(hintAt, hintAfter, 1500)
+            : hint.schedule(() => hintAt ?? targets[Math.floor(Math.random() * targets.length)], hintAfter);
       return () => {
         offs.forEach((f) => f());
         stopHint();
@@ -137,6 +146,34 @@ export class Scene {
    */
   when<T>(executor: (resolve: (v: T) => void) => (() => void) | void): Promise<T> {
     return this.guard(executor);
+  }
+
+  /**
+   * A question with one right answer (`choices[right]`). Resolves once it's
+   * tapped, with how many wrong tries came first.
+   *
+   * The helping hand never gives the answer away before the child has had a
+   * go: when nothing is tapped it visits each choice in turn. A wrong choice
+   * gets `wrong(i)` (which says what it is, "That one's blue!", and asks
+   * again), then steps aside, faded, out of the running. Once only the right
+   * one is left, the hand points straight at it.
+   */
+  async ask(choices: Element[], right: number, wrong: (i: number) => Promise<unknown>, hintAfter = HINT_MS + 1000): Promise<number> {
+    const left = choices.map((_, i) => i);
+    let misses = 0;
+    for (;;) {
+      const els = left.map((i) => choices[i]);
+      let k = Math.floor(Math.random() * els.length);
+      const tour = () => els[k++ % els.length];
+      const last = left.length === 1;
+      const t = await this.tapAny(els, misses ? 1200 : hintAfter, last ? els[0] : tour);
+      const i = left[t];
+      if (i === right) return misses;
+      misses++;
+      await wrong(i);
+      choices[i].classList.add('ruled-out');
+      left.splice(t, 1);
+    }
   }
 
   tap(target: Element, hintAfter = HINT_MS) {
@@ -178,13 +215,14 @@ class Hint {
   private timer = 0;
   private follow = 0;
 
-  schedule(target: () => Element, delay: number): () => void {
+  /** Shows the hand at `target()` after `delay` ms, and again every `every` ms. */
+  schedule(target: () => Element, delay: number, every = 4000): () => void {
     this.hide();
     const token = ++this.follow;
     this.timer = window.setTimeout(() => {
       if (token !== this.follow) return;
       this.showAt(target());
-      this.timer = window.setInterval(() => token === this.follow && this.showAt(target()), 4000);
+      this.timer = window.setInterval(() => token === this.follow && this.showAt(target()), every);
     }, delay);
     return () => {
       if (token === this.follow) this.hide();

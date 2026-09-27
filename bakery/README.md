@@ -7,13 +7,14 @@ works with a finger on a tablet or with a mouse.
 ## How to play
 
 1. **Ding-a-ling! A customer comes in** through the serving hatch. A thought
-   bubble shows what they'd like, e.g. "Pink! Heart! Cupcake!".
+   bubble shows what they'd like, e.g. "Pink! Heart! Cake!".
 2. **What shall we bake?** Pick a cake, a cupcake or a cookie.
 3. **Crack 3 eggs.** The game counts along: "One! Two! Three!"
 4. **Shake in the sugar.** Three shakes of the sugar shaker, counted again.
 5. **Tap the flour**, then **pick a colour** for the batter.
 6. **Stir.** Rub round the bowl or just tap it.
-7. **Pick a shape**: circle, heart or star.
+7. **Pick a shape** for a cake tin or a cookie cutter: circle, heart or star.
+   (Cupcakes skip this: they bake in a round paper case.)
 8. **Into the oven.** Tap the door shut. It goes *tick-tock… DING!* Tap to
    open it.
 9. **Decorate.** Pick the icing, shake on sprinkles, and choose what goes on
@@ -43,7 +44,7 @@ Pip hop over to show what to tap. Tickle Pip and he giggles.
 | --------------- | ---------------------------------------------------------------------- |
 | Cake / cupcake / cookie | The whole treat                                                |
 | The batter colour | The cake, muffin or cookie itself                                    |
-| The shape       | The cake tin or cookie cutter (cupcakes get a little shaped cookie on top) |
+| The shape       | The cake tin or cookie cutter (cupcakes are always round)              |
 | The icing       | The icing colour, with drips on cakes                                  |
 | Sprinkle shakes | More shakes, more sprinkles                                            |
 | On top          | A cherry, a strawberry or three candles                                |
@@ -92,7 +93,7 @@ cake up extra big, *boing*!
 - **Record your own voice** for every spoken line: tap ● to record, tap again
   to stop. Anything you don't record uses the device's built-in voice.
   Recordings stay on the device. Colours, shapes and treat names are separate
-  words, so "Pink! Heart! Cupcake!" uses your voice too.
+  words, so "Pink! Heart! Cake!" uses your voice too.
 - Start a new shop window.
 
 Microphone access needs the page to be served from a web address (`https://`

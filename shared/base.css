@@ -190,6 +190,15 @@ svg {
 /* ------------------------------------------------------------------------ */
 /* Hint & effects */
 
+/* A wrong answer, once it has said what it is, fades back out of the running. */
+.ruled-out {
+  opacity: 0.4;
+  filter: grayscale(0.7);
+  transition:
+    opacity 0.5s,
+    filter 0.5s;
+}
+
 .hint-hand {
   position: fixed;
   z-index: 70;

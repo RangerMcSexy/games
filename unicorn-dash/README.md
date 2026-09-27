@@ -20,9 +20,10 @@ are counted at the left. The first move is always a jump.
   stars along the way are caught just by running.
 - **Pop the balloon:** Sparkle stops and balloons float up. "Pop the red
   balloon!" The right one pops with confetti. A wrong one wobbles ("That
-  one's blue!") and the question is asked again. After a wrong pick the hand
-  points at the right balloon. Two balloons at first, three after a couple
-  of dashes.
+  one's blue!"), fades out, and the question is asked again. The hand never
+  gives the answer away: until she has had a go it only visits each balloon
+  in turn, and it points at the right one once that's the only one left. Two
+  balloons at first, three after a couple of dashes.
 - **Count the fences:** "Fences! Let's count!" A row of little fences to jump
   one at a time, "One! Two! Three!". It starts at three and grows to five as
   she plays more.
@@ -56,7 +57,8 @@ all. After that, old ones come round again.
 - Only taps, no dragging. Every tap does something.
 - Nothing can fail: Sparkle waits at anything she has to jump, wrong balloons
   wobble, puddles only splash.
-- A hand points at what to tap if she hasn't tapped for a few seconds.
+- A hand points at what to tap if she hasn't tapped for a few seconds (for a
+  question, it visits every answer rather than giving it away).
 
 ## Grown-up settings
 

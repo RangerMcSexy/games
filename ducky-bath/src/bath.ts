@@ -5,7 +5,8 @@
 // bubble floats up with a new rubber duck inside.
 //
 // Nothing can go wrong: a wrong duck or a wrong pile of bubbles just
-// wobbles, and a hand points the way after a few seconds.
+// wobbles and steps aside; the helping hand visits every answer in turn
+// rather than giving it away, and points once only the right one is left.
 import { ICONS, bigBubbleSVG, bubbleSVG, colourLook, duckSVG, mudSVG, spongeSVG, type TubShape } from './art';
 import { sound } from './audio';
 import { COLOURS, ITEMS, finishBath, nextItem, save, unseenItems, type Item } from './data';
@@ -295,19 +296,15 @@ export async function bathScreen(host: Host): Promise<'again' | 'shelf'> {
     const right = ducks[colours.indexOf(target)];
     await sc.wait(700 + n * 220);
     await speak(`sq${cap(target.id)}`, 4000);
-    let misses = 0;
-    for (;;) {
-      const i = await sc.tapAny(
-        ducks.map((d) => d.el),
-        misses ? 1200 : HINT_MS + 1000,
-        right.el,
-      );
-      if (ducks[i] === right) break;
-      misses++;
-      sound.nope();
-      replay(ducks[i].art, 'nope');
-      await speak([`that${cap(colours[i].id)}`, `sq${cap(target.id)}`], 6000);
-    }
+    const misses = await sc.ask(
+      ducks.map((d) => d.el),
+      colours.indexOf(target),
+      async (i) => {
+        sound.nope();
+        replay(ducks[i].art, 'nope');
+        await speak([`that${cap(colours[i].id)}`, `sq${cap(target.id)}`], 6000);
+      },
+    );
     sound.squeak();
     replay(right.art, 'hop');
     burstAt(right.art, { kind: 'sparkle', count: 14, colors: [target.petal, '#fff6a8', '#ffffff'] });
@@ -433,24 +430,25 @@ export async function bathScreen(host: Host): Promise<'again' | 'shelf'> {
     sound.squirt();
     await sc.wait(900);
     await speak('whereBaby', 4000);
-    let misses = 0;
+    // (The hand never shows where Baby Duck is: that would spoil the game.)
     const left = piles.slice();
-    for (;;) {
-      const i = await sc.tapAny(
-        left.map((p) => p.el),
-        misses ? 1200 : HINT_MS + 1000,
-        piles[at].el,
-      );
-      const p = left.splice(i, 1)[0];
+    const puff = (p: Floater) => {
+      left.splice(left.indexOf(p), 1);
       const c = center(p.art);
       tub.remove(p, 'puff', 600);
       sound.whoosh();
       burst(c.x, c.y, { kind: 'drop', count: 14, spread: 0.8, colors: FOAMY });
-      if (p === piles[at]) break;
-      misses++;
-      sound.nope();
-      await speak('notHere', 3000);
-    }
+    };
+    await sc.ask(
+      piles.map((p) => p.el),
+      at,
+      async (i) => {
+        puff(piles[i]);
+        sound.nope();
+        await speak('notHere', 3000);
+      },
+    );
+    puff(piles[at]);
     baby.el.classList.remove('hiding');
     replay(baby.art, 'peek');
     sound.squeak(1.3);

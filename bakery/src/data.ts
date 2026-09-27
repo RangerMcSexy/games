@@ -60,12 +60,18 @@ export interface Treat {
   created: number;
 }
 
+/**
+ * Cakes and cookies come in a shape (the cake tin or the cookie cutter).
+ * Cupcakes don't: they're baked in a round paper case.
+ */
+export const hasShape = (k: Kind) => k !== 'cupcake';
+
 export function matchesWish(t: Pick<Treat, 'kind' | 'shape' | 'batter' | 'icing'>, w: Wish) {
-  return t.kind === w.kind && t.shape === w.shape && (t.icing === w.color || t.batter === w.color);
+  return t.kind === w.kind && (!hasShape(t.kind) || t.shape === w.shape) && (t.icing === w.color || t.batter === w.color);
 }
 
 export function nameOf(t: Pick<Treat, 'kind' | 'shape' | 'icing'>): string {
-  return `${PALETTE[t.icing].name} ${SHAPE_NAMES[t.shape]} ${KIND_NAMES[t.kind]}`;
+  return hasShape(t.kind) ? `${PALETTE[t.icing].name} ${SHAPE_NAMES[t.shape]} ${KIND_NAMES[t.kind]}` : `${PALETTE[t.icing].name} ${KIND_NAMES[t.kind]}`;
 }
 
 /** A small deterministic random generator, so a treat always looks the same. */

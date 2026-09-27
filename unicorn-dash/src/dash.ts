@@ -559,20 +559,15 @@ export async function dashScreen(host: Host): Promise<'again' | 'dress'> {
     const right = balloons[colours.indexOf(target)];
     await sc.wait(500);
     await speak(`pop${cap(target.id)}`, 4000);
-    let misses = 0;
-    for (;;) {
-      const i = await sc.tapAny(
-        balloons.map((b) => b.el),
-        misses ? 1200 : HINT_MS + 1000,
-        right.el,
-      );
-      if (balloons[i] === right) break;
-      misses++;
-      const wrong = balloons[i];
-      sound.nope();
-      replay(wrong.el, 'nope');
-      await speak([`that${cap(colours[i].id)}`, `pop${cap(target.id)}`], 6000);
-    }
+    const misses = await sc.ask(
+      balloons.map((b) => b.el),
+      balloons.indexOf(right),
+      async (i) => {
+        sound.nope();
+        replay(balloons[i].el, 'nope');
+        await speak([`that${cap(colours[i].id)}`, `pop${cap(target.id)}`], 6000);
+      },
+    );
     // Pop! The others float away.
     const c = center(right.el);
     sound.bang();
