@@ -81,9 +81,10 @@ rounded font included.
 ## Tech notes
 
 - Vite + TypeScript, no framework, no runtime dependencies. It has the same
-  structure as the other games. `ui.ts`, `voice.ts`,
-  `settings.ts` and the audio engine are shared by all the games (in
-  `../shared/`); each game still builds into its own single, offline file.
+  structure as the other games. The code and
+  look every game has in common (`ui.ts`, `voice.ts`, `settings.ts`, the audio
+  engine, the start-up and top bar in `shell.ts`, and `base.css`) live in
+  `../shared/`; each game still builds into its own single, offline file.
 - All the art is SVG drawn in code (`src/art.ts`): Hoppy seen from above
   (sitting and mid-leap), pads, flowers, flies, stones and the friends.
 - `src/leap.ts` runs a trip. Everything in the pond has a place measured in

@@ -1,6 +1,6 @@
 // Opens every game in a real browser and plays the first moments: skip the
 // name card, press play, wait for the helping hand, and open the grown-up
-// settings. Any error on the page fails the test.
+// settings. Also checks the home-screen icon gets drawn. Any error on the page fails the test.
 import { expect, test, type Page } from '@playwright/test';
 import { BOOK } from '../shared/stickers';
 
@@ -16,7 +16,14 @@ for (const { game, title } of BOOK) {
     const errors = watchErrors(page);
     await page.goto(`/${game}/`);
 
+    // The icon for "Add to Home Screen" is drawn when the game opens.
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toBeAttached();
+    const icon = await page.locator('link[rel="apple-touch-icon"]').getAttribute('href');
+    expect(icon).toMatch(/^data:image\/png;base64,.{2000,}/);
+
     await page.locator('.ask-skip').click();
+    const home = page.locator('.home-btn');
+    await expect(home).toHaveAttribute('aria-label', 'All games');
     // The play button bounces, so don't wait for it to hold still.
     await page.locator('.play-btn').click({ force: true });
     // Nobody taps: the helping hand comes to show what to do.
@@ -31,6 +38,14 @@ for (const { game, title } of BOOK) {
     await expect(page.locator('.settings')).toBeVisible();
     await expect(page.locator('.line-row').first()).toBeVisible();
     await expect(page.locator('.set-count')).toHaveText(/^0 of \d+ lines recorded$/);
+    await page.locator('.settings .close-btn').click();
+    await expect(page.locator('.settings')).toHaveCount(0);
+
+    // Home goes back to the title screen.
+    await expect(home).toHaveAttribute('aria-label', 'Home');
+    await home.dispatchEvent('pointerdown');
+    await expect(page.locator('.title-scene')).toBeAttached();
+    await expect(home).toHaveAttribute('aria-label', 'All games');
 
     expect(errors).toEqual([]);
   });
