@@ -5,7 +5,7 @@
 // then fetches the new copies in the background and uses them next time.
 const VERSION = '__VERSION__';
 const CACHE = `games-${VERSION}`;
-const FILES = ['./', 'ask-name.js', 'book.js', 'book.css', 'stickers.js', 'butterfly-garden/', 'bakery/', 'colour-splash/', 'fishing-pond/', 'leapy-pond/', 'unicorn-dash/', 'ducky-bath/', 'fonts/baloo-2-latin-800-normal.woff2'];
+const FILES = ['./', 'ask-name.js', 'book.js', 'book.css', 'stickers.js', 'butterfly-garden/', 'bakery/', 'colour-splash/', 'fishing-pond/', 'leapy-pond/', 'unicorn-dash/', 'ducky-bath/', 'postie-pip/', 'fonts/baloo-2-latin-800-normal.woff2'];
 // The voice clips, filled in by the build.
 const VOICE = [];
 

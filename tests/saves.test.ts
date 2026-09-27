@@ -30,6 +30,9 @@ const COLLECT: Record<string, (data: any) => void> = {
   'ducky-bath': (d) => {
     for (let i = 0; i < 3; i++) d.finishBath(d.nextItem().item);
   },
+  'postie-pip': (d) => {
+    for (const f of d.FRIENDS.slice(0, 3)) d.finishRound(f);
+  },
 };
 
 /** Loads the game's data module afresh, as opening the game would. */

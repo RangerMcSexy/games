@@ -114,6 +114,19 @@ export const BOOK: BookPage[] = [
       { id: 'golden-duck', name: 'Golden Duck!', at: 12 },
     ],
   },
+  {
+    game: 'postie-pip',
+    title: 'Postie Pip',
+    hello: 'Postie Pip!',
+    key: 'postie-pip.v1',
+    count: 'letters',
+    stickers: [
+      { id: 'pip-postie', name: 'Pip the postie!', at: 1 },
+      { id: 'parcel', name: 'A parcel!', at: 3 },
+      { id: 'postbox', name: 'A post box!', at: 6 },
+      { id: 'letter-blocks', name: 'Letter blocks!', at: 12 },
+    ],
+  },
 ];
 
 /** Where the sticker book keeps which stickers are stuck in (and shown). */

@@ -7,7 +7,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const GAMES = ['butterfly-garden', 'bakery', 'colour-splash', 'fishing-pond', 'leapy-pond', 'unicorn-dash', 'ducky-bath'];
+const GAMES = ['butterfly-garden', 'bakery', 'colour-splash', 'fishing-pond', 'leapy-pond', 'unicorn-dash', 'ducky-bath', 'postie-pip'];
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const unnamed = (text) => text.replace(/\{name\}'s\s*/g, '').replace(/,?\s*\{name\}/g, '');
 

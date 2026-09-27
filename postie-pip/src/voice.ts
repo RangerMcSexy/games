@@ -1,0 +1,91 @@
+// This game's spoken lines. How they're spoken (a grown-up's recording, a
+// natural-voice clip or the device's voice) is in shared/voice.ts.
+//
+// Letters are said by their names ("S is for snake!"). A grown-up who'd
+// rather use letter sounds ("sss is for snake!") can record those lines in
+// their own voice.
+import { makeVoice, type Line } from '../../shared/voice';
+import { sound } from './audio';
+import { playerName, save } from './data';
+
+export const LINES: Line[] = [
+  { id: 'title', text: "{name}'s Postie Pip!", when: 'Title screen' },
+  { id: 'letsGo', text: "Let's take the post, {name}!", when: 'Pressing play' },
+  { id: 'hello', text: "Hello! I'm Pip the postie!", when: 'Tapping Pip on the title' },
+  { id: 'hiPip', text: 'Parcels for everyone!', when: 'Tapping Pip' },
+  { id: 'newLetter', text: 'A new letter!', when: 'Meeting a new letter' },
+  { id: 'knock', text: 'Knock on the door!', when: 'Meeting a new letter' },
+  { id: 'draw', text: "Let's draw it! Tap the dots!", when: 'Drawing a letter' },
+  { id: 'lastParcel', text: 'The last parcel is for you, {name}!', when: 'The end of the round' },
+  { id: 'whatInside', text: "What's inside?", when: 'The end of the round' },
+  { id: 'newFriend', text: 'A new letter friend!', when: 'Learning a new letter' },
+  { id: 'allFriends', text: 'You know every letter, {name}!', when: 'All 12 letters learned' },
+  { id: 'thankYou', text: 'Thank you, Pip!', when: 'A parcel delivered' },
+  { id: 'l-s', text: 'S!', when: 'Letters' },
+  { id: 'l-a', text: 'A!', when: 'Letters' },
+  { id: 'l-t', text: 'T!', when: 'Letters' },
+  { id: 'l-m', text: 'M!', when: 'Letters' },
+  { id: 'l-p', text: 'P!', when: 'Letters' },
+  { id: 'l-o', text: 'O!', when: 'Letters' },
+  { id: 'l-c', text: 'C!', when: 'Letters' },
+  { id: 'l-h', text: 'H!', when: 'Letters' },
+  { id: 'l-d', text: 'D!', when: 'Letters' },
+  { id: 'l-f', text: 'F!', when: 'Letters' },
+  { id: 'l-e', text: 'E!', when: 'Letters' },
+  { id: 'l-b', text: 'B!', when: 'Letters' },
+  { id: 'is-s', text: 'S is for snake!', when: 'The snake at the S house' },
+  { id: 'is-a', text: 'A is for ant!', when: 'The ant at the A house' },
+  { id: 'is-t', text: 'T is for tiger!', when: 'The tiger at the T house' },
+  { id: 'is-m', text: 'M is for mouse!', when: 'The mouse at the M house' },
+  { id: 'is-p', text: 'P is for pig!', when: 'The pig at the P house' },
+  { id: 'is-o', text: 'O is for octopus!', when: 'The octopus at the O house' },
+  { id: 'is-c', text: 'C is for cat!', when: 'The cat at the C house' },
+  { id: 'is-h', text: 'H is for hen!', when: 'The hen at the H house' },
+  { id: 'is-d', text: 'D is for dog!', when: 'The dog at the D house' },
+  { id: 'is-f', text: 'F is for fox!', when: 'The fox at the F house' },
+  { id: 'is-e', text: 'E is for elephant!', when: 'The elephant at the E house' },
+  { id: 'is-b', text: 'B is for bear!', when: 'The bear at the B house' },
+  { id: 'find-s', text: 'Find the letter S!', when: 'A parcel for S' },
+  { id: 'find-a', text: 'Find the letter A!', when: 'A parcel for A' },
+  { id: 'find-t', text: 'Find the letter T!', when: 'A parcel for T' },
+  { id: 'find-m', text: 'Find the letter M!', when: 'A parcel for M' },
+  { id: 'find-p', text: 'Find the letter P!', when: 'A parcel for P' },
+  { id: 'find-o', text: 'Find the letter O!', when: 'A parcel for O' },
+  { id: 'find-c', text: 'Find the letter C!', when: 'A parcel for C' },
+  { id: 'find-h', text: 'Find the letter H!', when: 'A parcel for H' },
+  { id: 'find-d', text: 'Find the letter D!', when: 'A parcel for D' },
+  { id: 'find-f', text: 'Find the letter F!', when: 'A parcel for F' },
+  { id: 'find-e', text: 'Find the letter E!', when: 'A parcel for E' },
+  { id: 'find-b', text: 'Find the letter B!', when: 'A parcel for B' },
+  { id: 'pic-s', text: 'A parcel for the snake!', when: 'A parcel with a picture on' },
+  { id: 'pic-a', text: 'A parcel for the ant!', when: 'A parcel with a picture on' },
+  { id: 'pic-t', text: 'A parcel for the tiger!', when: 'A parcel with a picture on' },
+  { id: 'pic-m', text: 'A parcel for the mouse!', when: 'A parcel with a picture on' },
+  { id: 'pic-p', text: 'A parcel for the pig!', when: 'A parcel with a picture on' },
+  { id: 'pic-o', text: 'A parcel for the octopus!', when: 'A parcel with a picture on' },
+  { id: 'pic-c', text: 'A parcel for the cat!', when: 'A parcel with a picture on' },
+  { id: 'pic-h', text: 'A parcel for the hen!', when: 'A parcel with a picture on' },
+  { id: 'pic-d', text: 'A parcel for the dog!', when: 'A parcel with a picture on' },
+  { id: 'pic-f', text: 'A parcel for the fox!', when: 'A parcel with a picture on' },
+  { id: 'pic-e', text: 'A parcel for the elephant!', when: 'A parcel with a picture on' },
+  { id: 'pic-b', text: 'A parcel for the bear!', when: 'A parcel with a picture on' },
+  { id: 'goStreet', text: "Let's see your street!", when: 'After learning a new letter' },
+  { id: 'street', text: 'Here is your street!', when: 'Opening your street' },
+  { id: 'streetEmpty', text: "Nobody here yet. Let's take the post!", when: 'Your street with no letters learned yet' },
+  { id: 'streetNew', text: 'Look! A new letter friend!', when: 'A new house on your street' },
+  { id: 'yay', text: 'Yay!', when: 'Cheering' },
+  { id: 'wow', text: 'Wow!', when: 'Cheering' },
+  { id: 'wellDone', text: 'Well done, {name}!', when: 'Cheering' },
+  { id: 'youDidIt', text: 'You did it!', when: 'Cheering' },
+  { id: 'sticker', text: 'A sticker for your book!', when: 'Earning a sticker for the sticker book' },
+];
+
+export const voice = makeVoice({
+  lines: LINES,
+  db: 'postie-pip-voice',
+  sound,
+  playerName,
+  soundOn: () => save.sound,
+});
+
+export const { loadRecordings, hasRecording, stopSpeaking, sayText, say, sayAll } = voice;

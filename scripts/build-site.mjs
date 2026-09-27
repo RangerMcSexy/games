@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const GAMES = ['butterfly-garden', 'bakery', 'colour-splash', 'fishing-pond', 'leapy-pond', 'unicorn-dash', 'ducky-bath'];
+const GAMES = ['butterfly-garden', 'bakery', 'colour-splash', 'fishing-pond', 'leapy-pond', 'unicorn-dash', 'ducky-bath', 'postie-pip'];
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const site = join(root, 'site');
 
