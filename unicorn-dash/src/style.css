@@ -1260,7 +1260,8 @@ svg {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: calc(var(--safe-top) + var(--bar) * 0.3) 16px calc(var(--safe-bottom) + 2vh);
+  /* The title starts below the top bar, clear of its buttons. */
+  padding: calc(var(--safe-top) + var(--bar) + 1vh) 16px calc(var(--safe-bottom) + 2vh);
 }
 .title-bg {
   position: absolute;

@@ -122,7 +122,8 @@ svg {
 .sun {
   position: absolute;
   right: 16%;
-  top: 11%;
+  /* Low enough that its glow stays clear of the buttons along the top. */
+  top: max(11%, calc(var(--safe-top) + clamp(48px, 9vmin, 70px) + 5vmin));
   width: 17vmin;
   height: 17vmin;
   border-radius: 50%;
@@ -2222,6 +2223,54 @@ svg.butterfly.flapping .flap-r {
 .fly-zone {
   z-index: 3;
 }
+/* Phones on their side: the new butterfly on the left, big, with what it
+   was made from and the buttons beside it (stacked, they didn't fit). */
+@media (orientation: landscape) and (max-height: 500px) {
+  .reveal {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
+    column-gap: 5vw;
+    row-gap: 4vh;
+    padding-top: calc(var(--safe-top) + 6vh);
+  }
+  .reveal-fly {
+    grid-row: 1 / span 2;
+    width: 64vh;
+    height: 64vh;
+  }
+  .recipe {
+    align-self: end;
+  }
+  .reveal-actions {
+    align-self: start;
+    margin-top: 0;
+  }
+  .new-badge {
+    top: calc(var(--safe-top) + 14vh);
+    left: auto;
+    right: 55%;
+  }
+}
+
+/* Tall phones: a little smaller, so the title doesn't touch the sides, and
+   the sun lower down, out from behind it. */
+@media (orientation: portrait) {
+  .logo {
+    font-size: min(clamp(44px, 12vmin, 128px), 10.5vw);
+  }
+  .sun {
+    top: 20%;
+  }
+}
+/* The title stays readable: butterflies fly behind it. */
+.title-scene .logo {
+  z-index: 4;
+}
 .garden-scene .fly-zone {
   pointer-events: none;
 }
@@ -2876,9 +2925,17 @@ svg.butterfly.flapping .flap-r {
   justify-self: start;
 }
 
-/* Narrow phones: the title starts below the top bar. */
-@media (max-width: 600px) {
+/* The title always starts below the top bar, so it never runs under its
+   buttons (and the sun keeps clear of them too). */
+.logo {
+  top: calc(var(--safe-top) + clamp(48px, 9vmin, 70px) + 1vh);
+}
+@media (orientation: landscape) and (max-height: 500px) {
   .logo {
-    top: calc(var(--safe-top) + clamp(48px, 9vmin, 70px) + 14px);
+    font-size: 11vh;
+  }
+  .sun {
+    top: 40%;
+    right: 6%;
   }
 }
