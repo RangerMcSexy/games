@@ -1,0 +1,16 @@
+/* Baloo 2 (SIL Open Font Licence), bundled so the game looks right offline.
+   Only the Latin letters and the two weights the game uses. */
+@font-face {
+  font-family: 'Baloo 2';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('@fontsource/baloo-2/files/baloo-2-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Baloo 2';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('@fontsource/baloo-2/files/baloo-2-latin-800-normal.woff2') format('woff2');
+}

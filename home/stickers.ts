@@ -8,6 +8,7 @@ import { STICKER_ART as colours } from '../colour-splash/src/stickers';
 import { STICKER_ART as ducks } from '../ducky-bath/src/stickers';
 import { STICKER_ART as fish } from '../fishing-pond/src/stickers';
 import { STICKER_ART as pond } from '../leapy-pond/src/stickers';
+import { STICKER_ART as letters } from '../postie-pip/src/stickers';
 import { STICKER_ART as unicorn } from '../unicorn-dash/src/stickers';
 
 const ART: Record<string, Record<string, () => string>> = {
@@ -18,6 +19,7 @@ const ART: Record<string, Record<string, () => string>> = {
   'leapy-pond': pond,
   'unicorn-dash': unicorn,
   'ducky-bath': ducks,
+  'postie-pip': letters,
 };
 
 export const PAGES = BOOK.map((p) => ({ ...p, stickers: p.stickers.map((s) => ({ ...s, svg: ART[p.game][s.id] })) }));

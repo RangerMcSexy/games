@@ -1,0 +1,997 @@
+/* Postie Pip: soft, chunky, toddler-friendly styling. */
+
+:root {
+  --ink: #3d4a6b;
+  --plum: #4a3b6b;
+  --bar: clamp(48px, 9vmin, 70px);
+  --safe-top: max(12px, env(safe-area-inset-top));
+  --safe-bottom: max(10px, env(safe-area-inset-bottom));
+  font-family: 'Baloo 2', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  background: #bfe6ff;
+}
+
+/* The play triangle looks centred when nudged right a little. */
+.big-btn > svg:first-child {
+  margin-left: 6%;
+}
+.street-btn > svg:first-child {
+  margin: -4% 0 0 0;
+  width: 64%;
+  height: 64%;
+}
+
+/* ------------------------------------------------------------------------ */
+/* The street: sky, hills, clouds and the pavement */
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: linear-gradient(#9fd8ff, #d6f0ff 55%, #f1fbff);
+  pointer-events: none;
+}
+.hill {
+  position: absolute;
+  border-radius: 50% 50% 0 0;
+}
+.hill-back {
+  left: -20%;
+  right: 30%;
+  bottom: calc(var(--ground, 16vh) - 4vh);
+  height: 30vh;
+  background: #b9e6a4;
+}
+.hill-front {
+  left: 40%;
+  right: -25%;
+  bottom: calc(var(--ground, 16vh) - 6vh);
+  height: 24vh;
+  background: #a3dc8b;
+}
+.cloud {
+  position: absolute;
+  left: 0;
+  width: calc(22vmin * var(--s, 1));
+  opacity: 0.95;
+  animation: cloudDrift linear infinite;
+}
+.cloud svg {
+  width: 100%;
+  height: auto;
+}
+.ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--ground, 16vh);
+  /* A strip of kerb, then paving slabs, then a strip of grass. */
+  background:
+    linear-gradient(#e8dff0 0 10px, #c9bddb 10px 16px, transparent 16px),
+    repeating-linear-gradient(90deg, transparent 0 calc(var(--ground, 16vh) * 0.9 - 3px), rgba(90, 66, 114, 0.14) 0 calc(var(--ground, 16vh) * 0.9)) 0 0 / auto 62% no-repeat,
+    linear-gradient(transparent 62%, #8fd07a 62%),
+    #efe8f4;
+}
+.walking .ground {
+  animation: paving 0.9s cubic-bezier(0.45, 0.05, 0.4, 1);
+}
+
+/* A row of houses standing on the pavement. */
+.row {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: var(--row-bottom, 12vh);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: var(--gap, 3vw);
+  pointer-events: none;
+}
+.row .house {
+  pointer-events: auto;
+}
+
+/* ------------------------------------------------------------------------ */
+/* A house, with a door that opens */
+
+.house {
+  position: relative;
+  flex: none;
+  width: var(--house, 200px);
+  aspect-ratio: 200 / 250;
+  cursor: pointer;
+}
+/* The tap area reaches a bit past the house. */
+.house::after {
+  content: '';
+  position: absolute;
+  inset: -6% -4%;
+}
+.house-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0.8vmin 0 rgba(74, 59, 107, 0.15));
+}
+.house.shake {
+  animation: shake 0.4s ease-in-out;
+}
+.house.empty .house-art {
+  opacity: 0.75;
+}
+.doorway {
+  position: absolute;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 50% 50% 3% 3% / 30% 30% 2% 2%;
+  perspective: 500px;
+}
+.inside {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 90%, #8a6fb0, #4a3b6b 70%);
+}
+.animal {
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: 0;
+  transform: translateY(105%);
+  transition: transform 0.45s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.animal svg {
+  width: 100%;
+  height: auto;
+}
+.house.open .animal {
+  transform: translateY(0) scale(1.06);
+  transition-delay: 0.12s;
+}
+.house.peek .animal {
+  transform: translateY(38%);
+  transition-delay: 0.1s;
+}
+.door {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  padding-top: 16%;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25), transparent 50%),
+    var(--door, #ffd84a);
+  box-shadow:
+    inset 0 0 0 max(2px, 0.4vmin) var(--plum),
+    inset 0 -1.2vmin 0 rgba(74, 59, 107, 0.12);
+  transform-origin: 0 50%;
+  transition: transform 0.4s ease;
+}
+.house.open .door {
+  transform: rotateY(-82deg);
+}
+.house.peek .door {
+  transform: rotateY(-48deg);
+}
+.door.knocked {
+  animation: knocked 0.35s ease-in-out 2;
+}
+.plaque {
+  width: 88%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 18%;
+  background: #fff;
+  box-shadow:
+    0 0 0 max(2px, 0.4vmin) var(--plum),
+    0 0.6vmin 0 max(2px, 0.4vmin) rgba(74, 59, 107, 0.2);
+}
+.plaque svg {
+  width: 82%;
+  height: 92%;
+}
+.plaque.hello-plaque,
+.door.hello-plaque .plaque {
+  animation: pickBounce 0.6s ease-out 2;
+}
+.knob {
+  position: absolute;
+  right: 12%;
+  top: 70%;
+  width: 11%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ffe066;
+  box-shadow: 0 0 0 max(1.5px, 0.3vmin) var(--plum);
+}
+/* Houses to choose from glow a little. */
+.house.live .door {
+  animation: doorGlow 1.6s ease-in-out infinite;
+}
+.house.live .plaque {
+  animation: plaqueBob 1.6s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Pip and the parcels */
+
+.pip {
+  position: absolute;
+  z-index: 4;
+  left: max(2vw, env(safe-area-inset-left));
+  bottom: calc(var(--ground, 16vh) * 0.05);
+  height: var(--pip, 120px);
+  aspect-ratio: 140 / 186;
+  cursor: pointer;
+  transform-origin: 50% 100%;
+}
+.pip svg {
+  width: 100%;
+  height: 100%;
+}
+.pip .pip-wing-r {
+  transform-origin: 38px -2px;
+  transform-box: view-box;
+}
+.pip.waving .pip-wing-r {
+  animation: wave 0.9s ease-in-out;
+}
+.pip.waving {
+  animation: hopSmall 0.5s ease-out;
+}
+.walking .pip {
+  animation: waddle 0.3s ease-in-out 3;
+}
+.pip.hand-over .pip-bag {
+  animation: bagOpen 0.5s ease-out;
+  transform-origin: 37px 20px;
+  transform-box: view-box;
+}
+.pip-art .pip-eyes {
+  animation: blinkEyes 4.2s infinite;
+  transform-origin: 0 -41px;
+  transform-box: view-box;
+}
+
+.parcel {
+  position: absolute;
+  z-index: 6;
+  left: calc(50% - var(--parcel, 200px) / 2);
+  top: var(--parcel-top, 100px);
+  width: var(--parcel, 200px);
+  aspect-ratio: 200 / 176;
+  cursor: pointer;
+}
+.parcel svg.parcel-art {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1vmin 1vmin rgba(74, 59, 107, 0.25));
+}
+.parcel.bob {
+  animation: parcelBob 2.2s ease-in-out infinite;
+}
+.parcel.gift.bob {
+  animation:
+    parcelBob 2.2s ease-in-out infinite,
+    pulse 1.4s ease-in-out infinite;
+}
+.parcel.unwrap {
+  animation: jiggle 0.35s ease-in-out;
+}
+.parcel .label {
+  position: absolute;
+  left: 28%;
+  top: 36.4%;
+  width: 44%;
+  height: 54.5%;
+  display: grid;
+  place-items: center;
+  border-radius: 14%;
+  background: #fff;
+  box-shadow: 0 0 0 max(2px, 0.35vmin) var(--plum);
+}
+.parcel .label svg {
+  width: 86%;
+  height: 90%;
+}
+.parcel .label .friend-art {
+  width: 96%;
+  height: auto;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Drawing a letter: tap the dots along it */
+
+.trace {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  display: grid;
+  place-items: center;
+  background: rgba(74, 59, 107, 0);
+  transition: background 0.35s;
+  touch-action: none;
+}
+.trace.open {
+  background: rgba(74, 59, 107, 0.3);
+}
+.trace-card {
+  width: min(64vmin, 440px);
+  aspect-ratio: 1;
+  max-height: calc(100% - var(--safe-top) - var(--bar) - 70px);
+  margin-top: calc(var(--bar) * 0.6);
+  display: grid;
+  place-items: center;
+  padding: 4%;
+  border-radius: 12%;
+  background: #fffaf0;
+  border: 1vmin solid #fff;
+  box-shadow:
+    0 1.4vmin 0 rgba(74, 59, 107, 0.2),
+    0 2vmin 4vmin rgba(74, 59, 107, 0.3);
+  transform: scale(0.3);
+  opacity: 0;
+  transition:
+    transform 0.4s cubic-bezier(0.3, 1.4, 0.5, 1),
+    opacity 0.25s;
+}
+.trace.open .trace-card {
+  transform: none;
+  opacity: 1;
+}
+.trace-card svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.trace-card .guide {
+  fill: none;
+  stroke: #e9e1f2;
+  stroke-width: 15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.trace-card .ink {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke-dashoffset 0.3s ease-out;
+}
+.trace-card .start {
+  fill: #7fd35b;
+  stroke: #fff;
+  stroke-width: 2;
+}
+.trace-card .dot {
+  fill: #fff;
+  stroke: #c3b1dc;
+  stroke-width: 2.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    fill 0.2s,
+    stroke 0.2s,
+    opacity 0.3s;
+}
+.trace-card .dot.next {
+  fill: #ffd84a;
+  stroke: #fff;
+  stroke-width: 3;
+  animation: dotPulse 1s ease-in-out infinite;
+}
+.trace-card .dot.done {
+  opacity: 0;
+}
+.trace-card .dot.nudge {
+  animation: pickBounce 0.4s ease-out;
+}
+.trace-card.drawn {
+  animation: pickBounce 0.6s ease-out;
+}
+
+/* ------------------------------------------------------------------------ */
+/* How far along: a dot per move, a star for the parcel at the end. */
+
+.trail {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: var(--safe-bottom);
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.4vmin, 12px);
+  padding: 6px 14px 6px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+.trail .dot {
+  width: clamp(12px, 2.4vmin, 20px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 0 0 2px rgba(74, 59, 107, 0.12);
+  transition:
+    background 0.3s,
+    scale 0.3s;
+}
+.trail .dot.done {
+  background: #ff6b6b;
+}
+.trail .dot.now {
+  background: #ffd84a;
+  scale: 1.35;
+}
+.trail .dot.goal {
+  width: auto;
+  aspect-ratio: auto;
+  background: none;
+  box-shadow: none;
+  color: #fff;
+  font-size: clamp(18px, 3.6vmin, 30px);
+  line-height: 1;
+  -webkit-text-stroke: 0.1em #c3a3f0;
+  paint-order: stroke fill;
+}
+.trail .dot.goal.now,
+.trail .dot.goal.done {
+  color: #ffd84a;
+  -webkit-text-stroke-color: #fff;
+}
+
+.end-buttons {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(var(--safe-top) + var(--bar) + 4vh);
+  display: flex;
+  justify-content: center;
+  gap: 6vmin;
+  animation: appear 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+/* ------------------------------------------------------------------------ */
+/* The parcel at the end: a letter friend */
+
+.reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  background: rgba(74, 59, 107, 0);
+  transition: background 0.4s;
+}
+.reveal.open {
+  background: rgba(74, 59, 107, 0.35);
+}
+.reveal.closing {
+  background: rgba(74, 59, 107, 0);
+}
+.reveal-card {
+  position: relative;
+  width: min(76vmin, 560px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  animation: revealIn 0.75s cubic-bezier(0.3, 1.3, 0.5, 1) both;
+  transition: opacity 0.15s;
+}
+.reveal.closing .reveal-card {
+  opacity: 0;
+}
+.reveal-card::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(#ffffff 40%, #f1e4ff);
+  border: 0.9vmin solid #fff;
+  box-shadow: 0 2vmin 4vmin rgba(74, 59, 107, 0.3);
+}
+.reveal-rays {
+  position: absolute;
+  inset: -6%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255, 240, 160, 0.55) 0 9deg, transparent 9deg 22.5deg);
+  -webkit-mask: radial-gradient(circle, #000 30%, transparent 70%);
+  mask: radial-gradient(circle, #000 30%, transparent 70%);
+  animation: spin 14s linear infinite;
+}
+.reveal-art {
+  position: relative;
+  width: 62%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4%;
+  margin-top: -6%;
+}
+.reveal-letter {
+  width: 36%;
+  animation: revealBob 1.4s ease-in-out infinite;
+}
+.reveal-letter svg {
+  width: 100%;
+  height: auto;
+}
+.reveal-friend {
+  width: 56%;
+  animation: revealBob 1.4s ease-in-out 0.3s infinite;
+}
+.reveal-friend svg {
+  width: 100%;
+  height: auto;
+}
+.reveal-name {
+  position: absolute;
+  bottom: 11%;
+  padding: 0.05em 0.8em 0;
+  border-radius: 999px;
+  background: #fff;
+  font-size: clamp(22px, 6vmin, 50px);
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 0.6vmin 0 rgba(74, 59, 107, 0.2);
+  animation: appear 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) 0.4s both;
+}
+.reveal-new {
+  position: absolute;
+  top: 6%;
+  right: 8%;
+  font-size: clamp(50px, 13vmin, 110px);
+  line-height: 1;
+  color: #ffd23f;
+  -webkit-text-stroke: 0.06em #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0.5vmin 0.6vmin rgba(74, 59, 107, 0.3));
+  animation: starIn 0.8s cubic-bezier(0.3, 1.6, 0.5, 1) 0.5s both;
+}
+.reveal-new span {
+  display: block;
+  animation: twinkleBtn 1.4s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Title */
+
+.title-scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3vh;
+  padding: calc(var(--safe-top) + var(--bar) * 0.3) 16px 0;
+}
+.title-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+.title-scene .postbox {
+  position: absolute;
+  z-index: 3;
+  right: max(3vw, env(safe-area-inset-right));
+  bottom: calc(var(--ground, 16vh) * 0.3);
+  height: calc(var(--house, 200px) * 0.75);
+  aspect-ratio: 80 / 150;
+}
+.title-scene .postbox svg {
+  width: 100%;
+  height: 100%;
+}
+.logo {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(42px, 12vmin, 130px);
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+.logo-words {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.3em;
+}
+.logo-letter {
+  display: inline-block;
+  -webkit-text-stroke: 0.14em #fff;
+  paint-order: stroke fill;
+  text-shadow: 0 0.09em 0 rgba(74, 59, 107, 0.22);
+  animation: letterHop 2.4s ease-in-out infinite;
+}
+.logo-name {
+  font-size: 0.5em;
+  color: #fff;
+  -webkit-text-stroke: 0.16em #ff6b6b;
+  paint-order: stroke fill;
+  transform: rotate(-4deg);
+  margin-bottom: 0.08em;
+  animation: floaty 3s ease-in-out infinite;
+}
+.title-buttons {
+  /* Laid out as a grid in shared/base.css. */
+  justify-content: center;
+}
+.play-btn {
+  width: clamp(100px, 22vmin, 180px);
+  height: clamp(100px, 22vmin, 180px);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Your street */
+
+.street-scene {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 2vh;
+  padding: calc(var(--safe-top) + var(--bar) + 2vh) max(16px, env(safe-area-inset-right)) calc(var(--safe-bottom) + 1vh) max(16px, env(safe-area-inset-left));
+  --ground: 14vh;
+}
+.streets {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.street-row {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: calc(var(--house, 90px) * 0.12);
+  padding: 0 calc(var(--house, 90px) * 0.2);
+}
+/* Each row of houses stands on its own bit of pavement. */
+.street-row::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--house, 90px) * -0.08);
+  height: calc(var(--house, 90px) * 0.14);
+  border-radius: 8px;
+  background: #e3d9ec;
+  border: 3px solid var(--plum);
+  box-shadow: 0 calc(var(--house, 90px) * 0.05) 0 rgba(74, 59, 107, 0.18);
+}
+.street-row .house {
+  width: var(--house, 90px);
+}
+.street-row .house.new {
+  animation: pulse 1.2s ease-in-out 3;
+}
+.s-bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+}
+.play-btn-small {
+  flex: none;
+  width: clamp(80px, 16vmin, 140px);
+  height: clamp(80px, 16vmin, 140px);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Something new to see: the button bounces with a sparkly star. */
+
+.street-btn .new-star {
+  position: absolute;
+  top: -14px;
+  left: -12px;
+  font-size: clamp(30px, 5.5vmin, 46px);
+  line-height: 1;
+  color: #ffd43b;
+  -webkit-text-stroke: 2px #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 2px 2px rgba(90, 66, 114, 0.3));
+  opacity: 0;
+  scale: 0.3;
+  transition:
+    opacity 0.3s,
+    scale 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.street-btn.has-new .new-star {
+  opacity: 1;
+  scale: 1;
+  animation: starTwinkle 1.4s ease-in-out infinite;
+}
+.street-btn.has-new {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Keyframes */
+
+@keyframes cloudDrift {
+  from {
+    transform: translateX(-30vmin);
+  }
+  to {
+    transform: translateX(110vw);
+  }
+}
+@keyframes paving {
+  from {
+    background-position: 0 0, calc(var(--ground, 16vh) * 1.8) 0, 0 0, 0 0;
+  }
+  to {
+    background-position: 0 0, 0 0, 0 0, 0 0;
+  }
+}
+@keyframes waddle {
+  0%,
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+  25% {
+    transform: rotate(-6deg) translateY(-4%);
+  }
+  75% {
+    transform: rotate(6deg) translateY(-4%);
+  }
+}
+@keyframes wave {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25%,
+  75% {
+    transform: rotate(-50deg);
+  }
+  50% {
+    transform: rotate(-20deg);
+  }
+}
+@keyframes bagOpen {
+  40% {
+    transform: rotate(-10deg) scale(1.1);
+  }
+}
+@keyframes knocked {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  30% {
+    translate: -3% 0;
+  }
+  70% {
+    translate: 3% 0;
+  }
+}
+@keyframes doorGlow {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 0 0 max(2px, 0.4vmin) var(--plum),
+      inset 0 -1.2vmin 0 rgba(74, 59, 107, 0.12);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 max(2px, 0.4vmin) var(--plum),
+      inset 0 0 2.4vmin rgba(255, 255, 255, 0.9);
+  }
+}
+@keyframes plaqueBob {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+@keyframes parcelBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-5%) rotate(3deg);
+  }
+}
+@keyframes dotPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.35);
+  }
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-1.4vmin) rotate(-4deg);
+  }
+}
+@keyframes appear {
+  0% {
+    scale: 0;
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+@keyframes pickBounce {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18) rotate(-4deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes jiggle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.12, 0.9);
+  }
+  60% {
+    transform: scale(0.95, 1.08);
+  }
+}
+@keyframes twinkleBtn {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  50% {
+    transform: rotate(10deg) scale(1.06);
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes revealIn {
+  from {
+    transform: scale(0.12) rotate(-20deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes revealBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-4%) rotate(3deg);
+  }
+}
+@keyframes starIn {
+  from {
+    transform: scale(0) rotate(-180deg);
+  }
+  to {
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8%);
+  }
+  75% {
+    transform: translateX(8%);
+  }
+}
+@keyframes letterHop {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  80% {
+    transform: translateY(-12%) scale(1.06);
+  }
+}
+@keyframes starTwinkle {
+  0%,
+  100% {
+    rotate: -12deg;
+  }
+  50% {
+    rotate: 12deg;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Portrait & small screens */
+
+@media (orientation: portrait) {
+  .title-scene {
+    padding-top: calc(var(--safe-top) + var(--bar) + 2vh);
+  }
+  /* The post box stands on the pavement, below the houses. */
+  .title-scene .postbox {
+    bottom: calc(var(--ground, 16vh) * 0.08);
+    height: calc(var(--ground, 16vh) * 0.8);
+  }
+  .trace-card {
+    width: min(80vw, 440px);
+  }
+}
+
+/* Short landscape screens (phones on their side). */
+@media (orientation: landscape) and (max-height: 500px) {
+  .logo {
+    font-size: 13vh;
+  }
+  .title-scene {
+    gap: 2vh;
+  }
+}
+
+/* Calmer screens for anyone who asks their device for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .logo-letter,
+  .logo-name,
+  .play-btn,
+  .reveal-rays,
+  .cloud,
+  .parcel.bob,
+  .house.live .door,
+  .house.live .plaque,
+  .trace-card .dot.next {
+    animation: none;
+  }
+}

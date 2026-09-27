@@ -111,37 +111,36 @@
         text-shadow: 0 0.09em 0 rgba(90, 66, 114, 0.22);
         animation: bounce 2.4s ease-in-out infinite;
       }
-      /* Rows of four (two on a tall screen), the last row in the middle. */
+      /* Rows of five (three on a tall screen), the last row in the middle. */
       .games {
-        --size: clamp(90px, min(26vmin, 17vw), 230px);
+        --size: clamp(84px, min(26vmin, 14.5vw), 230px);
         --gap: 4vmin;
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
         align-items: flex-start;
         gap: 3vmin var(--gap);
-        max-width: calc(4 * var(--size) + 3 * var(--gap) + 1px);
+        max-width: calc(5 * var(--size) + 4 * var(--gap) + 1px);
       }
       @media (max-aspect-ratio: 1/1) {
         .games {
-          --size: clamp(84px, min(34vw, 14.5vh), 250px);
-          --gap: 6vw;
+          --size: clamp(76px, min(27vw, 15vh), 250px);
+          --gap: 4vw;
           row-gap: 2.4vh;
-          max-width: calc(2 * var(--size) + var(--gap) + 1px);
+          max-width: calc(3 * var(--size) + 2 * var(--gap) + 1px);
         }
         h1 {
           font-size: clamp(38px, 12vw, 110px);
         }
         .game {
-          font-size: clamp(18px, 5vw, 34px);
+          font-size: clamp(16px, 4.4vw, 34px);
         }
       }
-      /* A tall tablet has room for rows of three. */
+      /* A tall tablet has room for bigger tiles. */
       @media (max-aspect-ratio: 1/1) and (min-width: 600px) {
         .games {
           --size: clamp(84px, min(26vw, 16vh), 250px);
           --gap: 5vw;
-          max-width: calc(3 * var(--size) + 2 * var(--gap) + 1px);
         }
       }
       .game {
@@ -391,6 +390,13 @@
           </span>
           <span>Ducky Bath</span>
         </a>
+        <a class="game" href="postie-pip/" style="--d: -0.8s">
+          <span class="tile" style="--bg: #ffeede; --edge: #f2c29b">
+            <!-- Pip the postie with a parcel. -->
+            <svg viewBox="-80 -118 170 196" aria-hidden="true"><g transform="translate(-14,0)"><ellipse cx="-16" cy="66" rx="16" ry="8" fill="#ffa53a" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="16" cy="66" rx="16" ry="8" fill="#ffa53a" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><g><path d="M-36,-2 C-60,6 -64,32 -56,42 C-44,36 -36,18 -36,-2 Z" fill="#34406b" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></g><ellipse cx="0" cy="18" rx="42" ry="48" fill="#34406b" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="0" cy="26" rx="28" ry="36" fill="#fff"/><path d="M-34,-18 L40,40" stroke="#4a3b6b" stroke-width="12" stroke-linecap="round"/><path d="M-34,-18 L40,40" stroke="#ff5d6c" stroke-width="7" stroke-linecap="round"/><g><rect x="14" y="20" width="46" height="40" rx="8" fill="#ff5d6c" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M14,30 C14,22 18,20 24,20 L50,20 C56,20 60,22 60,30 L60,38 L14,38 Z" fill="#ff7a86" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><rect x="27" y="44" width="20" height="12" rx="2" fill="#fff" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5"/><path d="M27,44 L37,51 L47,44" fill="none" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5"/></g><circle cx="0" cy="-44" r="34" fill="#34406b" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-24,-40 C-24,-58 -4,-60 0,-50 C4,-60 24,-58 24,-40 C24,-22 12,-14 0,-14 C-12,-14 -24,-22 -24,-40 Z" fill="#fff"/><g><ellipse cx="-10" cy="-41" rx="4.8" ry="6" fill="#1f2340"/><ellipse cx="10" cy="-41" rx="4.8" ry="6" fill="#1f2340"/><circle cx="-8.4" cy="-43.2" r="1.9" fill="#fff"/><circle cx="11.6" cy="-43.2" r="1.9" fill="#fff"/></g><circle cx="-17" cy="-28" r="5" fill="#ff8fb1" opacity=".6"/><circle cx="17" cy="-28" r="5" fill="#ff8fb1" opacity=".6"/><path d="M-8,-31 L8,-31 L0,-20 Z" fill="#ffa53a" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5"/><path d="M-32,-66 C-32,-98 32,-98 32,-66 Z" fill="#4e7fd9" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-36,-68 C-18,-60 18,-60 44,-70 C46,-62 40,-56 30,-56 C10,-54 -20,-56 -36,-60 Z" fill="#2b3a66" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><rect x="-8" y="-86" width="16" height="12" rx="3" fill="#ffd84a" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5"/><g><path d="M36,-2 C58,-4 66,18 58,30 C48,26 38,12 36,-2 Z" fill="#34406b" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></g></g><g transform="translate(46,30) scale(.42) rotate(-8)"><rect x="-86" y="-58" width="172" height="140" rx="12" fill="#d9a066" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-86,-30 L86,-30" stroke="#c48a50" stroke-width="3" opacity=".6"/><path d="M-86,60 L86,60" stroke="#fff4e0" stroke-width="10"/><path d="M0,-58 L0,82" stroke="#fff4e0" stroke-width="10"/><path d="M0,-58 C-18,-86 -46,-78 -34,-60 C-28,-52 -12,-56 0,-58 Z M0,-58 C18,-86 46,-78 34,-60 C28,-52 12,-56 0,-58 Z" fill="#fff4e0" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" stroke-width="3"/><circle cx="0" cy="-58" r="7" fill="#fff4e0" stroke="#4a3b6b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" stroke-width="3"/><rect x="-44" y="-22" width="88" height="96" rx="12" fill="#fff" stroke="#4a3b6b" stroke-width="3.5"/><g transform="translate(-25,-16) scale(0.5)" fill="none" stroke="#4a3b6b" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"><path d="M66,50 C62,43 56,40 50,40 C39,40 32,50 32,61 C32,73 40,82 50,82 C58,82 63,77 66,70"/><path d="M67,40 L67,82"/></g></g></svg>
+          </span>
+          <span>Postie Pip</span>
+        </a>
         <a class="game book-tile" href="#stickers" style="--d: -2.8s">
           <span class="tile">
             <!-- An open sticker book with stickers in it. -->
@@ -446,7 +452,7 @@
 
       // A badge on each game: butterflies grown, treats baked, pictures
       // painted, kinds of fish found, pond friends met, presents found,
-      // rubber ducks found. Read from each game's own save.
+      // rubber ducks found, letters learned. Read from each game's own save.
       const read = (key) => {
         try {
           return JSON.parse(localStorage.getItem(key) || 'null') || {};
@@ -462,6 +468,7 @@
         'leapy-pond/': [read('leapy-pond.v1').friends?.length, 12],
         'unicorn-dash/': [read('unicorn-dash.v1').items?.length, 12],
         'ducky-bath/': [read('ducky-bath.v1').items?.length, 12],
+        'postie-pip/': [read('postie-pip.v1').letters?.length, 26],
       };
       for (const [href, [n, of]] of Object.entries(counts)) {
         if (!n) continue;

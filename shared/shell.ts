@@ -61,8 +61,24 @@ export function startGame(setup: GameSetup) {
     },
     { passive: false },
   );
-  // Audio can only start after a user gesture.
-  document.addEventListener('pointerdown', () => sound.unlock(), { capture: true });
+  // Audio can only start after a user gesture. On phones and tablets a finger
+  // going down doesn't count, only it coming up again (or the tap's click),
+  // so try on all of them: whichever the browser accepts switches it on.
+  const unlock = (e: Event) => {
+    sound.unlock();
+    // (Speaking on a finger going down is refused, and would use up the try.)
+    if (e.type !== 'pointerdown') primeSpeech();
+  };
+  for (const type of ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'])
+    document.addEventListener(type, unlock, { capture: true, passive: true });
+  // iPhones and iPads: play even with the silent switch on (it's a game with
+  // its own sound switch, like a video), where the browser supports asking.
+  try {
+    const nav = navigator as Navigator & { audioSession?: { type: string } };
+    if (nav.audioSession) nav.audioSession.type = 'playback';
+  } catch {
+    /* not supported */
+  }
 
   // Keep the screen awake while playing.
   let wakeLock: { release(): Promise<void> } | null = null;
@@ -191,6 +207,23 @@ export function startGame(setup: GameSetup) {
   }
 
   return { host, play };
+}
+
+/**
+ * iPhones and iPads only let a page talk with the device's own voice once it
+ * has spoken during a tap: say nothing, quietly, the first time.
+ */
+let speechPrimed = false;
+function primeSpeech() {
+  if (speechPrimed || !('speechSynthesis' in window)) return;
+  speechPrimed = true;
+  try {
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0;
+    speechSynthesis.speak(u);
+  } catch {
+    /* no device voice */
+  }
 }
 
 /** Loads a picture drawn in code, `width` × `height` big, for drawing on a canvas. */
