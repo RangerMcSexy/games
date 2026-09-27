@@ -2,7 +2,7 @@
 // wooden floor.
 import { splatPath } from './art';
 import { PAINT, PAINTS } from './data';
-import { el, rand } from './ui';
+import { el, rand } from '../../shared/ui';
 
 export function initBackdrop(parent: HTMLElement) {
   const root = el('div', 'backdrop', parent);

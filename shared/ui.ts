@@ -1,7 +1,11 @@
-// Small DOM, scene and effects helpers shared by every screen.
-import { sparkleSVG } from './art';
+// Small DOM, scene and effects helpers shared by every screen of every game.
 
-/** Little ones get a helping hand sooner than in Butterfly Garden. */
+/** A four-pointed sparkle for the burst effects. */
+function sparkleSVG(color = '#fff6a8'): string {
+  return `<svg viewBox="-20 -20 40 40"><path d="M0,-18L4.07,-4.07L18,0L4.07,4.07L0,18L-4.07,4.07L-18,0L-4.07,-4.07Z" fill="${color}"/></svg>`;
+}
+
+/** Little ones get a helping hand after 3 seconds. */
 export const HINT_MS = 3000;
 
 export function el<K extends keyof HTMLElementTagNameMap>(
@@ -167,7 +171,7 @@ export class Scene {
 // Idle hint: a friendly hand that points at what to tap.
 
 class Hint {
-  /** Hooks so Pip the mouse can hop over to whatever the hand points at. */
+  /** Hooks so a scene can react when the hand points at something. */
   onShow?: (target: Element) => void;
   onHide?: () => void;
   private hand?: HTMLElement;
@@ -218,7 +222,7 @@ export function initFx() {
   fxLayer = el('div', 'fx-layer', document.body);
 }
 
-type BurstKind = 'confetti' | 'sparkle' | 'heart' | 'bits';
+type BurstKind = 'confetti' | 'sparkle' | 'heart' | 'bits' | 'drop';
 
 export function burst(x: number, y: number, opts: { count?: number; colors?: string[]; kind?: BurstKind; spread?: number; size?: number } = {}) {
   const { count = 18, colors = ['#ff5d73', '#ffd23f', '#4ea8ff', '#7fd35b', '#a86cf0', '#ff9f1c'], kind = 'confetti', spread = 1, size = 1 } = opts;
@@ -236,13 +240,13 @@ export function burst(x: number, y: number, opts: { count?: number; colors?: str
       p.style.fontSize = `${s * 1.4}px`;
     } else {
       p.style.background = color;
-      if (kind === 'confetti' && i % 3 === 0) p.style.borderRadius = '50%';
+      if ((kind === 'confetti' && i % 3 === 0) || kind === 'drop') p.style.borderRadius = '50%';
     }
     const ang = kind === 'heart' ? rand(-Math.PI * 0.8, -Math.PI * 0.2) : rand(0, Math.PI * 2);
     const dist = rand(60, 180) * spread;
     const dx = Math.cos(ang) * dist;
     const dy = Math.sin(ang) * dist;
-    const fall = kind === 'confetti' || kind === 'bits' ? rand(80, 200) * spread : kind === 'heart' ? -40 : 0;
+    const fall = kind === 'confetti' || kind === 'bits' || kind === 'drop' ? rand(80, 200) * spread : kind === 'heart' ? -40 : 0;
     const rot = rand(-360, 360);
     const dur = rand(700, 1300);
     const anim = p.animate(

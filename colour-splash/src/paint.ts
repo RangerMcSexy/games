@@ -7,7 +7,7 @@ import { PAINT, PAINTS, RAINBOW_STOPS, addPainting, save, uid, type PaintId } fr
 import { guide } from './guide';
 import { paintFill, pictureSVG, regionsOf, type Picture } from './pictures';
 import type { Host } from './screens';
-import { Scene, burst, center, el, hint, pick, replay } from './ui';
+import { Scene, burst, center, el, hint, pick, replay } from '../../shared/ui';
 import { say } from './voice';
 import { stickerMoment } from '../../shared/sticker-moment';
 import { STICKER_ART } from './stickers';

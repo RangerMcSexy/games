@@ -39,7 +39,7 @@ import {
   type Wish,
 } from './data';
 import { guide } from './guide';
-import { Scene, burst, burstAt, center, el, flip, flyClone, hint, pick, rand, replay, shuffle, HINT_MS } from './ui';
+import { Scene, burst, burstAt, center, el, flip, flyClone, hint, pick, rand, replay, shuffle, HINT_MS } from '../../shared/ui';
 import { say, sayAll } from './voice';
 import type { SpriteName } from './sprites';
 import { stickerMoment } from '../../shared/sticker-moment';

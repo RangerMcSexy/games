@@ -1,7 +1,7 @@
 // A finished picture you can hold up to the light: press and move (or just
 // hover with a mouse) and it tilts towards you with a soft shine that
 // follows the finger. It eases back when let go.
-import { el } from './ui';
+import { el } from '../../shared/ui';
 
 /** Degrees at the very edge of the picture. */
 const MAX_TILT = 14;

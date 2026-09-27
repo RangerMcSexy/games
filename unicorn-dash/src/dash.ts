@@ -28,7 +28,7 @@ import {
 import { sound } from './audio';
 import { COLOURS, ITEMS, addStar, finishDash, nextItem, save, unseenItems, type Item } from './data';
 import { Meadow, type Host } from './screens';
-import { HINT_MS, Scene, burst, burstAt, center, el, flyClone, hint, pick, rand, replay, shuffle } from './ui';
+import { HINT_MS, Scene, burst, burstAt, center, el, flyClone, hint, pick, rand, replay, shuffle } from '../../shared/ui';
 import { say, sayAll } from './voice';
 import { stickerMoment } from '../../shared/sticker-moment';
 import { STICKER_ART } from './stickers';

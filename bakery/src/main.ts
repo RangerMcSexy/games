@@ -9,7 +9,7 @@ import { guide } from './guide';
 import { bake } from './bake';
 import { shopScreen, titleScreen } from './screens';
 import { initSettings } from './settings';
-import { Aborted, Scene, el, hint, initFx } from './ui';
+import { Aborted, Scene, el, hint, initFx } from '../../shared/ui';
 import { loadRecordings, say, stopSpeaking } from './voice';
 
 const app = document.getElementById('app')!;

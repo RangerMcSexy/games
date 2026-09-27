@@ -3,7 +3,7 @@
 import { ICONS } from './art';
 import { sound } from './audio';
 import { ITEMS, resetStable, save, setName } from './data';
-import { el } from './ui';
+import { el } from '../../shared/ui';
 import { LINES, Recorder, deleteRecording, hasRecording, lineText, previewLine, recordingCount, saveRecording, stopSpeaking } from './voice';
 
 const HOLD_MS = 3000;

@@ -2,7 +2,7 @@
 // giggles when tickled.
 import { ladybugSVG } from './art';
 import { sound } from './audio';
-import { burst, el, rand, replay } from './ui';
+import { burst, el, rand, replay } from '../../shared/ui';
 
 class Guide {
   private root!: HTMLElement;

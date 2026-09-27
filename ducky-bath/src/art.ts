@@ -16,9 +16,6 @@ export function starPath(r: number, inner = 0.45, points = 5): string {
   return `${d}Z`;
 }
 
-export function sparkleSVG(color = '#fff6a8'): string {
-  return `<svg viewBox="-20 -20 40 40"><path d="${starPath(18, 0.32, 4)}" fill="${color}"/></svg>`;
-}
 
 /** Shapes with a soft ink outline all the way round (lines inside don't show). */
 function outlined(shapes: string, fill: string, w = 6, ink = INK): string {

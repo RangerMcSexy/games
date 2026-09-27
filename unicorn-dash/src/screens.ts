@@ -3,7 +3,7 @@
 import { ICONS, cloudSVG, hillsSVG, itemSVG, itemSilhouetteSVG, rainbowSVG, sunSVG, unicornSVG } from './art';
 import { sound } from './audio';
 import { ITEMS, markItemsSeen, playerName, save, toggleWear, unseenItems } from './data';
-import { Scene, burst, burstAt, el, replay } from './ui';
+import { Scene, burst, burstAt, el, replay } from '../../shared/ui';
 import { say } from './voice';
 
 export interface Host {

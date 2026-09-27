@@ -7,7 +7,7 @@ import { needsName, setName } from './data';
 import { bathScreen } from './bath';
 import { shelfScreen, titleScreen } from './screens';
 import { initSettings } from './settings';
-import { Aborted, Scene, el, initFx } from './ui';
+import { Aborted, Scene, el, initFx } from '../../shared/ui';
 import { loadRecordings, say, stopSpeaking } from './voice';
 
 const app = document.getElementById('app')!;

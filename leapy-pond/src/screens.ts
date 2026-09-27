@@ -2,7 +2,7 @@
 import { ICONS, flowerSVG, flySVG, friendSVG, friendSilhouetteSVG, frogFrontSVG, frogSVG, padSVG, reedClumpSVG } from './art';
 import { sound } from './audio';
 import { COLOURS, FRIENDS, markFriendsSeen, playerName, save, unseenFriends } from './data';
-import { Scene, burst, burstAt, el, rand, replay } from './ui';
+import { Scene, burst, burstAt, el, rand, replay } from '../../shared/ui';
 import { say } from './voice';
 
 export interface Host {
