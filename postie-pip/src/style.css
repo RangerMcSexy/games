@@ -995,3 +995,8 @@ body {
     animation: none;
   }
 }
+
+/* A capital letter on a parcel label is written, not drawn with strokes. */
+.letter.capital text {
+  font-family: 'Baloo 2', ui-rounded, system-ui, sans-serif;
+}

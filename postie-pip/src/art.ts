@@ -57,6 +57,11 @@ export function letterSVG(letter: string, colour = INK, width = 11): string {
   return `<svg class="letter" viewBox="${LETTER_BOX}" aria-hidden="true"><g fill="none" stroke="${colour}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round">${paths}</g></svg>`;
 }
 
+/** A capital letter, in the round print of the title (for capital parcels: "Big S!"). */
+export function capitalSVG(letter: string, colour = INK): string {
+  return `<svg class="letter capital" viewBox="${LETTER_BOX}" aria-hidden="true"><text x="50" y="94" text-anchor="middle" font-family="'Baloo 2', ui-rounded, system-ui, sans-serif" font-weight="800" font-size="104" fill="${colour}">${letter.toUpperCase()}</text></svg>`;
+}
+
 /** A question mark, on the door of a house nobody has moved into yet. */
 export function mysterySVG(colour = '#b3a6cc'): string {
   return `<svg class="letter" viewBox="${LETTER_BOX}" aria-hidden="true"><g fill="none" stroke="${colour}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">

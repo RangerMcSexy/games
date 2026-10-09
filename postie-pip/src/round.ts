@@ -7,12 +7,16 @@
 // - deliver parcels (two doors to choose from at first, then three), the
 //   new letter coming round often and the letters found hard more often
 //   than the ones known well; later on some parcels show the friend's
-//   picture instead of the letter,
+//   picture instead of the letter, or the capital letter ("Big S! Find
+//   little s!"),
 // - draw a letter by tapping its dots,
 // - and at the end, a parcel for the child: the letter friend just learned.
 //
 // A new letter comes along every round or so, until the whole alphabet has
 // moved into the street.
+//
+// Each friend says their letter's sound as well as its name ("S says sss,
+// like snake!").
 //
 // Nothing can go wrong: a wrong door opens a crack, its friend peeps out and
 // says their own letter, and steps aside. The helping hand never gives the
@@ -27,16 +31,20 @@ import { say, sayAll } from './voice';
 import { stickerMoment } from '../../shared/sticker-moment';
 import { STICKER_ART } from './stickers';
 
-type Move = 'meet' | 'deliver' | 'picture' | 'trace' | 'goal';
+type Move = 'meet' | 'deliver' | 'picture' | 'capital' | 'trace' | 'goal';
 
-/** Picture parcels start once this many letters have been learned. */
+/** Picture parcels start once this many letters have been learned... */
 const PICTURES_FROM = 4;
+/** ...and capital letter parcels once this many have. */
+const CAPITALS_FROM = 3;
 
 /** The moves of one round: eight in all, the goal last. */
-export function planRound(meet: boolean, pictures: boolean): Move[] {
+export function planRound(meet: boolean, pictures: boolean, capitals = false): Move[] {
   const mid: Move[] = Array.from({ length: meet ? 5 : 6 }, () => 'deliver');
-  // Picture parcels, never first (the first move is always an easy one).
-  if (pictures) for (const i of shuffle([1, 2, 3, 4]).slice(0, 2)) mid[i] = 'picture';
+  // Picture and capital parcels, never first (the first move is always an easy one).
+  const spots = shuffle([1, 2, 3, 4]);
+  if (pictures) for (const i of spots.splice(0, 2)) mid[i] = 'picture';
+  if (capitals) mid[spots[0]] = 'capital';
   mid.splice(3, 0, 'trace');
   return [...(meet ? (['meet'] as Move[]) : []), ...mid, 'goal'];
 }
@@ -120,7 +128,7 @@ export async function roundScreen(host: Host): Promise<'again' | 'street'> {
     await sc.wait(300);
     await speakFor(`is-${f.letter}`, 1500, 4000);
     replay(h.door.querySelector('.plaque')!, 'hello-plaque');
-    await speak(`l-${f.letter}`, 2500);
+    await speak(`snd-${f.letter}`, 3500);
     h.close(400);
     await sc.wait(700);
   }
@@ -150,7 +158,9 @@ export async function roundScreen(host: Host): Promise<'again' | 'street'> {
     return shuffle(chosen);
   }
 
-  async function deliverMove(picture: boolean) {
+  async function deliverMove(kind: 'letter' | 'picture' | 'capital') {
+    // Picture and capital parcels are for friends met in earlier rounds.
+    const picture = kind !== 'letter';
     const target = pickTarget(picture);
     if (!picture) deliveriesLeft--;
     if (target === fresh?.letter) freshTimes++;
@@ -158,9 +168,9 @@ export async function roundScreen(host: Host): Promise<'again' | 'street'> {
     const houses = await town.walkTo(doorsFor(target, picture));
     const right = houses.find((h) => h.letter === target)!;
     sound.rustle();
-    const parcel = await town.showParcel(picture ? { animal: friendOf(target)!.animal } : { letter: target });
+    const parcel = await town.showParcel(kind === 'picture' ? { animal: friendOf(target)!.animal } : kind === 'capital' ? { capital: target } : { letter: target });
     parcel.dataset.for = target;
-    const ask = picture ? `pic-${target}` : `find-${target}`;
+    const ask = kind === 'picture' ? `pic-${target}` : kind === 'capital' ? `big-${target}` : `find-${target}`;
     houses.forEach((h) => h.el.classList.add('live'));
     void talk(ask);
     const misses = await sc.ask(
@@ -191,6 +201,8 @@ export async function roundScreen(host: Host): Promise<'again' | 'street'> {
     burst(c.x, c.y, { count: 22, spread: 1 });
     await sc.wait(250);
     await speakFor(`is-${target}`, 1200, 4000);
+    // The new letter's sound, every time; the others' now and then.
+    if (target === fresh?.letter || Math.random() < 0.35) await speak(`snd-${target}`, 3500);
     if (misses) chirp('yay', 0);
     else if (Math.random() < 0.35) chirp('thankYou', 0);
     else chirp(pick(['yay', 'wow']), 0);
@@ -355,7 +367,7 @@ export async function roundScreen(host: Host): Promise<'again' | 'street'> {
 
   // --- The round ------------------------------------------------------------------------
 
-  const moves = planRound(!!fresh, known.length >= PICTURES_FROM);
+  const moves = planRound(!!fresh, known.length >= PICTURES_FROM, known.length >= CAPITALS_FROM);
   deliveriesLeft = moves.filter((m) => m === 'deliver').length;
   const traceLetter = fresh?.letter ?? known.reduce((a, b) => (scoreOf(b) < scoreOf(a) ? b : a), pool[0]);
   const dots = moves.map((m) => el('span', m === 'goal' ? 'dot goal' : 'dot', trail, m === 'goal' ? '★' : ''));
@@ -365,8 +377,9 @@ export async function roundScreen(host: Host): Promise<'again' | 'street'> {
     dots[i].classList.add('now');
     const m = moves[i];
     if (m === 'meet') await meetMove(fresh!);
-    else if (m === 'deliver') await deliverMove(false);
-    else if (m === 'picture') await deliverMove(true);
+    else if (m === 'deliver') await deliverMove('letter');
+    else if (m === 'picture') await deliverMove('picture');
+    else if (m === 'capital') await deliverMove('capital');
     else if (m === 'trace') await traceMove(traceLetter);
     else await goalMove();
     dots[i].classList.remove('now');

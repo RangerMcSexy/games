@@ -1,9 +1,9 @@
 // This game's spoken lines. How they're spoken (a grown-up's recording, a
 // natural-voice clip or the device's voice) is in shared/voice.ts.
 //
-// Letters are said by their names ("S is for snake!"). A grown-up who'd
-// rather use letter sounds ("sss is for snake!") can record those lines in
-// their own voice.
+// Letters are said by their names ("S is for snake!"), then by their sounds
+// ("S says sss, like snake!"). The built-in voices only get close to some
+// letter sounds: a grown-up can record them in their own voice.
 import { TIMER_LINES } from '../../shared/play-timer';
 import { makeVoice, type Line } from '../../shared/voice';
 import { sound } from './audio';
@@ -74,6 +74,58 @@ export const LINES: Line[] = [
   { id: 'is-v', text: 'V is for vulture!', when: 'The vulture at the V house' },
   { id: 'is-q', text: 'Q is for quail!', when: 'The quail at the Q house' },
   { id: 'is-x', text: 'X is for x-ray fish!', when: 'The x-ray fish at the X house' },
+  { id: 'snd-s', text: 'S says sss, like snake!', when: 'The sound s makes' },
+  { id: 'snd-a', text: 'A says a, as in ant!', when: 'The sound a makes' },
+  { id: 'snd-t', text: 'T says t, t, like tiger!', when: 'The sound t makes' },
+  { id: 'snd-m', text: 'M says mmm, like mouse!', when: 'The sound m makes' },
+  { id: 'snd-p', text: 'P says p, p, like pig!', when: 'The sound p makes' },
+  { id: 'snd-o', text: 'O says o, as in octopus!', when: 'The sound o makes' },
+  { id: 'snd-c', text: 'C says c, c, like cat!', when: 'The sound c makes' },
+  { id: 'snd-h', text: 'H says h, h, like hen!', when: 'The sound h makes' },
+  { id: 'snd-d', text: 'D says d, d, like dog!', when: 'The sound d makes' },
+  { id: 'snd-f', text: 'F says fff, like fox!', when: 'The sound f makes' },
+  { id: 'snd-e', text: 'E says e, as in elephant!', when: 'The sound e makes' },
+  { id: 'snd-b', text: 'B says b, b, like bear!', when: 'The sound b makes' },
+  { id: 'snd-r', text: 'R says rrr, like rabbit!', when: 'The sound r makes' },
+  { id: 'snd-n', text: 'N says nnn, like narwhal!', when: 'The sound n makes' },
+  { id: 'snd-g', text: 'G says g, g, like goat!', when: 'The sound g makes' },
+  { id: 'snd-i', text: 'I says i, as in iguana!', when: 'The sound i makes' },
+  { id: 'snd-l', text: 'L says lll, like lion!', when: 'The sound l makes' },
+  { id: 'snd-k', text: 'K says k, k, like koala!', when: 'The sound k makes' },
+  { id: 'snd-u', text: 'U says you, like unicorn!', when: 'The sound u makes' },
+  { id: 'snd-j', text: 'J says j, j, like jellyfish!', when: 'The sound j makes' },
+  { id: 'snd-w', text: 'W says w, w, like walrus!', when: 'The sound w makes' },
+  { id: 'snd-z', text: 'Z says zzz, like zebra!', when: 'The sound z makes' },
+  { id: 'snd-y', text: 'Y says y, y, like yak!', when: 'The sound y makes' },
+  { id: 'snd-v', text: 'V says vvv, like vulture!', when: 'The sound v makes' },
+  { id: 'snd-q', text: 'Q says qu, like quail!', when: 'The sound q makes' },
+  { id: 'snd-x', text: 'X says ks, like in fox!', when: 'The sound x makes' },
+  { id: 'big-s', text: 'Big S! Find little s!', when: 'A parcel with a capital S on' },
+  { id: 'big-a', text: 'Big A! Find little a!', when: 'A parcel with a capital A on' },
+  { id: 'big-t', text: 'Big T! Find little t!', when: 'A parcel with a capital T on' },
+  { id: 'big-m', text: 'Big M! Find little m!', when: 'A parcel with a capital M on' },
+  { id: 'big-p', text: 'Big P! Find little p!', when: 'A parcel with a capital P on' },
+  { id: 'big-o', text: 'Big O! Find little o!', when: 'A parcel with a capital O on' },
+  { id: 'big-c', text: 'Big C! Find little c!', when: 'A parcel with a capital C on' },
+  { id: 'big-h', text: 'Big H! Find little h!', when: 'A parcel with a capital H on' },
+  { id: 'big-d', text: 'Big D! Find little d!', when: 'A parcel with a capital D on' },
+  { id: 'big-f', text: 'Big F! Find little f!', when: 'A parcel with a capital F on' },
+  { id: 'big-e', text: 'Big E! Find little e!', when: 'A parcel with a capital E on' },
+  { id: 'big-b', text: 'Big B! Find little b!', when: 'A parcel with a capital B on' },
+  { id: 'big-r', text: 'Big R! Find little r!', when: 'A parcel with a capital R on' },
+  { id: 'big-n', text: 'Big N! Find little n!', when: 'A parcel with a capital N on' },
+  { id: 'big-g', text: 'Big G! Find little g!', when: 'A parcel with a capital G on' },
+  { id: 'big-i', text: 'Big I! Find little i!', when: 'A parcel with a capital I on' },
+  { id: 'big-l', text: 'Big L! Find little l!', when: 'A parcel with a capital L on' },
+  { id: 'big-k', text: 'Big K! Find little k!', when: 'A parcel with a capital K on' },
+  { id: 'big-u', text: 'Big U! Find little u!', when: 'A parcel with a capital U on' },
+  { id: 'big-j', text: 'Big J! Find little j!', when: 'A parcel with a capital J on' },
+  { id: 'big-w', text: 'Big W! Find little w!', when: 'A parcel with a capital W on' },
+  { id: 'big-z', text: 'Big Z! Find little z!', when: 'A parcel with a capital Z on' },
+  { id: 'big-y', text: 'Big Y! Find little y!', when: 'A parcel with a capital Y on' },
+  { id: 'big-v', text: 'Big V! Find little v!', when: 'A parcel with a capital V on' },
+  { id: 'big-q', text: 'Big Q! Find little q!', when: 'A parcel with a capital Q on' },
+  { id: 'big-x', text: 'Big X! Find little x!', when: 'A parcel with a capital X on' },
   { id: 'find-s', text: 'Find the letter S!', when: 'A parcel for S' },
   { id: 'find-a', text: 'Find the letter A!', when: 'A parcel for A' },
   { id: 'find-t', text: 'Find the letter T!', when: 'A parcel for T' },

@@ -1,7 +1,7 @@
 // The street: sky, pavement, a row of houses with doors that open, Pip the
 // postie, and the parcel she's carrying. Used by the title screen and the
 // post round; the houses are also used on the "your street" screen.
-import { HOUSE_DOOR, HOUSE_H, HOUSE_W, cloudSVG, friendSVG, houseSVG, letterSVG, mysterySVG, parcelSVG, pipSVG } from './art';
+import { HOUSE_DOOR, HOUSE_H, HOUSE_W, capitalSVG, cloudSVG, friendSVG, houseSVG, letterSVG, mysterySVG, parcelSVG, pipSVG } from './art';
 import { friendOf } from './data';
 import { Scene, center, el, rand, replay } from '../../shared/ui';
 
@@ -171,10 +171,10 @@ export class Town {
   }
 
   /** A parcel comes out of Pip's bag and floats up where it can be seen. */
-  async showParcel(label: { letter?: string; animal?: string; gift?: boolean }) {
+  async showParcel(label: { letter?: string; capital?: string; animal?: string; gift?: boolean }) {
     this.parcel?.remove();
     const p = el('div', `parcel${label.gift ? ' gift' : ''}`, this.root, parcelSVG(label.gift));
-    if (!label.gift) el('div', 'label', p, label.letter ? letterSVG(label.letter) : friendSVG(label.animal ?? ''));
+    if (!label.gift) el('div', 'label', p, label.letter ? letterSVG(label.letter) : label.capital ? capitalSVG(label.capital) : friendSVG(label.animal ?? ''));
     this.parcel = p;
     replay(this.pip, 'hand-over');
     const to = center(p);
