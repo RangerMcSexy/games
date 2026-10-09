@@ -457,6 +457,66 @@ body {
   animation: wingFlutter 0.25s ease-in-out infinite alternate;
 }
 
+.balloon-num {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  translate: -50% -50%;
+  pointer-events: none;
+  color: #fff;
+  font-size: clamp(28px, 6vmin, 56px);
+  font-weight: 800;
+  line-height: 1;
+  -webkit-text-stroke: 0.12em var(--plum);
+  paint-order: stroke fill;
+}
+
+/* "What comes next?": the pattern, on a cloud at the top. */
+.pattern-card {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--safe-top) + clamp(56px, 11vmin, 84px));
+  translate: -50% -30px;
+  opacity: 0;
+  display: flex;
+  gap: clamp(4px, 1.2vmin, 12px);
+  padding: clamp(8px, 1.8vmin, 16px) clamp(14px, 3vmin, 28px);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 6px 0 rgba(90, 66, 114, 0.18);
+  transition:
+    opacity 0.4s,
+    translate 0.4s cubic-bezier(0.3, 1.4, 0.5, 1);
+  pointer-events: none;
+  z-index: 5;
+}
+.pattern-card.in {
+  opacity: 1;
+  translate: -50% 0;
+}
+.pattern-balloon {
+  width: clamp(30px, 7vmin, 60px);
+  aspect-ratio: 0.6;
+  display: grid;
+  place-items: center;
+}
+.pattern-balloon svg {
+  width: 100%;
+  height: auto;
+}
+.pattern-balloon.gap {
+  border: 4px dashed #c3a6ec;
+  border-radius: 50% 50% 46% 46%;
+  aspect-ratio: 0.85;
+  align-self: start;
+  color: #b184f5;
+  font-size: clamp(22px, 5vmin, 44px);
+  font-weight: 800;
+}
+.pattern-balloon.appear {
+  animation: appear 0.4s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
 .fence-num {
   position: absolute;
   left: 50%;

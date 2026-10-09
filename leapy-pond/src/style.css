@@ -365,6 +365,21 @@ body {
   animation: wingBuzz 0.08s linear infinite alternate;
 }
 
+.pad-num {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  color: #fff;
+  font-size: clamp(34px, 8vmin, 70px);
+  font-weight: 800;
+  line-height: 1;
+  -webkit-text-stroke: 0.12em #2f4858;
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 rgba(20, 70, 90, 0.25);
+}
+
 .stone .stone-num {
   position: absolute;
   inset: 0;

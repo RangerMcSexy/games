@@ -1,7 +1,8 @@
 // A trip across the big pond, seen from above. Hoppy sits on a lily pad;
 // tap a glowing pad ahead and Hoppy leaps onto it. Along the way there are
-// flies to catch, flowers to find by colour and stepping stones to count,
-// and at the far side a pond friend waits to be met.
+// flies to catch, flowers to find by colour, numbers to find, and stepping
+// stones to count (then say how many), and at the far side a pond friend
+// waits to be met.
 //
 // Nothing can go wrong: a wrong flower just wobbles, and the water only
 // splashes. Each trip is eight moves.
@@ -14,7 +15,7 @@ import { say, sayAll } from './voice';
 import { stickerMoment } from '../../shared/sticker-moment';
 import { STICKER_ART } from './stickers';
 
-type Move = 'free' | 'colour' | 'count' | 'goal';
+type Move = 'free' | 'colour' | 'number' | 'count' | 'goal';
 
 /** Something in the pond: `x` runs 0..1 across, `y` counts hops up the pond. */
 interface Thing {
@@ -34,7 +35,7 @@ const cap = (id: string) => id[0].toUpperCase() + id.slice(1);
 
 /** The moves of one trip: an easy first hop, a mix, then the friend. */
 function planTrip(): Move[] {
-  return ['free', ...shuffle<Move>(['colour', 'colour', 'count', 'free', 'free', 'free']), 'goal'];
+  return ['free', ...shuffle<Move>(['colour', 'number', 'count', 'free', 'free', 'free']), 'goal'];
 }
 
 export async function leapScreen(host: Host): Promise<'pond' | 'again'> {
@@ -120,6 +121,7 @@ export async function leapScreen(host: Host): Promise<'pond' | 'again'> {
     clearAround(p);
     return p;
   };
+  const giveNumber = (p: Pad, n: number) => el('div', 'pad-num', p.el, String(n));
   const giveFly = (p: Pad) => (p.fly = el('div', 'fly', p.el, flySVG()));
   const giveFlower = (p: Pad, colour: Colour, big = false) => {
     p.flower = { el: el('div', `flower${big ? ' big' : ''}`, p.el, flowerSVG(colour)), colour };
@@ -354,8 +356,47 @@ export async function leapScreen(host: Host): Promise<'pond' | 'again'> {
     await sc.until(sayAll([target.id, misses ? 'yay' : pick(['yay', 'wow'])], 200), 4000);
   }
 
+  /** Up to which number the questions go: 5 to start, then on to 10. */
+  const topNumber = () => Math.min(10, 5 + Math.floor(save.trips / 2));
+
+  /**
+   * "Hop to number 4!" (or "How many stones?" after counting): pads with
+   * numbers on, and only the right one to hop to. Wrong ones say their number.
+   */
+  async function numberMove(target = rand(1, topNumber() + 1) | 0, ask = `findN${target}`) {
+    const n = save.trips < 2 ? 2 : 3;
+    const others = shuffle(Array.from({ length: topNumber() }, (_, i) => i + 1).filter((k) => k !== target)).slice(0, n - 1);
+    const nums = shuffle([target, ...others]);
+    const y = frog.y + 1;
+    const pads = rowXs(n).map((x, i) => {
+      const p = makePad(x, y + rand(-0.06, 0.06));
+      giveNumber(p, nums[i]);
+      return p;
+    });
+    const right = pads[nums.indexOf(target)];
+    pads.forEach((p) => p.el.classList.add('choice'));
+    await sc.until(say(ask), 4000);
+    const misses = await sc.ask(
+      pads.map((p) => p.el),
+      pads.indexOf(right),
+      async (i) => {
+        const wrong = pads[i];
+        sound.nope();
+        replay(wrong.el, 'nope');
+        wrong.el.classList.remove('choice');
+        await sc.until(sayAll([`thatN${nums[i]}`, ask], 300), 6000);
+      },
+    );
+    pads.forEach((p) => p.el.classList.remove('choice', 'ruled-out'));
+    await hopTo(right.x, right.y);
+    await landOn(right);
+    sound.sparkle();
+    burstAt(right.el, { kind: 'sparkle', count: 14, colors: ['#fff6a8', '#ffffff'] });
+    await sc.until(sayAll([`n${target}`, misses ? 'yay' : pick(['yay', 'wow'])], 200), 4000);
+  }
+
   async function countMove() {
-    const n = Math.min(5, 3 + Math.floor(save.trips / 3));
+    const n = Math.min(10, 4 + Math.floor(save.trips / 2));
     let x = frog.x;
     const stones = Array.from({ length: n }, (_, i) => {
       x = Math.min(0.95, Math.max(0.05, x + (i % 2 ? -1 : 1) * rand(0.1, 0.18) * (x > 0.5 ? -1 : 1)));
@@ -377,7 +418,8 @@ export async function leapScreen(host: Host): Promise<'pond' | 'again'> {
     await sc.wait(500);
     sound.sparkle();
     burstAt(turn, { kind: 'sparkle', count: 12 });
-    await sc.until(say(pick(['yay', 'youDidIt'])), 3000);
+    // The last number counted is how many there are.
+    await numberMove(n, 'howMany');
   }
 
   async function goalMove() {
@@ -438,6 +480,7 @@ export async function leapScreen(host: Host): Promise<'pond' | 'again'> {
     const m = moves[i];
     if (m === 'free') await freeMove(i === 0);
     else if (m === 'colour') await colourMove();
+    else if (m === 'number') await numberMove();
     else if (m === 'count') await countMove();
     else await goalMove();
     dots[i].classList.remove('now');

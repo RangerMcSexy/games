@@ -1,7 +1,9 @@
 // A dash across the meadow, seen from the side. Sparkle the unicorn runs by
 // herself; tap anywhere and she jumps. Along the way there are stars to
-// catch, logs, rocks and bushes to jump over, balloons to pop by colour and
-// fences to count, and at the end a present to open.
+// catch, logs, rocks and bushes to jump over, balloons to pop by colour or
+// to finish a pattern ("red, blue, red, blue... what comes next?"), and
+// fences to count (then pop the balloon that says how many), and at the end
+// a present to open.
 //
 // Nothing can go wrong: Sparkle waits in front of anything she has to jump
 // over (every jump from there clears it), and puddles only splash. Each dash
@@ -26,14 +28,14 @@ import {
   unicornSVG,
 } from './art';
 import { sound } from './audio';
-import { COLOURS, ITEMS, addStar, finishDash, nextItem, save, unseenItems, type Item } from './data';
+import { COLOURS, ITEMS, addStar, finishDash, nextItem, save, unseenItems, type Colour, type Item } from './data';
 import { Meadow, type Host } from './screens';
 import { HINT_MS, Scene, burst, burstAt, center, el, flyClone, hint, pick, rand, replay, shuffle } from '../../shared/ui';
 import { say, sayAll } from './voice';
 import { stickerMoment } from '../../shared/sticker-moment';
 import { STICKER_ART } from './stickers';
 
-type Move = 'stars' | 'jump' | 'puddle' | 'colour' | 'count' | 'goal';
+type Move = 'stars' | 'jump' | 'puddle' | 'colour' | 'pattern' | 'count' | 'goal';
 
 /**
  * Something in the meadow. `x` is its middle and `y` its height above the
@@ -71,7 +73,7 @@ const cap = (id: string) => id[0].toUpperCase() + id.slice(1);
 
 /** The moves of one dash: a first jump to learn on, a mix, then the present. */
 function planDash(): Move[] {
-  return ['jump', ...shuffle<Move>(['stars', 'stars', 'colour', 'count', 'jump', 'puddle']), 'goal'];
+  return ['jump', ...shuffle<Move>(['stars', 'colour', 'pattern', 'count', 'jump', 'puddle']), 'goal'];
 }
 
 // Sparkle's shape, in unicorns: how far her hooves reach in front of and
@@ -542,45 +544,89 @@ export async function dashScreen(host: Host): Promise<'again' | 'dress'> {
     stopX = null;
   };
 
-  async function colourMove() {
-    // Stop for balloons.
+  /**
+   * Sparkle stops and balloons float up: only the right one pops. `labels`
+   * puts a number on each balloon. Wrong ones wobble and say what they are.
+   */
+  async function balloonQuestion(colours: Colour[], right: number, ask: string, wrongSays: (i: number) => string, labels?: number[]) {
     await stopAt(ux + 1.2);
-    const n = save.dashes < 2 ? 2 : 3;
-    const colours = shuffle(COLOURS).slice(0, n);
-    const target = pick(colours);
+    const n = colours.length;
     const from = ux + 1.1;
     const to = Math.min(cam() + W / U - 0.5, from + 1.6 * (n - 1));
     const heights = shuffle([1.35, 1.8, 1.5]).map((h) => Math.min(h, JH + 0.9));
     const balloons = colours.map((c, i) => {
       const b = add({ el: el('div', 'balloon', airLayer, balloonSVG(c)), x: from + ((to - from) * i) / (n - 1), y: heights[i], w: 0.62, air: true });
       b.el.style.animationDelay = `${i * 0.15}s, ${-rand(0, 2)}s`;
+      if (labels) el('div', 'balloon-num', b.el, String(labels[i]));
       return b;
     });
-    const right = balloons[colours.indexOf(target)];
     await sc.wait(500);
-    await speak(`pop${cap(target.id)}`, 4000);
+    await speak(ask, 4000);
     const misses = await sc.ask(
       balloons.map((b) => b.el),
-      balloons.indexOf(right),
+      right,
       async (i) => {
         sound.nope();
         replay(balloons[i].el, 'nope');
-        await speak([`that${cap(colours[i].id)}`, `pop${cap(target.id)}`], 6000);
+        await speak([wrongSays(i), ask], 6000);
       },
     );
     // Pop! The others float away.
-    const c = center(right.el);
+    const c = center(balloons[right].el);
     sound.bang();
-    burst(c.x, c.y - c.h * 0.2, { count: 22, spread: 1.1, colors: [target.petal, target.dark, '#fff', '#ffd84a'] });
-    right.el.remove();
-    balloons.forEach((b) => b !== right && b.el.classList.add('away'));
+    burst(c.x, c.y - c.h * 0.2, { count: 22, spread: 1.1, colors: [colours[right].petal, colours[right].dark, '#fff', '#ffd84a'] });
+    balloons[right].el.remove();
+    balloons.forEach((b, i) => i !== right && b.el.classList.add('away'));
+    return misses;
+  }
+
+  async function colourMove() {
+    const n = save.dashes < 2 ? 2 : 3;
+    const colours = shuffle(COLOURS).slice(0, n);
+    const target = pick(colours);
+    const misses = await balloonQuestion(colours, colours.indexOf(target), `pop${cap(target.id)}`, (i) => `that${cap(colours[i].id)}`);
     await speak([target.id, misses ? 'yay' : pick(['yay', 'wow'])], 4000);
     go();
     await reach(ux + 0.6);
   }
 
+  /**
+   * "What comes next?": a row of balloons in a pattern (red, blue, red,
+   * blue...) up on a cloud, with a gap at the end. Pop the one that fills it.
+   */
+  async function patternMove() {
+    const [a, b, c] = shuffle(COLOURS);
+    // AB to start; then ABB, AAB and ABC as she plays more.
+    const kinds = save.dashes < 3 ? [[a, b]] : [[a, b], [a, b, b], [a, a, b], [a, b, c]];
+    const unit = pick(kinds);
+    const shown = Array.from({ length: 5 }, (_, i) => unit[i % unit.length]);
+    const answer = unit[shown.length % unit.length];
+    const card = el('div', 'pattern-card', sc.root);
+    for (const col of shown) el('div', 'pattern-balloon', card, balloonSVG(col));
+    const gap = el('div', 'pattern-balloon gap', card, '<span>?</span>');
+    requestAnimationFrame(() => card.classList.add('in'));
+    const choices = shuffle([...new Set([answer, ...unit, ...shuffle(COLOURS)])].slice(0, save.dashes < 2 ? 2 : 3));
+    if (!choices.includes(answer)) choices[0] = answer;
+    const misses = await balloonQuestion(choices, choices.indexOf(answer), 'whatNext', (i) => `that${cap(choices[i].id)}`);
+    gap.innerHTML = balloonSVG(answer);
+    gap.classList.remove('gap');
+    replay(gap, 'appear');
+    sound.sparkle();
+    burstAt(gap, { kind: 'sparkle', count: 12, colors: [answer.petal, '#fff'] });
+    // Say the whole pattern, ending with the new one.
+    await speak([...shown, answer].slice(-4).map((col) => col.id), 5000);
+    await speak(misses ? 'yay' : pick(['yay', 'wow']), 2000);
+    card.classList.remove('in');
+    setTimeout(() => card.remove(), 500);
+    go();
+    await reach(ux + 0.6);
+  }
+
+  /** Up to which number counting goes: 4 to start, then on to 10. */
+  const topNumber = () => Math.min(10, 4 + Math.floor(save.dashes / 2));
+
   async function countMove() {
-    const n = Math.min(5, 3 + Math.floor(save.dashes / 3));
+    const n = topNumber();
     const x = spot();
     const fences = Array.from({ length: n }, (_, i) => makeObstacle('fence', x + i * 2.3));
     fences.forEach((f) => makeStar(f.x, JH + 0.5));
@@ -596,7 +642,13 @@ export async function dashScreen(host: Host): Promise<'again' | 'dress'> {
     await sc.wait(500);
     sound.sparkle();
     burstAt(uni, { kind: 'sparkle', count: 12 });
-    await speak(pick(['yay', 'youDidIt']), 3000);
+    // How many? The last number counted: pop the balloon with that number.
+    const k = save.dashes < 2 ? 2 : 3;
+    const nums = shuffle([n, ...shuffle(Array.from({ length: 10 }, (_, i) => i + 1).filter((m) => m !== n && Math.abs(m - n) <= 3)).slice(0, k - 1)]);
+    const misses = await balloonQuestion(shuffle(COLOURS).slice(0, k), nums.indexOf(n), 'howMany', (i) => `thatN${nums[i]}`, nums);
+    await speak([`n${n}`, misses ? 'yay' : pick(['yay', 'youDidIt'])], 4000);
+    go();
+    await reach(ux + 0.6);
   }
 
   async function goalMove() {
@@ -672,6 +724,7 @@ export async function dashScreen(host: Host): Promise<'again' | 'dress'> {
     } else if (m === 'jump') await jumpMove();
     else if (m === 'puddle') await puddleMove();
     else if (m === 'colour') await colourMove();
+    else if (m === 'pattern') await patternMove();
     else if (m === 'count') await countMove();
     else await goalMove();
     dots[i].classList.remove('now');

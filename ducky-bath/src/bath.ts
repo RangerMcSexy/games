@@ -282,6 +282,7 @@ export async function bathScreen(host: Host): Promise<'again' | 'shelf'> {
   // --- Squeak a duck by colour ----------------------------------------------------------------
 
   async function colourMove() {
+    if (save.baths >= 1 && Math.random() < 0.5) return sizeMove();
     await park();
     const n = save.baths < 2 ? 2 : 3;
     const colours = shuffle(LITTLE).slice(0, n);
@@ -314,15 +315,52 @@ export async function bathScreen(host: Host): Promise<'again' | 'shelf'> {
     await unpark();
   }
 
+  // --- Squeak the biggest (or smallest) duck ----------------------------------------------
+
+  async function sizeMove() {
+    await park();
+    const sizes = shuffle(['small', 'middle', 'big'] as const);
+    const W = { small: 92, middle: 134, big: 184 };
+    const want = pick(['big', 'small'] as const);
+    const colour = pick(LITTLE);
+    const xs = [0, 0.5, 1].map((t) => tub.span(t));
+    const ducks = sizes.map((z, i) => {
+      const f = tub.duck(colourLook(colour), 'cduck live', { x: xs[i], d: 0.7, w: W[z] });
+      dropIn(f, i * 220);
+      return f;
+    });
+    const right = sizes.indexOf(want);
+    const [ask, found] = want === 'big' ? ['sqBiggest', 'theBiggest'] : ['sqSmallest', 'theSmallest'];
+    await sc.wait(1360);
+    await speak(ask, 4000);
+    const misses = await sc.ask(
+      ducks.map((d) => d.el),
+      right,
+      async (i) => {
+        sound.nope();
+        replay(ducks[i].art, 'nope');
+        await speak([`that${cap(sizes[i])}`, ask], 6000);
+      },
+    );
+    sound.squeak(want === 'big' ? 0.8 : 1.4);
+    replay(ducks[right].art, 'hop');
+    burstAt(ducks[right].art, { kind: 'sparkle', count: 14, colors: [colour.petal, '#fff6a8', '#ffffff'] });
+    ducks.forEach((d) => d.el.classList.remove('live'));
+    await speak([found, misses ? 'yay' : pick(['yay', 'wow'])], 4000);
+    ducks.forEach((d, i) => away(d, i * 150));
+    await unpark();
+  }
+
   // --- Count the little ducks -------------------------------------------------------------------
 
   async function countMove() {
-    const n = Math.min(5, 3 + Math.floor(save.baths / 3));
+    // 4 to start, then up to 8.
+    const n = Math.min(8, 4 + Math.floor(save.baths / 2));
     await park();
     // A row of little ducks in every colour.
     const colours = shuffle(LITTLE);
     const babies = Array.from({ length: n }, (_, i) => {
-      const f = tub.duck(colourLook(colours[i % colours.length]), 'cduck live', { x: tub.span(i / (n - 1)), d: i % 2 ? 0.85 : 0.55, w: 112 });
+      const f = tub.duck(colourLook(colours[i % colours.length]), 'cduck live', { x: tub.span(i / (n - 1)), d: i % 2 ? 0.85 : 0.55, w: n > 5 ? 92 : 112 });
       dropIn(f, i * 200);
       return f;
     });
@@ -348,7 +386,36 @@ export async function bathScreen(host: Host): Promise<'again' | 'shelf'> {
     await sc.wait(700);
     sound.sparkle();
     burstAt(ducky.art, { kind: 'sparkle', count: 12 });
-    await speak(pick(['yay', 'youDidIt']), 3000);
+
+    // How many? The last number counted: pop the bubble with that number.
+    const m = save.baths < 2 ? 2 : 3;
+    const nums = shuffle([n, ...shuffle(Array.from({ length: 10 }, (_, i) => i + 1).filter((j) => j !== n && Math.abs(j - n) <= 3)).slice(0, m - 1)]);
+    const bubbles = nums.map((num, i) => {
+      const b = el('div', 'bubble num-bubble', tub.air, `${bubbleSVG()}<span>${num}</span>`);
+      // (Along the top of the bath, clear of Ducky by the tap.)
+      // (On a tall bath there's room above it instead.)
+      const tall = tub.shape.tall;
+      b.style.left = tub.px(tall ? tub.span(m === 2 ? 0.2 + i * 0.6 : i / 2) : tub.span(m === 2 ? 0.4 + i * 0.4 : 0.3 + i * 0.32));
+      b.style.top = tub.py(tall ? (i % 2 ? -150 : -110) : i % 2 ? -10 : 15);
+      b.style.width = tub.px(tall ? 120 : 125);
+      b.style.animationDelay = `${i * 0.15}s, ${-rand(0, 2)}s`;
+      return b;
+    });
+    await sc.wait(600);
+    await speak('howMany', 4000);
+    const misses = await sc.ask(bubbles, nums.indexOf(n), async (i) => {
+      sound.nope();
+      replay(bubbles[i], 'nope');
+      await speak([`thatN${nums[i]}`, 'howMany'], 6000);
+    });
+    const right = bubbles[nums.indexOf(n)];
+    const c = center(right);
+    sound.pop(1.2);
+    burst(c.x, c.y, { kind: 'drop', count: 14, spread: 0.6, colors: ['#dff3ff', '#ffffff', '#ffb3e0', '#b3f0c8'] });
+    right.remove();
+    bubbles.forEach((b) => b !== right && b.classList.add('gone'));
+    setTimeout(() => bubbles.forEach((b) => b.remove()), 600);
+    await speak([`n${n}`, misses ? 'yay' : pick(['yay', 'youDidIt'])], 4000);
     babies.forEach((b, i) => away(b, i * 120));
     await unpark();
   }

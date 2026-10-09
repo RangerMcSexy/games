@@ -748,6 +748,28 @@ body {
   inset: -30%;
   border-radius: 50%;
 }
+.num-bubble span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: clamp(30px, 7vmin, 64px);
+  font-weight: 800;
+  line-height: 1;
+  -webkit-text-stroke: 0.12em #3a82dc;
+  paint-order: stroke fill;
+  pointer-events: none;
+}
+.num-bubble.nope svg {
+  animation: nope 0.5s ease-in-out;
+}
+.num-bubble.gone {
+  transition: opacity 0.4s, scale 0.4s;
+  opacity: 0;
+  scale: 0.6;
+}
+
 .bubble.drift {
   width: calc(7.5% * var(--s, 1));
   animation: drift 7s ease-in forwards;

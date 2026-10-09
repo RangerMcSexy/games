@@ -839,6 +839,74 @@ body {
   right: max(14px, env(safe-area-inset-right));
   bottom: var(--safe-bottom);
 }
+.order-card {
+  position: absolute;
+  z-index: 20;
+  left: max(14px, env(safe-area-inset-left));
+  bottom: var(--safe-bottom);
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.4vmin, 12px);
+  padding: clamp(6px, 1.4vmin, 12px) clamp(10px, 2.2vmin, 18px);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 5px 0 rgba(40, 70, 110, 0.2);
+  opacity: 0;
+  translate: 0 20px;
+  transition:
+    opacity 0.35s,
+    translate 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+  pointer-events: none;
+}
+.order-card.in {
+  opacity: 1;
+  translate: 0 0;
+}
+.order-num {
+  font-size: clamp(34px, 8vmin, 64px);
+  line-height: 1;
+  color: #ff8a3d;
+  -webkit-text-stroke: 0.1em #fff;
+  paint-order: stroke fill;
+}
+.order-slots {
+  display: flex;
+  gap: clamp(4px, 1vmin, 8px);
+}
+.order-slots i {
+  width: clamp(28px, 6vmin, 48px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px dashed #9cc7e8;
+  display: grid;
+  place-items: center;
+}
+.order-slots i.got {
+  border: 3px solid #7cc0ff;
+  background: #e6f4ff;
+}
+.order-slots i svg {
+  width: 90%;
+  height: auto;
+}
+.order-fish {
+  width: clamp(70px, 15vmin, 120px);
+  animation: orderPulse 1.8s ease-in-out infinite;
+}
+.order-fish svg {
+  width: 100%;
+  height: auto;
+}
+.order-card.pop,
+.order-slots i.pop {
+  animation: pickBounce 0.5s ease-out;
+}
+@keyframes orderPulse {
+  50% {
+    scale: 1.08;
+  }
+}
+
 .tank-btn.gulp {
   animation: pickBounce 0.5s ease-out;
 }

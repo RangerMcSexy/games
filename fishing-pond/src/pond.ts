@@ -1,5 +1,10 @@
 // The pond: tap the water and Pip rows over and casts. A fish swims up,
 // nibbles, bites, and one more tap reels it in. Nothing can get away.
+//
+// Pip has an order on the card by the boat: some fish to catch for the
+// bucket ("Pip wants four fish!"), counted as they come in, or one kind of
+// fish to look for ("Can you catch the stripy fish?"), caught by tapping
+// right on it.
 import {
   BOAT_H,
   BOAT_W,
@@ -16,6 +21,7 @@ import {
   lilyPadSVG,
   moonSVG,
   reedsSVG,
+  fishSVG,
   sillySVG,
   sunSVG,
   turtleSVG,
@@ -164,6 +170,12 @@ export async function pondScreen(host: Host): Promise<'aquarium'> {
     tankBtn.classList.toggle('has-new', unseenUnlocks().length > 0);
   };
   paintBadge();
+
+  // Pip's order: a number of fish for the bucket, or one kind of fish.
+  type Order = { kind: 'count'; n: number; got: number } | { kind: 'find'; fish: Fish; misses: number };
+  const orderCard = el('div', 'order-card', root);
+  let order: Order | null = null;
+  let orders = 0;
 
   // --- Geometry ------------------------------------------------------------------
   let W = 0;
@@ -429,6 +441,9 @@ export async function pondScreen(host: Host): Promise<'aquarium'> {
         return true;
       };
       const stop = hint.schedule(() => {
+        // Looking for one kind of fish, and missed it twice: the hand shows where it is.
+        const wanted = order?.kind === 'find' && order.misses >= 2 ? swimmers.find((s) => s.fish === (order as { fish: Fish }).fish && visible(s)) : undefined;
+        if (wanted) return wanted.el;
         const vis = swimmers.filter(visible);
         return (vis.length ? pick(vis) : swimmers[0]).el;
       }, HINT_MS);
@@ -711,6 +726,86 @@ export async function pondScreen(host: Host): Promise<'aquarium'> {
     }
   }
 
+  /** Makes sure a fish of this kind is swimming in the pond. */
+  function keepInPond(f: Fish) {
+    if (swimmers.some((s) => s.fish === f && !s.held)) return;
+    const s = swimmers.find((x) => !x.held && x !== biter) ?? swimmers[0];
+    s.setFish(f, unit);
+  }
+
+  function paintOrder() {
+    orderCard.replaceChildren();
+    if (!order) return orderCard.classList.remove('in');
+    orderCard.classList.add('in');
+    if (order.kind === 'count') {
+      el('b', 'order-num', orderCard, String(order.n));
+      const slots = el('div', 'order-slots', orderCard);
+      for (let i = 0; i < order.n; i++) el('i', i < order.got ? 'got' : '', slots);
+    } else {
+      el('div', 'order-fish', orderCard, fishSVG(order.fish));
+    }
+  }
+
+  async function newOrder(first: boolean) {
+    orders++;
+    // Fish to count to start with; then counting and looking take turns.
+    const kinds = swimmers.filter((x) => visible(x) && !x.held).map((x) => x.fish);
+    if (first || orders % 2 === 1 || !kinds.length) {
+      const n = Math.min(5, 3 + Math.floor(save.total / 8)) - (Math.random() < 0.3 ? 1 : 0);
+      order = { kind: 'count', n, got: 0 };
+      paintOrder();
+      if (!first) await sc.wait(400);
+      void say(`order${n}`);
+    } else {
+      const fish = pick(kinds);
+      order = { kind: 'find', fish, misses: 0 };
+      paintOrder();
+      replay(orderCard, 'pop');
+      void say(`want-${fish.id}`);
+    }
+  }
+
+  async function checkOrder(c: Catch) {
+    if (!order) return;
+    if (order.kind === 'count') {
+      if (c.kind !== 'fish') return;
+      order.got++;
+      paintOrder();
+      const slot = orderCard.querySelectorAll('.order-slots i')[order.got - 1] as HTMLElement | undefined;
+      if (slot) {
+        slot.innerHTML = fishSVG(c.fish);
+        replay(slot, 'pop');
+      }
+      sound.blip(order.got);
+      if (order.got < order.n) {
+        await sc.until(say(`n${order.got}`), 2000);
+        return;
+      }
+      await sc.until(say(`n${order.got}`), 2000);
+      sound.fanfare();
+      const r = orderCard.getBoundingClientRect();
+      burst(r.left + r.width / 2, r.top + r.height / 2, { count: 26, spread: 1.1 });
+      replay(boat, 'cheer');
+      await sc.until(say('bucketFull'), 4000);
+    } else {
+      if (c.kind === 'fish' && c.fish === order.fish) {
+        sound.fanfare();
+        const r = orderCard.getBoundingClientRect();
+        burst(r.left + r.width / 2, r.top + r.height / 2, { count: 26, spread: 1.1 });
+        replay(boat, 'cheer');
+        await sc.until(say('gotIt'), 4000);
+      } else {
+        order.misses++;
+        keepInPond(order.fish);
+        await sc.until(sayAll(['notThatOne', `want-${order.fish.id}`], 250), 5000);
+        return;
+      }
+    }
+    order = null;
+    paintOrder();
+    await sc.wait(600);
+  }
+
   async function flow() {
     // Let "Let's go fishing!" finish before the first prompt.
     const greet = window.setTimeout(() => state === 'idle' && catches === 0 && void say('tapWater'), 2800);
@@ -718,12 +813,15 @@ export async function pondScreen(host: Host): Promise<'aquarium'> {
     let catches = 0;
     for (;;) {
       state = 'idle';
+      if (!order) await newOrder(catches === 0);
+      else if (order.kind === 'find') keepInPond(order.fish);
       const p = await waitForCast();
       await cast(p.x, p.y);
       const c = await approach(p.x, p.y);
       await bite();
       await reel(c);
       await reveal(c);
+      await checkOrder(c);
       state = 'idle';
       if (++catches % CATCHES_PER_WEATHER === 0) changeWeather(nextWeather());
     }
