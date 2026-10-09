@@ -36,7 +36,7 @@ import {
   type Shape,
 } from './data';
 import { guide } from './guide';
-import { Aborted, Scene, burst, burstAt, center, el, flip, flyClone, rand, replay, shuffle } from '../../shared/ui';
+import { Aborted, Scene, burst, burstAt, center, el, flip, flyClone, pick, rand, replay, shuffle } from '../../shared/ui';
 import { hasRecording, say, sayText } from './voice';
 import { stickerMoment } from '../../shared/sticker-moment';
 import { STICKER_ART } from './stickers';
@@ -177,7 +177,21 @@ async function eatScene(host: JourneyHost): Promise<{ foods: FoodId[]; golden: b
       paint(gi);
       sound.sparkle();
     }
-    const i = await sc.tapAny(slots, 4500);
+    // Now and then the caterpillar asks for a food by name.
+    const asks = (meal === 1 || meal === 3) && meal !== goldenTurn;
+    let i: number;
+    if (asks) {
+      const want = pick(offer.filter((f) => f !== 'golden'));
+      i = offer.indexOf(want);
+      await sc.until(say(`want-${want}`), 3500);
+      await sc.ask(slots, i, async (j) => {
+        replay(slots[j], 'nope');
+        sound.boing();
+        await sc.until(say(`that-${offer[j]}`), 3000);
+        await sc.until(say(`want-${want}`), 3500);
+      });
+      slots.forEach((b) => b.classList.remove('ruled-out'));
+    } else i = await sc.tapAny(slots, 4500);
     const food = offer[i];
     tray.classList.add('busy');
     sound.pop();
@@ -434,6 +448,9 @@ async function cocoonScene(host: JourneyHost, shape: Shape, foods: FoodId[], gol
     toGarden.classList.add('nudge');
     await sc.until(say('gardenNew'), 4000);
   }
+  // How did that happen? Put the life cycle in order.
+  await lifeCycle(sc, b);
+
   // A sticker for the sticker book, now and then.
   await stickerMoment('butterfly-garden', { sc, art: STICKER_ART, chime: () => sound.chime(), say: () => say('bookSticker') });
 
@@ -446,6 +463,65 @@ async function cocoonScene(host: JourneyHost, shape: Shape, foods: FoodId[], gol
   }
   sc.destroy();
   return choice === 0 ? 'garden' : 'again';
+}
+
+/**
+ * Egg, caterpillar, chrysalis, butterfly: the four pictures come up in a
+ * jumble; tap them in order and they line up along the top. A wrong one
+ * wobbles ("What came first?") and the hand never gives it away.
+ */
+async function lifeCycle(sc: Scene, b: Butterfly) {
+  const steps = [
+    { id: 'cycleEgg', art: eggSVG(b.shape) },
+    { id: 'cycleCat', art: caterpillarSVG(b.foods) },
+    { id: 'cycleChrysalis', art: chrysalisSVG(b.foods, b.pattern) },
+    { id: 'cycleFly', art: butterflySVG(b, { flap: true, speed: 0.5 }) },
+  ];
+  const box = el('div', 'cycle', sc.root);
+  const line = el('div', 'cycle-line', box);
+  const slots = steps.map((_, i) => {
+    if (i) el('span', 'cycle-arrow', line, '➜');
+    return el('div', 'cycle-slot', line);
+  });
+  const pile = el('div', 'cycle-pile', box);
+  const order = shuffle(steps.map((_, i) => i));
+  // (Never already in order.)
+  if (order.every((v, i) => v === i)) order.reverse();
+  const cards = order.map((k, i) => {
+    const c = el('button', 'cycle-card', pile, steps[k].art);
+    c.style.setProperty('--d', `${i * 0.1}s`);
+    return c;
+  });
+  requestAnimationFrame(() => box.classList.add('open'));
+  await sc.wait(500);
+  await sc.until(say('cycleFirst'), 3500);
+  const left = cards.slice();
+  for (let k = 0; k < steps.length; k++) {
+    const right = left.indexOf(cards[order.indexOf(k)]);
+    await sc.ask(left, right, async (j) => {
+      replay(left[j], 'nope');
+      await sc.until(say(k ? 'cycleNext' : 'cycleFirst'), 3000);
+    });
+    left.forEach((c) => c.classList.remove('ruled-out'));
+    const card = left.splice(right, 1)[0];
+    sound.pop(1 + k * 0.15);
+    const to = center(slots[k]);
+    card.classList.add('placed');
+    await flyClone(steps[k].art, card.getBoundingClientRect(), to, 450, slots[k].getBoundingClientRect().width / card.getBoundingClientRect().width);
+    slots[k].innerHTML = steps[k].art;
+    slots[k].classList.add('filled');
+    burstAt(slots[k], { kind: 'sparkle', count: 8 });
+    await sc.until(say(steps[k].id), 2500);
+    if (k < steps.length - 1) void say('cycleNext');
+  }
+  sound.sparkle();
+  guide.cheer();
+  burstAt(line, { count: 24, spread: 1.2 });
+  await sc.until(say('cycleDone'), 6000);
+  await sc.wait(500);
+  box.classList.remove('open');
+  await sc.wait(400);
+  box.remove();
 }
 
 async function shootingStar(sc: Scene, sky: HTMLElement) {
