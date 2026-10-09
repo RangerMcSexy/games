@@ -73,10 +73,31 @@ const OUTLINES: Record<ShapeId, { boundary: Pt[]; corners?: Pt[] }> = (() => {
     const q = corners[(i + 1) % corners.length];
     for (let k = 0; k < 8; k++) star.push([p[0] + ((q[0] - p[0]) * k) / 8, p[1] + ((q[1] - p[1]) * k) / 8]);
   });
+  // A square with softly rounded corners.
+  const square: Pt[] = [];
+  for (let i = 0; i < 72; i++) {
+    const a = (i / 72) * Math.PI * 2;
+    const c = Math.cos(a);
+    const sn = Math.sin(a);
+    square.push([Math.sign(c) * Math.abs(c) ** (2 / 7), Math.sign(sn) * Math.abs(sn) ** (2 / 7)]);
+  }
+  // A triangle, point up (its corners are rounded when drawn, like the star's).
+  const triCorners = normalise([
+    [0, -1],
+    [1.05, 0.85],
+    [-1.05, 0.85],
+  ]);
+  const triangle: Pt[] = [];
+  triCorners.forEach((p, i) => {
+    const q = triCorners[(i + 1) % 3];
+    for (let k = 0; k < 24; k++) triangle.push([p[0] + ((q[0] - p[0]) * k) / 24, p[1] + ((q[1] - p[1]) * k) / 24]);
+  });
   return {
     round: { boundary: circle },
     heart: { boundary: normalise(heart) },
     star: { boundary: star, corners },
+    square: { boundary: square },
+    triangle: { boundary: triangle, corners: triCorners },
   };
 })();
 
@@ -86,14 +107,14 @@ export function shapePath(shape: ShapeId, rx: number, ry: number, ox = 0, oy = 0
   if (shape === 'round') {
     return `M${f1(ox - rx)},${f1(oy)} A${f1(rx)},${f1(ry)} 0 1 0 ${f1(ox + rx)},${f1(oy)} A${f1(rx)},${f1(ry)} 0 1 0 ${f1(ox - rx)},${f1(oy)} Z`;
   }
-  if (shape === 'star') {
-    // Rounded star: cut each corner with a little curve.
-    const c = OUTLINES.star.corners!;
+  const c = OUTLINES[shape].corners;
+  if (c) {
+    // Rounded star or triangle: cut each corner with a little curve.
     let d = '';
     c.forEach((p, i) => {
       const prev = c[(i + c.length - 1) % c.length];
       const next = c[(i + 1) % c.length];
-      const k = i % 2 === 0 ? 0.16 : 0.12;
+      const k = shape === 'triangle' ? 0.2 : i % 2 === 0 ? 0.16 : 0.12;
       const a: Pt = [p[0] + (prev[0] - p[0]) * k, p[1] + (prev[1] - p[1]) * k];
       const b: Pt = [p[0] + (next[0] - p[0]) * k, p[1] + (next[1] - p[1]) * k];
       d += `${i === 0 ? 'M' : 'L'}${P(...a)} Q${P(...p)} ${P(...b)} `;
@@ -250,7 +271,10 @@ function topperSVG(t: TreatLook, x: number, y: number, spread: number): string {
   if (t.topper === 'cherry') return cherrySVG(x, y);
   if (t.topper === 'strawberry') return strawberrySVG(x, y);
   if (t.topper === 'candles' || (t.candles ?? 0) > 0) {
-    return candlesSVG(t.candles ?? 3, [x - spread, x, x + spread], y, t.lit ?? false);
+    // Up to three across the top; more spread a little wider.
+    const n = t.candles ?? 3;
+    const xs = n <= 3 ? [x - spread, x, x + spread] : Array.from({ length: n }, (_, i) => x - spread * 1.35 + (spread * 2.7 * i) / (n - 1));
+    return candlesSVG(n, xs, y, t.lit ?? false);
   }
   return '';
 }

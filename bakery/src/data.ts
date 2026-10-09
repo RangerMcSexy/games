@@ -3,13 +3,13 @@
 import { storeName, storedName } from '../../shared/ask-name';
 
 export type Kind = 'cake' | 'cupcake' | 'cookie';
-export type ShapeId = 'round' | 'heart' | 'star';
+export type ShapeId = 'round' | 'heart' | 'star' | 'square' | 'triangle';
 export type ColorId = 'pink' | 'yellow' | 'blue' | 'green' | 'purple' | 'choc';
 export type Topper = 'cherry' | 'strawberry' | 'candles';
 export type AnimalId = 'bear' | 'hippo' | 'bunny' | 'piggy' | 'elephant' | 'dino' | 'owl' | 'cat';
 
 export const KINDS: Kind[] = ['cake', 'cupcake', 'cookie'];
-export const SHAPES: ShapeId[] = ['round', 'heart', 'star'];
+export const SHAPES: ShapeId[] = ['round', 'heart', 'star', 'square', 'triangle'];
 export const COLORS: ColorId[] = ['pink', 'yellow', 'blue', 'green', 'purple', 'choc'];
 export const TOPPERS: Topper[] = ['cherry', 'strawberry', 'candles'];
 export const ANIMALS: AnimalId[] = ['bear', 'hippo', 'bunny', 'piggy', 'elephant', 'dino', 'owl', 'cat'];
@@ -25,7 +25,7 @@ export const PALETTE: Record<ColorId, { name: string; batter: string; icing: str
 };
 
 export const KIND_NAMES: Record<Kind, string> = { cake: 'cake', cupcake: 'cupcake', cookie: 'cookie' };
-export const SHAPE_NAMES: Record<ShapeId, string> = { round: 'circle', heart: 'heart', star: 'star' };
+export const SHAPE_NAMES: Record<ShapeId, string> = { round: 'circle', heart: 'heart', star: 'star', square: 'square', triangle: 'triangle' };
 
 export const ANIMAL_NAMES: Record<AnimalId, string> = {
   bear: 'Bear',
@@ -54,6 +54,8 @@ export interface Treat {
   /** How many shakes of sprinkles went on. */
   sprinkles: number;
   topper: Topper;
+  /** How many candles (when the topper is candles; 3 for treats from before they were counted). */
+  candles?: number;
   customer: AnimalId;
   /** It was exactly what the customer wished for. */
   wished: boolean;

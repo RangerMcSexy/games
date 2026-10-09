@@ -46,7 +46,7 @@ const DEMO: TreatLook[] = [
   { kind: 'cookie', shape: 'star', batter: 'yellow', icing: 'purple', sprinkles: 3, topper: 'strawberry', seed: 'demo3' },
 ];
 
-const lookOf = (t: Treat): TreatLook => ({ ...t, seed: t.id, candles: t.topper === 'candles' ? 3 : 0, lit: false });
+const lookOf = (t: Treat): TreatLook => ({ ...t, seed: t.id, candles: t.topper === 'candles' ? Math.min(5, Math.max(1, Math.round(t.candles ?? 3) || 3)) : 0, lit: false });
 
 const namesOf = (t: Pick<TreatLook, 'kind' | 'shape' | 'icing' | 'batter'>) => (hasShape(t.kind) ? [t.icing ?? t.batter, t.shape, t.kind] : [t.icing ?? t.batter, t.kind]);
 

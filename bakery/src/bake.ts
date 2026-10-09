@@ -72,6 +72,9 @@ function withWish<T>(all: readonly T[], wished: T, n = 3): T[] {
   return shuffle([wished, ...shuffle(all.filter((x) => x !== wished)).slice(0, n - 1)]);
 }
 
+/** How many of something the recipe asks for: 3 at first, then 2 to 5. */
+const recipeCount = () => (save.treats.length < 2 ? 3 : 2 + Math.floor(Math.random() * 4));
+
 export async function bake(host: BakeHost): Promise<BakeEnd> {
   setTime('day');
   guide.show();
@@ -126,10 +129,23 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
     return { item: items[index], btn, index };
   }
   const clearChoices = async () => {
-    choices.querySelectorAll('.choice').forEach((b) => b.classList.add('gone'));
+    choices.querySelectorAll('.choice, .recipe-card').forEach((b) => b.classList.add('gone'));
     await sc.wait(320);
     choices.innerHTML = '';
   };
+
+  /** The recipe card: how many, as a number and as a row of little pictures that fill in as they're counted. */
+  function recipeCard(n: number, icon: string) {
+    choices.innerHTML = '';
+    const card = el('div', 'recipe-card', choices);
+    el('b', 'recipe-num', card, String(n));
+    const row = el('div', 'recipe-row', card);
+    const slots = Array.from({ length: n }, () => el('i', '', row, icon));
+    return (k: number) => {
+      slots[k - 1]?.classList.add('done');
+      if (k === n) replay(card, 'jiggle');
+    };
+  }
 
   // --- The customer comes in -----------------------------------------------
   const last = save.treats[save.treats.length - 1]?.customer;
@@ -175,17 +191,21 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
   setStep(0);
   const bowlBox = el('div', 'bowl-box', bench, bowlSVG());
   const bowl = bowlBox.querySelector('svg')!;
+  // The recipe says how many eggs; there's a spare one on the side.
+  const eggN = recipeCount();
+  const eggTick = recipeCard(eggN, eggSVG());
   const eggRow = el('div', 'egg-row', bench);
-  const eggs = [0, 1, 2].map((i) => {
+  const eggs = Array.from({ length: Math.min(5, eggN + 1) }, (_, i) => {
     const b = el('button', 'egg-btn', eggRow, eggSVG());
     b.style.setProperty('--d', `${i * 0.15}s`);
     return b;
   });
+  eggRow.style.setProperty('--n', String(eggs.length));
   await sc.wait(500);
-  void say('eggs');
+  void say(`eggs${eggN}`);
   const rollAt = Math.random() < 0.3 ? 1 : -1;
   const left = eggs.slice();
-  for (let n = 1; n <= 3; n++) {
+  for (let n = 1; n <= eggN; n++) {
     const i = await sc.tapAny(left);
     const egg = left[i];
     left.splice(i, 1);
@@ -209,27 +229,31 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
     const to = center(bowlBox);
     const from = egg.getBoundingClientRect();
     egg.classList.add('used');
-    await flyClone(eggSVG(), from, { x: to.x + (n - 2) * to.w * 0.14, y: to.y - to.h * 0.2 }, 500, 0.7);
+    const ex = ((n - 1) / Math.max(1, eggN - 1) - 0.5) * 2;
+    await flyClone(eggSVG(), from, { x: to.x + ex * to.w * 0.14, y: to.y - to.h * 0.2 }, 500, 0.7);
     sound.crack(2);
     sound.plop();
-    burst(to.x + (n - 2) * to.w * 0.14, to.y - to.h * 0.2, { kind: 'bits', count: 8, colors: ['#fff8ec', '#ffe9c6'], spread: 0.4, size: 0.7 });
-    bowl.classList.add(`y${n}`);
+    burst(to.x + ex * to.w * 0.14, to.y - to.h * 0.2, { kind: 'bits', count: 8, colors: ['#fff8ec', '#ffe9c6'], spread: 0.4, size: 0.7 });
+    bowl.classList.add(`y${Math.min(3, n)}`);
     replay(bowlBox, 'jiggle');
     countPop(bowlBox, n);
+    eggTick(n);
     await sc.wait(500);
   }
   guide.cheer();
   eggRow.classList.add('gone');
-  await sc.wait(400);
+  await clearChoices();
   eggRow.remove();
 
   // --- 2. Shake in the sugar ------------------------------------------------
   setStep(1);
   const sugarJar = el('button', 'sugar-btn', bench, sugarSVG());
   sugarJar.setAttribute('aria-label', 'Sugar');
+  const sugarN = recipeCount();
+  const sugarTick = recipeCard(sugarN, sugarSVG());
   await sc.wait(400);
-  void say('sugar');
-  for (let n = 1; n <= 3; n++) {
+  void say(`sugar${sugarN}`);
+  for (let n = 1; n <= sugarN; n++) {
     await sc.tap(sugarJar);
     replay(sugarJar, 'shaking');
     sound.shake();
@@ -241,10 +265,12 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
     burst(to.x, to.y - to.h * 0.25, { kind: 'sparkle', count: 6, colors: ['#ffffff', '#ffd6e6'], spread: 0.45, size: 0.7 });
     replay(bowlBox, 'jiggle');
     countPop(bowlBox, n);
+    sugarTick(n);
     await sc.wait(450);
   }
   sound.sparkle();
   void say('sweet');
+  void clearChoices();
   guide.cheer();
   sugarJar.classList.add('gone');
   await sc.wait(500);
@@ -313,7 +339,8 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
   let shape: ShapeId = 'round';
   if (hasShape(kind)) {
     void say('pickShape');
-    shape = (await choose(SHAPES, (s) => shapeSVG(s, batter), 'shape-choice', wish.kind === kind ? wish.shape : undefined)).item;
+    const shapes = wish.kind === kind ? withWish(SHAPES, wish.shape) : shuffle(SHAPES).slice(0, 3);
+    shape = (await choose(shapes, (s) => shapeSVG(s, batter), 'shape-choice', wish.kind === kind ? wish.shape : undefined)).item;
     void say(shape);
     await clearChoices();
   }
@@ -438,9 +465,13 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
   );
   const topper = topperPick.item;
   await clearChoices();
+  let candles = 0;
   if (topper === 'candles') {
-    await sc.until(say('candles'), 2600);
-    for (let n = 1; n <= 3; n++) {
+    // How many candles? The customer says how old they are.
+    candles = recipeCount();
+    const candleTick = recipeCard(candles, `<span class="topper-icon">${sprite('candle')}</span>`);
+    await sc.until(say(`candles${candles}`), 3000);
+    for (let n = 1; n <= candles; n++) {
       await sc.tap(treatBox);
       look.candles = n;
       look.lit = true;
@@ -448,9 +479,11 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
       sound.flame();
       replay(treatBox, 'bounce');
       countPop(treatBox, n);
+      candleTick(n);
       await sc.wait(450);
     }
     await sc.wait(300);
+    void clearChoices();
     void say('blow');
     await sc.tap(treatBox);
     sound.blow();
@@ -483,6 +516,7 @@ export async function bake(host: BakeHost): Promise<BakeEnd> {
     icing,
     sprinkles: look.sprinkles ?? 0,
     topper,
+    ...(candles ? { candles } : {}),
     customer: animal,
     wished: false,
     created: Date.now(),
