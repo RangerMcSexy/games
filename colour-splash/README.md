@@ -1,6 +1,6 @@
 # 🌈 Colour Splash
 
-A gentle colouring game for toddlers (about age 2 to 3). Tap a paint pot, tap
+A gentle colouring game for little ones (about age 3 to 4). Tap a paint pot, tap
 part of the picture, and colour splashes across it. When every part is painted,
 the picture comes alive and goes up in the gallery. No reading needed, and
 nothing to fail. It works with a finger on a tablet or with a mouse.
@@ -10,16 +10,20 @@ nothing to fail. It works with a finger on a tablet or with a mouse.
 1. **Pick a picture.** Three big pictures are shown at a time. Tap the blue
    arrow for the next three. Pictures painted before show their own
    colours and a gold star.
-2. **Tap a paint pot.** The pot hops up and the colour is named ("Blue!"). One
+2. **Mix a colour** (from the second picture on): two pots and a bowl pop
+   up. Tap each pot to pour it in, tap the bowl three times to stir, and
+   "Red and yellow make orange!" (or blue and yellow, green; red and blue,
+   purple). The new colour is picked, ready to paint with.
+3. **Tap a paint pot.** The pot hops up and the colour is named ("Blue!"). One
    pot is already picked, so tapping the picture straight away works too.
-3. **Tap the picture.** A splash of colour spreads out from her finger to fill
+4. **Tap the picture.** A splash of colour spreads out from her finger to fill
    that part, with a *splosh* and a little musical note (each colour has its
    own note). Tapping a part again paints over it.
-4. **The rainbow pot** paints in stripy rainbow colours.
-5. **The magic star** (next to the pots) paints one of the white parts in the
+5. **The rainbow pot** paints in stripy rainbow colours.
+6. **The magic star** (next to the pots) paints one of the white parts in the
    colour it "should" be. It's handy when a part is hard to find, or when she
    just wants to tap.
-6. **All done!** Fanfare, confetti and "You did it!" Then the picture
+7. **All done!** Fanfare, confetti and "You did it!" Then the picture
    **comes alive**, and she can tap the gallery button or the play button to
    paint another.
 

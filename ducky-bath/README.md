@@ -1,6 +1,6 @@
 # 🦆 Ducky Bath
 
-A gentle bath-time game for toddlers (about age 2 to 4). Ducky the rubber
+A gentle bath-time game for little ones (about age 3 to 4). Ducky the rubber
 duck is waiting in an empty bath. **Tap the tap to fill it**, and bath time
 begins. At the end, pull the plug: a big bubble floats up with a new rubber
 duck inside. Nothing can go wrong and there's no reading needed. It works
@@ -22,9 +22,13 @@ different order every time:
   one's blue!"), fades out, and the question is asked again. The hand never
   gives the answer away: until she has had a go it only visits each duck in
   turn, and it points at the right one once that's the only one left. Two
-  ducks at first, three after a couple of baths.
+  ducks at first, three after a couple of baths. From the second bath, half
+  the time it's sizes instead: three ducks the same colour, big, middle and
+  small. "Squeak the biggest duck!" (or the smallest); a wrong one says its
+  size ("That one's in the middle!").
 - **Count the little ducks:** "Let's count the ducks!" Tap each one: "One!
-  Two! Three!" It starts at three and grows to five over more baths.
+  Two! Three!" It starts at four and grows to eight over more baths. Then
+  bubbles with numbers float up: "How many ducks? Pop the number!"
 - **Scrub the mud:** "Oh no! Ducky's all muddy!" Tap each splodge and the
   sponge scrubs it off. "Squeaky clean!"
 - **Hide and seek:** Baby Duck hides under one of three piles of foam.

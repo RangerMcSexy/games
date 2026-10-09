@@ -1,17 +1,19 @@
 # Games
 
-Little browser games for little ones (about ages 2 to 4).
+Little browser games for little ones, made for ages 3 to 4: counting to 10
+and numbers, patterns, shapes, sizes, colour mixing, letters and their
+sounds, and how a caterpillar becomes a butterfly, with nothing to fail.
 
 | Game | Description |
 | ---- | ----------- |
-| [🦋 Butterfly Garden](butterfly-garden/) | Grow a caterpillar into a butterfly, collect all 25 in the book, and play in a garden that grows. |
-| [🧁 Little Bakery](bakery/) | Bake cakes, cupcakes and cookies for silly animal customers, and fill a shop window that grows. Made extra simple for ages 2 to 3. |
-| [🌈 Colour Splash](colour-splash/) | Tap to splash colour onto 12 pictures that come alive when they're finished, and fill a gallery wall that grows. For ages 2 to 3. |
-| [🎣 Little Fishing Pond](fishing-pond/) | Go fishing with Pip the penguin: tap the water, wait for a nibble, reel in 12 kinds of fish (and some silly surprises), and fill a fish tank that grows. For ages 2 to 3. |
-| [🐸 Leapy Pond](leapy-pond/) | Hop across a big pond with Hoppy the frog: catch flies, find flowers by colour, count stepping stones, and meet 12 pond friends who come to live in your pond. For ages 2 to 4. |
-| [🦄 Unicorn Dash](unicorn-dash/) | Dash across a sunny meadow with Sparkle the unicorn: tap to jump logs and fences, catch stars, pop balloons by colour, count jumps, and open a present at the end of every dash to find 12 things to dress her up in. For ages 2 to 4. |
-| [🦆 Ducky Bath](ducky-bath/) | Bath time with Ducky: turn on the tap, squeeze in the bubbles, squeak ducks by colour, count the little ducks, scrub off the mud and find Baby Duck hiding in the foam. Pull the plug at the end, and a big bubble floats up with one of 12 rubber ducks to line up on the shelf. For ages 2 to 4. |
-| [📮 Postie Pip](postie-pip/) | Deliver the post with Pip the penguin: match the letter on each parcel to the letter on a door, and the friend who lives there comes out for it ("S is for snake!"). Learn the whole alphabet one letter at a time, draw each one by tapping dots, and fill a street with 26 letter friends. For ages 2½ to 4. |
+| [🦋 Butterfly Garden](butterfly-garden/) | Grow a caterpillar into a butterfly (feeding it the foods it asks for by name), put the life cycle in order, collect all 25 in the book, and play in a garden that grows. |
+| [🧁 Little Bakery](bakery/) | Bake cakes, cupcakes and cookies for silly animal customers, count eggs, sugar and candles from the recipe card, pick from five shapes, and fill a shop window that grows. |
+| [🌈 Colour Splash](colour-splash/) | Tap to splash colour onto 12 pictures that come alive when they're finished, and fill a gallery wall that grows. Mix two colours into a new one before each picture. |
+| [🎣 Little Fishing Pond](fishing-pond/) | Go fishing with Pip the penguin: tap the water, wait for a nibble, reel in 12 kinds of fish (and some silly surprises), and fill a fish tank that grows. Pip's orders: fish to count into the bucket, or one kind of fish to find. |
+| [🐸 Leapy Pond](leapy-pond/) | Hop across a big pond with Hoppy the frog: catch flies, find flowers by colour and pads by number, count stepping stones up to 10 and say how many, and meet 12 pond friends who come to live in your pond. |
+| [🦄 Unicorn Dash](unicorn-dash/) | Dash across a sunny meadow with Sparkle the unicorn: tap to jump logs and fences, catch stars, pop balloons by colour, finish patterns (red, blue, red, blue... what comes next?), count fences up to 10 and say how many, and open a present at the end of every dash to find 12 things to dress her up in. |
+| [🦆 Ducky Bath](ducky-bath/) | Bath time with Ducky: turn on the tap, squeeze in the bubbles, squeak ducks by colour or by size (the biggest, the smallest), count the little ducks and say how many, scrub off the mud and find Baby Duck hiding in the foam. Pull the plug at the end, and a big bubble floats up with one of 12 rubber ducks to line up on the shelf. |
+| [📮 Postie Pip](postie-pip/) | Deliver the post with Pip the penguin: match the letter on each parcel to the letter on a door, and the friend who lives there comes out for it ("S is for snake! S says sss!"). Learn the whole alphabet one letter at a time, with its sound and its capital, draw each one by tapping dots, and fill a street with 26 letter friends. |
 
 ## Play them all (recommended)
 
@@ -31,6 +33,15 @@ Played this way, the games share a few things:
 
 - **The child's name:** change it in any game's grown-up settings and every
   game (and the home page) uses it.
+- **The play timer:** a grown-up sets how long a play session lasts (10 to
+  60 minutes, or off) in any game's grown-up settings. It counts across all
+  the games, only while one is on screen. A little sun in the top bar sets
+  as the time runs down, the voice says "Nearly time for a rest!" two
+  minutes before the end, and when the time's up the game finishes what
+  it's doing (up to a minute more), says goodnight, and every game and the
+  home page stay asleep until a grown-up holds the button on the goodnight
+  screen for 3 seconds (5 or 15 more minutes, a new session, or no timer).
+  After an hour without playing, the next session starts afresh.
 - **Voice recordings:** a line that's the same in several games, like "Yay!"
   or "Blue!", only needs recording once.
 - **Progress:** the home page shows a badge on each game: butterflies grown,

@@ -1,6 +1,6 @@
 # 🧁 Little Bakery
 
-A gentle browser game for toddlers (about age 2 to 3). Bake a cake, a cupcake or
+A gentle browser game for little ones (about age 3 to 4). Bake a cake, a cupcake or
 a cookie for a silly animal customer. No reading needed, and nothing to fail. It
 works with a finger on a tablet or with a mouse.
 
@@ -9,17 +9,22 @@ works with a finger on a tablet or with a mouse.
 1. **Ding-a-ling! A customer comes in** through the serving hatch. A thought
    bubble shows what they'd like, e.g. "Pink! Heart! Cake!".
 2. **What shall we bake?** Pick a cake, a cupcake or a cookie.
-3. **Crack 3 eggs.** The game counts along: "One! Two! Three!"
-4. **Shake in the sugar.** Three shakes of the sugar shaker, counted again.
+3. **Crack the eggs.** The recipe card says how many ("Crack four eggs!"),
+   as a number and as a row of eggs that fill in while the game counts
+   along. There's always a spare egg, so it's counting, not just tapping
+   them all. Three to start; after a couple of bakes, 2 to 5.
+4. **Shake in the sugar.** The recipe card again: 2 to 5 shakes, counted.
 5. **Tap the flour**, then **pick a colour** for the batter.
 6. **Stir.** Rub round the bowl or just tap it.
-7. **Pick a shape** for a cake tin or a cookie cutter: circle, heart or star.
+7. **Pick a shape** for a cake tin or a cookie cutter: three of circle,
+   heart, star, square and triangle.
    (Cupcakes skip this: they bake in a round paper case.)
 8. **Into the oven.** Tap the door shut. It goes *tick-tock… DING!* Tap to
    open it.
 9. **Decorate.** Pick the icing, shake on sprinkles, and choose what goes on
-   top: a cherry, a strawberry, or **candles** (count them on, then blow them
-   out).
+   top: a cherry, a strawberry, or **candles**: the customer says how old
+   they are ("I'm four! Four candles, please!"), count that many on, then
+   blow them out.
 10. **Serve!** Tap the treat and watch the customer gobble it up.
 11. A twin treat goes into the **shop window**.
 
@@ -44,10 +49,10 @@ Pip hop over to show what to tap. Tickle Pip and he giggles.
 | --------------- | ---------------------------------------------------------------------- |
 | Cake / cupcake / cookie | The whole treat                                                |
 | The batter colour | The cake, muffin or cookie itself                                    |
-| The shape       | The cake tin or cookie cutter (cupcakes are always round)              |
+| The shape       | The cake tin or cookie cutter: circle, heart, star, square or triangle (cupcakes are always round) |
 | The icing       | The icing colour, with drips on cakes                                  |
 | Sprinkle shakes | More shakes, more sprinkles                                            |
-| On top          | A cherry, a strawberry or three candles                                |
+| On top          | A cherry, a strawberry or candles (2 to 5)                             |
 
 ### The customers
 

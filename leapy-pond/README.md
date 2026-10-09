@@ -1,6 +1,6 @@
 # 🐸 Leapy Pond
 
-A gentle hopping game for toddlers (about age 2 to 4). Hoppy the frog sits on
+A gentle hopping game for little ones (about age 3 to 4). Hoppy the frog sits on
 a lily pad in a big pond, seen from above. Tap a glowing pad and Hoppy leaps
 onto it, and the pond scrolls along. At the far side a pond friend is waiting
 to be met. Nothing can go wrong and there's no reading needed. It works with
@@ -21,9 +21,13 @@ first is always an easy one.
   never gives the answer away: until she has had a go it only visits each
   flower in turn, and it points at the right one once that's the only one
   left. Two flowers to choose from at first, three after a couple of trips.
+- **Find the number:** "Hop to number four!" Each pad has a number on it,
+  and only that one can be hopped to; a wrong one says its number ("That's
+  number two!"). Up to 5 at first, then up to 10.
 - **Stepping stones:** "Let's count!" A row of stones to hop along one at a
-  time, "One! Two! Three!". It starts at three stones and grows to five as she
-  plays more.
+  time, "One! Two! Three!". It starts at four stones and grows to ten as she
+  plays more. Then: "How many stones? Hop to the number!", pads with the
+  right number and some near it.
 - **The friend:** a big glowing pad with a mystery shape on it ("Who's
   that?"). Hop over and meet a new friend, who comes to live in your pond.
 

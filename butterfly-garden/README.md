@@ -1,6 +1,6 @@
 # 🦋 Butterfly Garden
 
-A gentle browser game for little ones (about age 4) about how a caterpillar
+A gentle browser game for little ones (about age 3 to 4) about how a caterpillar
 becomes a butterfly. No reading needed, and nothing to fail. It works with a
 finger on a tablet or with a mouse.
 
@@ -9,11 +9,16 @@ finger on a tablet or with a mouse.
 1. **Pick an egg**, then tap it until it hatches. The game counts along:
    "One! Two! Three!"
 2. **Feed the hungry caterpillar** 5 yummy foods. Each bite adds a coloured
-   stripe to its body.
+   stripe to its body. Twice it asks for a food by name ("Can I have the
+   pear, please?"); other foods say what they are and fade, and the hand
+   never gives it away.
 3. **Wrap it up** into a chrysalis, then **pick a sticker** to decorate it.
 4. **Night time**: tap the stars and they play *Twinkle Twinkle Little Star*.
 5. **Good morning!** Tap the wiggling chrysalis to help the butterfly out.
-6. The new butterfly flies off to your **garden**.
+6. **What came first?** Egg, caterpillar, chrysalis and butterfly come up
+   in a jumble: tap them in order and they line up along the top ("Egg,
+   caterpillar, chrysalis, butterfly! You did it!").
+7. The new butterfly flies off to your **garden**.
 
 **Dot the ladybug** comes along for the ride. She cheers, flies over to show
 what to tap if the child gets stuck, and giggles when tickled. Silly surprises pop

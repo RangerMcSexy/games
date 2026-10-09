@@ -1,6 +1,6 @@
 # 📮 Postie Pip
 
-A gentle letter-learning game for little ones (about age 2½ to 4). Pip the
+A gentle letter-learning game for little ones (about age 3 to 4). Pip the
 penguin is the postie on a little street. Every parcel in her bag has a
 letter on its label: find the door with the same letter, and the friend who
 lives there comes out for it: "S is for snake!" No reading needed, and
@@ -12,7 +12,7 @@ Each round is eight moves (the dots along the bottom):
 
 - **Meet a new letter** (when it's time for one): a new house appears with
   the letter on its door. "A new letter! S!" Knock on the door, and the
-  snake pops out: "S is for snake!"
+  snake pops out: "S is for snake! S says sss, like snake!"
 - **Deliver the parcels:** Pip walks along the street and holds up a parcel.
   "Find the letter S!" Tap the door with the same letter. The parcel flies
   over, the door opens and the friend inside says their letter. There are two
@@ -20,6 +20,13 @@ Each round is eight moves (the dots along the bottom):
 - **Picture parcels** (once 4 letters are learned): some parcels show a
   friend's picture instead of a letter. "A parcel for the snake!" Which door
   is the snake's? That means remembering the letter, not just matching it.
+- **Capital parcels** (once 3 letters are learned): one parcel a round shows
+  the capital letter. "Big M! Find little m!"
+- **Letter sounds:** after saying their letter, friends say its sound too
+  ("M says mmm, like mouse!"): every time for the newest letter, now and
+  then for the others. The built-in voices only get close to some sounds
+  (the short vowels especially), so these are good lines to record in a
+  grown-up's own voice.
 - **Draw the letter:** the letter comes up big, with dots along it. Tap the
   dots in order (or slide a finger along them), starting at the green one,
   and the letter gets drawn the way it's written.

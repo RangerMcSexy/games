@@ -1,6 +1,6 @@
 # 🎣 Little Fishing Pond
 
-A gentle fishing game for toddlers (about age 2 to 3). Tap the water and Pip
+A gentle fishing game for little ones (about age 3 to 4). Tap the water and Pip
 the penguin rows over in her little red boat and casts. A fish swims up,
 nibbles, and bites. One more tap reels it in, and it goes in the fish tank.
 Nothing ever gets away, and there's no reading needed. It works with a finger
@@ -20,6 +20,21 @@ on a tablet or with a mouse.
 5. **Look what you caught!** The catch is shown big with its name
    ("A spotty fish!"). A new kind of fish gets a gold star and a fanfare. Then
    it flies into the fish tank button.
+
+### Pip's orders
+
+A card in the corner shows what Pip wants, and the voice says it:
+
+- **Fish for the bucket:** "Pip wants four fish!" The card shows the number
+  and a row of empty spots. Each fish caught fills one, and the voice counts
+  ("One! Two!..."). When it's full: "The bucket is full! Hooray!". Three at
+  first, then up to five. Silly catches don't count.
+- **One kind of fish:** "Can you catch the stripy fish?" The card shows it.
+  Tapping right on a fish makes that one bite. Another fish is fine too
+  ("Ooh, not that one!" and the question again); after two, the helping
+  hand shows where the wanted fish is.
+
+The two take turns, starting with fish for the bucket.
 
 Sometimes something **silly** is on the hook instead: an old boot, a rubber
 duck, a teapot, a stinky sock, a crown or a funny hat. The first two catches

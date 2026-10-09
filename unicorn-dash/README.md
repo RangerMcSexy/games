@@ -1,6 +1,6 @@
 # 🦄 Unicorn Dash
 
-A gentle running game for toddlers (about age 2 to 4). Sparkle the unicorn
+A gentle running game for little ones (about age 3 to 4). Sparkle the unicorn
 gallops across a sunny meadow, seen from the side. **Tap anywhere and she
 jumps.** At the end of every dash there's a present with something new for
 her to wear. Nothing can go wrong and there's no reading needed. It works
@@ -24,9 +24,14 @@ are counted at the left. The first move is always a jump.
   gives the answer away: until she has had a go it only visits each balloon
   in turn, and it points at the right one once that's the only one left. Two
   balloons at first, three after a couple of dashes.
+- **What comes next?** A row of balloons up on a cloud makes a pattern (red,
+  blue, red, blue, red...) with a gap at the end. Pop the balloon that comes
+  next, and it fills the gap while the voice says the pattern. AB patterns
+  first, then AAB, ABB and ABC too.
 - **Count the fences:** "Fences! Let's count!" A row of little fences to jump
-  one at a time, "One! Two! Three!". It starts at three and grows to five as
-  she plays more.
+  one at a time, "One! Two! Three!". It starts at four and grows to ten as
+  she plays more. Then: "How many fences? Pop the number!", balloons with
+  numbers on.
 - **The puddle:** run through it for a big splash and a giggle, or jump over
   it.
 - **The present:** under a rainbow at the end. Tap it and it opens, and
