@@ -1,18 +1,34 @@
 // The colouring scene: pick a paint pot, tap a part of the picture, and a
 // splash of colour spreads out from the finger. When every part is painted,
 // the picture comes alive and goes into the gallery.
+//
+// Before painting (after the very first picture) two colours get mixed in a
+// bowl: "Red and yellow make orange!", and the new colour is ready to use.
 import { ICONS, potSVG } from './art';
 import { sound } from './audio';
 import { PAINT, PAINTS, RAINBOW_STOPS, addPainting, save, uid, type PaintId } from './data';
 import { guide } from './guide';
 import { paintFill, pictureSVG, regionsOf, type Picture } from './pictures';
 import type { Host } from './screens';
-import { Scene, burst, center, el, hint, pick, replay } from '../../shared/ui';
+import { Scene, burst, burstAt, center, el, hint, pick, replay, shuffle } from '../../shared/ui';
 import { say } from './voice';
 import { stickerMoment } from '../../shared/sticker-moment';
 import { STICKER_ART } from './stickers';
 
 export type PaintEnd = 'gallery' | 'next';
+
+/** The mixing bowl: the paint in it is two halves, `--a` and `--b`, that swirl together. */
+const MIX_BOWL = `<svg viewBox="-60 -50 120 90" aria-hidden="true">
+  <ellipse cx="0" cy="34" rx="44" ry="6" fill="#5a4272" opacity=".12"/>
+  <path d="M-52,-6 C-50,30 -26,34 0,34 C26,34 50,30 52,-6 Z" fill="#fff" stroke="#5a4272" stroke-width="4" stroke-linejoin="round"/>
+  <g class="mix-paint">
+    <ellipse class="mix-a" cx="0" cy="-6" rx="46" ry="11" fill="var(--a, #f4eee6)"/>
+    <path class="mix-b" d="M-30,-8 C-18,-16 4,-14 10,-6 C16,2 34,-2 40,-8 C34,2 10,6 -6,2 C-18,0 -26,-2 -30,-8 Z" fill="var(--b, transparent)"/>
+  </g>
+  <ellipse cx="0" cy="-6" rx="52" ry="13" fill="none" stroke="#5a4272" stroke-width="4"/>
+  <path d="M-36,8 C-32,20 -22,26 -10,28" stroke="#fff" stroke-width="0" fill="none"/>
+  <circle cx="-30" cy="14" r="4" fill="#ffb3d6" opacity=".7"/><circle cx="-14" cy="20" r="4" fill="#9fd6ff" opacity=".7"/><circle cx="4" cy="22" r="4" fill="#ffe27a" opacity=".8"/><circle cx="22" cy="18" r="4" fill="#a8e29a" opacity=".7"/>
+</svg>`;
 
 /** Painting has lots of little pauses, so the hand waits a little longer than elsewhere. */
 const PAINT_HINT_MS = 4500;
@@ -210,7 +226,67 @@ export async function paint(host: Host, pic: Picture): Promise<PaintEnd> {
     idle();
   });
 
+  // --- Mixing colours -------------------------------------------------------------
+  /** Two colours that mix into a third. */
+  const MIXES: [PaintId, PaintId, PaintId][] = [
+    ['red', 'yellow', 'orange'],
+    ['blue', 'yellow', 'green'],
+    ['red', 'blue', 'purple'],
+  ];
+  async function mix() {
+    const [a, b, made] = pick(MIXES);
+    const panel = el('div', 'mix-panel', sc.root);
+    const [pa, pb] = shuffle([a, b]).map((c) => {
+      const btn = el('button', `pot mix-pot pot-${c}`, panel, potSVG(c));
+      btn.dataset.c = c;
+      return btn;
+    });
+    const bowl = el('button', 'mix-bowl', panel, MIX_BOWL);
+    panel.insertBefore(bowl, pb);
+    const paintIn = bowl.querySelector<SVGElement>('.mix-paint')!;
+    requestAnimationFrame(() => panel.classList.add('in'));
+    await sc.wait(400);
+    await sc.until(say('mixStart'), 3500);
+    // Tap each pot to pour it in.
+    const left = [pa, pb];
+    const poured: PaintId[] = [];
+    while (left.length) {
+      const i = await sc.tapAny(left);
+      const pot = left.splice(i, 1)[0];
+      const c = pot.dataset.c as PaintId;
+      poured.push(c);
+      pot.classList.add('poured');
+      sound.splash(PAINTS.indexOf(c));
+      burstAt(bowl, { kind: 'drop', count: 8, colors: [PAINT[c].hex], spread: 0.4 });
+      // The first colour fills the bowl; the second swirls in on top.
+      paintIn.style.setProperty(poured.length === 1 ? '--a' : '--b', PAINT[c].hex);
+      bowl.classList.add(poured.length === 1 ? 'one' : 'two');
+      await sc.until(say(`c-${c}`), 1500);
+    }
+    // Stir: three taps on the bowl.
+    bowl.classList.add('live');
+    void say('mixStir');
+    for (let k = 1; k <= 3; k++) {
+      await sc.tap(bowl);
+      replay(bowl, 'stir');
+      sound.bloop(k);
+      if (k === 3) paintIn.style.setProperty('--a', PAINT[made].hex), paintIn.style.setProperty('--b', PAINT[made].hex);
+    }
+    bowl.classList.remove('live');
+    bowl.classList.add('mixed');
+    sound.magic();
+    burstAt(bowl, { kind: 'sparkle', count: 16, colors: [PAINT[made].hex, '#fff'] });
+    await sc.until(say(`mix-${made}`), 5000);
+    // The new colour is ready to paint with.
+    panel.classList.remove('in');
+    setTimeout(() => panel.remove(), 400);
+    const potEl = pots[PAINTS.indexOf(made)];
+    select(made);
+    replay(potEl, 'pick');
+  }
+
   // --- Play ---------------------------------------------------------------------
+  if (save.paintings.length >= 1) await mix();
   idle();
   if (save.paintings.length < 3) {
     await sc.wait(900);

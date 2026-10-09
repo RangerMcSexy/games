@@ -1144,3 +1144,66 @@ body {
     transform: none !important;
   }
 }
+
+/* ------------------------------------------------------------------------ */
+/* Mixing two colours */
+
+.mix-panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 30;
+  display: flex;
+  align-items: flex-end;
+  gap: 3vmin;
+  padding: 3vmin 4vmin;
+  border-radius: 5vmin;
+  background: #fffaf3;
+  box-shadow: 0 1.2vmin 0 rgba(90, 66, 114, 0.15);
+  --pot: clamp(70px, 15vmin, 140px);
+  translate: -50% -40%;
+  scale: 0.8;
+  opacity: 0;
+  transition:
+    opacity 0.35s,
+    scale 0.35s cubic-bezier(0.3, 1.5, 0.5, 1),
+    translate 0.35s;
+}
+.mix-panel.in {
+  opacity: 1;
+  scale: 1;
+  translate: -50% -50%;
+}
+.mix-pot.poured {
+  opacity: 0.35;
+  transform: rotate(-25deg) translateY(-6%);
+  pointer-events: none;
+}
+.mix-bowl {
+  width: clamp(110px, 24vmin, 220px);
+}
+.mix-bowl svg {
+  width: 100%;
+  height: auto;
+}
+.mix-bowl .mix-a,
+.mix-bowl .mix-b {
+  transition: fill 0.6s;
+}
+.mix-bowl .mix-b {
+  transform-origin: 0 -6px;
+}
+.mix-bowl.stir .mix-paint {
+  animation: mixSwirl 0.5s ease-in-out;
+}
+.mix-bowl.live {
+  animation: jiggle 1.4s ease-in-out infinite;
+}
+.mix-bowl.mixed svg {
+  animation: pickBounce 0.6s ease-out;
+}
+@keyframes mixSwirl {
+  50% {
+    transform: rotate(14deg) scaleX(0.92);
+  }
+}
