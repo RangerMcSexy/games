@@ -1,7 +1,8 @@
 # Makes the games' spoken lines with a free, natural voice (see
 # scripts/voice/generate.py), saves them to main and republishes the site.
 #
-# Run it from the Actions tab: "Make voice clips" → Run workflow, or by
+# Run it from the Actions tab: "Make voice clips" → Run workflow, by adding
+# recordings to voice/recorded/ on main (see scripts/voice/script.mjs), or by
 # changing voice/request.json on main, e.g. {"mode": "full", "voice": "kokoro:af_heart"}
 # or {"mode": "audition", "voices": ["chatterbox:0.6:af_nicole"]}.
 #   audition  a few lines in many voices, at <site>/voice/audition/
@@ -11,7 +12,7 @@ name: Make voice clips
 on:
   push:
     branches: [main]
-    paths: [voice/request.json]
+    paths: [voice/request.json, 'voice/recorded/**']
   workflow_dispatch:
     inputs:
       mode:

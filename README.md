@@ -78,6 +78,18 @@ To remake the clips, e.g. after adding lines or to change voice, go to the
 `full` makes every line in the voice you name. The clips are saved to `main`
 and the site is republished.
 
+### Recording the lines yourself
+
+`voice/script/recording-script.pdf` is a script for recording every line in
+a real voice: numbered, with who's speaking and how to say each line, and
+the most-heard lines marked to do first (there's a `.csv` checklist next to
+it). Recordings named by number (`001.m4a`, `002.m4a`...) go in
+`voice/recorded/`; adding them on `main` makes the workflow use them in
+place of the AI voice for everyone, and republish. After adding or changing
+lines, run `node scripts/voice/script.mjs --pdf` to update the script (a
+test checks it's up to date). Lines keep their numbers; new ones are added
+at the end.
+
 ## Put them online (GitHub Pages)
 
 Every change to `main` is built and published automatically by

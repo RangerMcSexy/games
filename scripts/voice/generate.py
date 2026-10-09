@@ -7,7 +7,9 @@ voice models are big downloads.
              them: voice/audition/index.html.
   full       Every line in voice/lines.json in one voice, as
              voice/clips/*.mp3 and voice/manifest.json, which the games
-             play when a grown-up hasn't recorded that line.
+             play when a grown-up hasn't recorded that line on the device.
+             Lines someone has recorded for everyone (voice/recorded/, see
+             below) use the recording instead.
 
   refs       The recordings Chatterbox copies voices from (see below).
 
@@ -18,6 +20,13 @@ own: it copies the voice of a short recording and adds its own expression.
 "chatterbox:0.6:af_nicole" copies voice/refs/af_nicole.flac, a storybook
 passage read by Kokoro's af_nicole ("refs" makes these). Without a reference
 it copies voice/reference.wav if that file exists, else its built-in voice.
+
+Recordings for everyone: voice/recorded/ holds a grown-up's recordings of
+lines, one file per line, named with the line's number in the recording
+script (voice/script/, made by scripts/voice/script.mjs): 001.m4a, 123.wav
+and so on, in any format ffmpeg reads. "full" tidies them up the same way as
+the AI clips (silence trimmed, loudness evened out) and uses them in place
+of the AI voice, whatever voice is chosen.
 """
 
 import argparse
@@ -129,14 +138,41 @@ def speak(name, text, out):
     with tempfile.TemporaryDirectory() as tmp:
         wav = str(Path(tmp) / "raw.wav")
         engines[engine].say(voice, text, wav)
-        # Trim the silence at both ends, even out the loudness, small mono mp3.
-        trim = "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05"
-        subprocess.run(
-            ["ffmpeg", "-loglevel", "error", "-y", "-i", wav,
-             "-af", f"{trim},areverse,{trim},areverse,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=24000",
-             "-ac", "1", "-codec:a", "libmp3lame", "-b:a", "48k", str(out)],
-            check=True,
-        )
+        polish(wav, out)
+
+
+def polish(src, out):
+    """Trims the silence at both ends, evens out the loudness, and makes a small mono mp3."""
+    out.parent.mkdir(parents=True, exist_ok=True)
+    trim = "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05"
+    subprocess.run(
+        ["ffmpeg", "-loglevel", "error", "-y", "-i", str(src),
+         "-af", f"{trim},areverse,{trim},areverse,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=24000",
+         "-ac", "1", "-codec:a", "libmp3lame", "-b:a", "48k", str(out)],
+        check=True,
+    )
+
+
+def recorded():
+    """The recordings in voice/recorded/, by the line they say: {text: file}."""
+    folder = VOICE_DIR / "recorded"
+    numbers_path = VOICE_DIR / "script" / "numbers.json"
+    if not folder.is_dir() or not numbers_path.exists():
+        return {}
+    numbers = json.loads(numbers_path.read_text())
+    out = {}
+    for f in sorted(folder.iterdir()):
+        stem = f.stem.strip()
+        if f.is_file() and stem.isdigit() and str(int(stem)) in numbers:
+            out[numbers[str(int(stem))]] = f
+        elif f.is_file() and not f.name.startswith(".") and f.name != "README.md":
+            print(f"Not a numbered recording, skipping: {f.name}", file=sys.stderr, flush=True)
+    return out
+
+
+def recorded_clip_name(src):
+    """Named after the recording itself, so a new take of a line replaces the old one."""
+    return "r" + hashlib.sha1(src.read_bytes()).hexdigest()[:11] + ".mp3"
 
 
 def clip_name(text):
@@ -198,13 +234,23 @@ def full(name):
     old = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
     same_voice = old.get("voice") == name
     if not same_voice:
-        shutil.rmtree(clips_dir, ignore_errors=True)
+        # A new voice: every AI clip is made again (recordings are kept).
+        for f in clips_dir.glob("*.mp3"):
+            if not f.name.startswith("r"):
+                f.unlink()
+    rec = recorded()
     clips = {}
     for text in lines:
-        file = clip_name(text)
-        if not (same_voice and (clips_dir / file).exists()):
-            speak(name, text, clips_dir / file)
-            print(f"{name}: {text}", flush=True)
+        if text in rec:
+            file = recorded_clip_name(rec[text])
+            if not (clips_dir / file).exists():
+                polish(rec[text], clips_dir / file)
+                print(f"recorded: {text}", flush=True)
+        else:
+            file = clip_name(text)
+            if not (same_voice and (clips_dir / file).exists()):
+                speak(name, text, clips_dir / file)
+                print(f"{name}: {text}", flush=True)
         clips[text] = f"clips/{file}"
     # Drop clips for lines that no longer exist.
     keep = {Path(f).name for f in clips.values()}

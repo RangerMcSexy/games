@@ -72,3 +72,16 @@ describe('voice clips', () => {
     if (without.length) console.warn(`${without.length} line(s) have no voice clip yet:\n  ${without.join('\n  ')}`);
   });
 });
+
+describe('the recording script', () => {
+  it('has a number for every line (run node scripts/voice/script.mjs --pdf after changing lines)', () => {
+    const numbered = new Set(Object.values(JSON.parse(read('voice/script/numbers.json')) as Record<string, string>));
+    const texts = new Set(BOOK.flatMap((p) => lines(p.game).map((l) => unnamed(l.text))));
+    expect([...texts].filter((t) => !numbered.has(t))).toEqual([]);
+  });
+
+  it('never gives a number to two lines', () => {
+    const texts = Object.values(JSON.parse(read('voice/script/numbers.json')) as Record<string, string>);
+    expect(texts.filter((t, i) => texts.indexOf(t) !== i)).toEqual([]);
+  });
+});
