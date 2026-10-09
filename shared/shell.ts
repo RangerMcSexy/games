@@ -3,6 +3,7 @@
 // going full screen, the home-screen icon, and moving from screen to screen.
 // Each game's src/main.ts passes in its own pieces and its screens.
 import { askName } from './ask-name';
+import { startPlayTimer } from './play-timer';
 import { Aborted, Scene, el, initFx } from './ui';
 
 export interface GameSetup {
@@ -14,12 +15,13 @@ export interface GameSetup {
     readonly soundOn: boolean;
     unlock(): void;
     sleep(on: boolean): void;
+    pauseMusic(on: boolean): void;
     toggleMusic(): boolean;
     toggleSound(): boolean;
     pop(): void;
     tapSoft(): void;
   };
-  voice: { loadRecordings(): Promise<void>; stopSpeaking(): void };
+  voice: { loadRecordings(): Promise<void>; stopSpeaking(): void; say(id: string): Promise<void> };
   /** Asking who's playing, the first time on this device. */
   name: { needed(): boolean; set(name: string): void };
   /** Adds the grown-up gear to the bar, before `before`. */
@@ -165,6 +167,7 @@ export function startGame(setup: GameSetup) {
       onTitle = s.root.classList.contains('title-scene');
       showHomeBtn();
       setup.onScene?.(onTitle);
+      playTimer.atBreak();
     },
   };
 
@@ -186,6 +189,32 @@ export function startGame(setup: GameSetup) {
   // The gear sits just left of the music toggle, away from the home button.
   setup.initSettings(bar, musicBtn, goHome);
 
+  // The grown-up's play timer: when the time's up the game stops and waits,
+  // behind the goodnight screen, until a grown-up wakes it.
+  let resting: Promise<void> | null = null;
+  let wakeUp = () => {};
+  const stillResting = () => resting !== null;
+  const playTimer = startPlayTimer({
+    bar,
+    before: bar.querySelector('.spacer')?.nextElementSibling ?? null,
+    say: (id) => void voice.say(id),
+    async sleep(sayGoodnight) {
+      resting = new Promise((ok) => (wakeUp = ok));
+      voice.stopSpeaking();
+      sound.pauseMusic(true);
+      current?.destroy();
+      if (sayGoodnight) await voice.say('restNow');
+      // (Unless a grown-up woke it while it was saying goodnight.)
+      if (stillResting()) sound.sleep(true);
+    },
+    wake() {
+      sound.sleep(false);
+      sound.pauseMusic(false);
+      resting = null;
+      wakeUp();
+    },
+  });
+
   /**
    * Plays the game: asks who's playing the first time, then goes from screen
    * to screen. `next` shows a screen and says which comes after it. Going home
@@ -197,6 +226,10 @@ export function startGame(setup: GameSetup) {
     let route = first;
     for (;;) {
       try {
+        if (resting) {
+          await resting;
+          route = first;
+        }
         route = await next(route);
       } catch (err) {
         if (!(err instanceof Aborted)) console.error(err);

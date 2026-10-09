@@ -37,7 +37,7 @@ for (const { game, title } of BOOK) {
     await page.mouse.up();
     await expect(page.locator('.settings')).toBeVisible();
     await expect(page.locator('.line-row').first()).toBeVisible();
-    await expect(page.locator('.set-count')).toHaveText(/^0 of \d+ lines recorded$/);
+    await expect(page.locator('.set-count:not(.set-left)')).toHaveText(/^0 of \d+ lines recorded$/);
     await page.locator('.settings .close-btn').click();
     await expect(page.locator('.settings')).toHaveCount(0);
 
@@ -115,6 +115,42 @@ test('the helping hand never gives the answer away before a try', async ({ page 
     await expect(wrong).toHaveClass(/ruled-out/, { timeout: 10_000 });
   }
   await expect.poll(handOver, { timeout: 10_000 }).toBe(want);
+
+  expect(errors).toEqual([]);
+});
+
+test('the play timer says goodnight when the time is up, until a grown-up wakes the games', async ({ page }) => {
+  const errors = watchErrors(page);
+  // A 10-minute session with a few seconds left, already warned.
+  await page.addInitScript(() => {
+    if (sessionStorage.getItem('seeded')) return;
+    sessionStorage.setItem('seeded', '1');
+    localStorage.setItem('games.play-timer.v1', JSON.stringify({ minutes: 10, used: 10 * 60_000 - 3000, last: Date.now(), warned: true, asleep: false }));
+  });
+  await page.goto('/leapy-pond/');
+  await page.locator('.ask-skip').click();
+  await expect(page.locator('.pt-sun')).toBeVisible();
+  // Time runs out on the title screen; going to the next screen is a natural stop.
+  await page.waitForTimeout(3500);
+  await page.locator('.play-btn').click({ force: true });
+  await expect(page.locator('.pt-rest')).toBeVisible();
+
+  // Still asleep after a reload, and in the other games.
+  await page.goto('/bakery/');
+  await expect(page.locator('.pt-rest')).toBeVisible();
+
+  // Holding the grown-up button for 3 seconds shows the choices.
+  const hold = (await page.locator('.pt-hold').boundingBox())!;
+  await page.mouse.move(hold.x + hold.width / 2, hold.y + hold.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(3300);
+  await page.mouse.up();
+  await page.locator('.pt-choices button', { hasText: '15 more minutes' }).click();
+  await expect(page.locator('.pt-rest')).toHaveCount(0);
+  await expect(page.locator('.title-scene')).toBeAttached();
+  const left = await page.evaluate(() => JSON.parse(localStorage.getItem('games.play-timer.v1')!));
+  expect(left).toMatchObject({ minutes: 10, asleep: false });
+  expect(10 * 60_000 - left.used).toBeGreaterThan(14 * 60_000 - 10_000);
 
   expect(errors).toEqual([]);
 });

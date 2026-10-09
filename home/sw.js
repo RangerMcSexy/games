@@ -1,11 +1,14 @@
 // Keeps the games playable offline: after the first visit everything is
 // saved on the device, so they work in the car, on a plane, anywhere.
 //
-// The build stamps a new version below whenever a game changes. The browser
-// then fetches the new copies in the background and uses them next time.
+// The build stamps a new version below whenever a game changes. Pages (the
+// home page and each game) are fetched fresh whenever there's a connection,
+// so a new version shows up straight away; the saved copy is only used when
+// offline, or when the connection is too slow to wait for. Everything else
+// (voice clips, the font) comes straight from the saved copy.
 const VERSION = '__VERSION__';
 const CACHE = `games-${VERSION}`;
-const FILES = ['./', 'ask-name.js', 'book.js', 'book.css', 'stickers.js', 'butterfly-garden/', 'bakery/', 'colour-splash/', 'fishing-pond/', 'leapy-pond/', 'unicorn-dash/', 'ducky-bath/', 'postie-pip/', 'fonts/baloo-2-latin-800-normal.woff2'];
+const FILES = ['./', 'ask-name.js', 'play-timer.js', 'book.js', 'book.css', 'stickers.js', 'butterfly-garden/', 'bakery/', 'colour-splash/', 'fishing-pond/', 'leapy-pond/', 'unicorn-dash/', 'ducky-bath/', 'postie-pip/', 'fonts/baloo-2-latin-800-normal.woff2'];
 // The voice clips, filled in by the build.
 const VOICE = [];
 
@@ -33,5 +36,20 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== location.origin) return;
   // ".../bakery/index.html" and ".../bakery/" are the same page.
   const key = url.pathname.endsWith('/index.html') ? url.pathname.slice(0, -'index.html'.length) : url.pathname;
-  e.respondWith(caches.match(key, { ignoreSearch: true }).then((hit) => hit ?? fetch(e.request)));
+  if (e.request.mode === 'navigate' || key.endsWith('/') || key.endsWith('.js') || key.endsWith('.css')) e.respondWith(freshFirst(e.request, key));
+  else e.respondWith(caches.match(key, { ignoreSearch: true }).then((hit) => hit ?? fetch(e.request)));
 });
+
+/** The page from the network (keeping the saved copy up to date), or the saved copy if that fails or takes too long. */
+function freshFirst(request, key) {
+  const saved = () => caches.match(key, { ignoreSearch: true });
+  const net = fetch(request).then((res) => {
+    if (res.ok) {
+      const copy = res.clone();
+      void caches.open(CACHE).then((c) => c.put(key, copy));
+    }
+    return res;
+  });
+  const slow = new Promise((ok) => setTimeout(ok, 3000)).then(saved);
+  return Promise.race([net.catch(saved), slow.then((hit) => hit ?? net)]).then((res) => res ?? net);
+}

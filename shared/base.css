@@ -455,6 +455,31 @@ svg {
   visibility: hidden;
 }
 
+.set-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.set-pill {
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: #f1eaf8;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.set-pill.on {
+  background: var(--ink);
+  color: #fff;
+}
+
+.set-pill[hidden] {
+  display: none;
+}
+
 .set-danger {
   padding: 12px 18px;
   border-radius: 12px;

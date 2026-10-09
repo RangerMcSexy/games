@@ -17,7 +17,7 @@ const { host, play } = startGame({
   game: 'bakery',
   icons: ICONS,
   sound,
-  voice: { loadRecordings, stopSpeaking },
+  voice: { loadRecordings, stopSpeaking, say },
   name: { needed: needsName, set: setName },
   initSettings,
   beforeStage: initBackdrop,

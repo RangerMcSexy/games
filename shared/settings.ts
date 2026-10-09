@@ -1,6 +1,7 @@
 // Grown-up settings, shared by every game: the player's name, recording your
 // own voice, and starting a fresh collection. Opened by holding the gear for
 // 3 seconds. Each game's src/settings.ts says what its collection is called.
+import { LIMITS, freshSession, minutesLeft, readTimer, setLimit } from './play-timer';
 import { el } from './ui';
 import { Recorder, type Voice } from './voice';
 
@@ -78,6 +79,39 @@ function openSettings(onChange: () => void, game: SettingsGame) {
   input.value = game.name();
   input.autocomplete = 'off';
   input.addEventListener('input', () => game.setName(input.value));
+
+  // Play timer -------------------------------------------------------------
+  const timerSec = el('section', 'set-sec', body);
+  el('h3', '', timerSec, 'Play timer');
+  el(
+    'p',
+    'set-help',
+    timerSec,
+    'How long each play session lasts, counted across all the games. A little sun in the top bar sets as the time runs down, and the voice warns two minutes before the end. Then the games say goodnight and stay asleep until a grown-up holds the button to wake them. After an hour without playing, the next session starts afresh.',
+  );
+  const limits = el('div', 'set-pills', timerSec);
+  const timerNote = el('p', 'set-count set-left', timerSec);
+  const again = el('button', 'set-pill', timerSec, 'Start a new session now');
+  const paintTimer = () => {
+    const on = readTimer().minutes;
+    limits.querySelectorAll<HTMLElement>('.set-pill').forEach((b) => b.classList.toggle('on', Number(b.dataset.min) === on));
+    const left = minutesLeft();
+    timerNote.textContent = left === null ? 'No timer: play as long as you like.' : `${left} ${left === 1 ? 'minute' : 'minutes'} left in this session.`;
+    again.hidden = left === null;
+  };
+  for (const m of LIMITS) {
+    const b = el('button', 'set-pill', limits, m ? `${m} min` : 'Off');
+    b.dataset.min = String(m);
+    b.addEventListener('click', () => {
+      setLimit(m);
+      paintTimer();
+    });
+  }
+  again.addEventListener('click', () => {
+    freshSession();
+    paintTimer();
+  });
+  paintTimer();
 
   // Voice ------------------------------------------------------------------
   const voiceSec = el('section', 'set-sec', body);

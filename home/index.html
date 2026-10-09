@@ -431,6 +431,11 @@
       // any game's grown-up settings.
       import { askName, storedName } from './ask-name.js';
       import { ctx, openBook, sfx, stuckCount, total, waiting } from './book.js';
+      import { startPlayTimer } from './play-timer.js';
+
+      // The grown-up's play timer (set in any game's settings): when the
+      // time's up, the home page says goodnight too.
+      startPlayTimer();
 
       const title = document.getElementById('title');
       const colours = ['#ff7a8a', '#ffb347', '#f5c742', '#7fcf6a', '#6ec3ff', '#b58cff', '#ff8fc8'];

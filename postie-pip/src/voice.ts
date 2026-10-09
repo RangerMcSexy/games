@@ -4,6 +4,7 @@
 // Letters are said by their names ("S is for snake!"). A grown-up who'd
 // rather use letter sounds ("sss is for snake!") can record those lines in
 // their own voice.
+import { TIMER_LINES } from '../../shared/play-timer';
 import { makeVoice, type Line } from '../../shared/voice';
 import { sound } from './audio';
 import { playerName, save } from './data';
@@ -137,7 +138,7 @@ export const LINES: Line[] = [
 ];
 
 export const voice = makeVoice({
-  lines: LINES,
+  lines: [...LINES, ...TIMER_LINES],
   db: 'postie-pip-voice',
   sound,
   playerName,

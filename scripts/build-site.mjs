@@ -34,6 +34,8 @@ cpSync(join(root, 'home', 'index.html'), join(site, 'index.html'));
 const esbuild = createRequire(join(root, GAMES[0], 'package.json'))('esbuild');
 const askName = esbuild.transformSync(readFileSync(join(root, 'shared', 'ask-name.ts'), 'utf8'), { loader: 'ts', format: 'esm' });
 writeFileSync(join(site, 'ask-name.js'), askName.code);
+// And the play timer's goodnight screen, so the home page sleeps too.
+writeFileSync(join(site, 'play-timer.js'), esbuild.transformSync(readFileSync(join(root, 'shared', 'play-timer.ts'), 'utf8'), { loader: 'ts', format: 'esm' }).code);
 
 // The sticker book. Its stickers are drawn with the games' own art: run
 // home/stickers.ts once here and keep just the pictures, as plain SVG.
@@ -63,7 +65,7 @@ if (existsSync(join(root, 'voice', 'audition'))) cpSync(join(root, 'voice', 'aud
 // The offline helper, stamped with a fingerprint of everything it keeps so
 // devices pick up new versions.
 const hash = createHash('sha256');
-for (const f of ['index.html', 'ask-name.js', 'book.js', 'book.css', 'stickers.js', ...GAMES.map((g) => `${g}/index.html`), ...voice.slice(0, 1)]) hash.update(readFileSync(join(site, f)));
+for (const f of ['index.html', 'ask-name.js', 'play-timer.js', 'book.js', 'book.css', 'stickers.js', ...GAMES.map((g) => `${g}/index.html`), ...voice.slice(0, 1)]) hash.update(readFileSync(join(site, f)));
 const sw = readFileSync(join(root, 'home', 'sw.js'), 'utf8')
   .replace('__VERSION__', hash.digest('hex').slice(0, 12))
   .replace('const VOICE = [];', `const VOICE = ${JSON.stringify(voice)};`);

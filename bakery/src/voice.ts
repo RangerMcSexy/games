@@ -1,5 +1,6 @@
 // This game's spoken lines. How they're spoken (a grown-up's recording, a
 // natural-voice clip or the device's voice) is in shared/voice.ts.
+import { TIMER_LINES } from '../../shared/play-timer';
 import { makeVoice, type Line } from '../../shared/voice';
 import { sound } from './audio';
 import { playerName, save } from './data';
@@ -69,7 +70,7 @@ export const LINES: Line[] = [
 ];
 
 export const voice = makeVoice({
-  lines: LINES,
+  lines: [...LINES, ...TIMER_LINES],
   db: 'little-bakery-voice',
   sound,
   playerName,

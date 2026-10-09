@@ -19,6 +19,9 @@ for (const game of GAMES) {
   }
 }
 
+// The play timer's lines, which every game says.
+for (const m of readFileSync(join(root, 'shared', 'play-timer.ts'), 'utf8').matchAll(/\{ id: '[^']+', text: '([^']*)'/g)) texts.add(m[1]);
+
 // The sticker book on the home page: its own lines, and the stickers' names
 // and page titles (the games' "A sticker for your book!" is in their voice.ts).
 for (const m of readFileSync(join(root, 'home', 'book.js'), 'utf8').matchAll(/\{ id: '[^']+', text: '([^']*)'/g)) texts.add(m[1]);

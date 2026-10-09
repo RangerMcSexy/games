@@ -14,7 +14,7 @@ const { host, play } = startGame({
   game: 'leapy-pond',
   icons: ICONS,
   sound,
-  voice: { loadRecordings, stopSpeaking },
+  voice: { loadRecordings, stopSpeaking, say },
   name: { needed: needsName, set: setName },
   initSettings,
 });
